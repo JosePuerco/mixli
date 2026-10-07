@@ -1,0 +1,9 @@
+node_modules
+dist
+dev-dist
+*.local
+.DS_Store
+Thumbs.db
+
+# wird aus design/tokens.json erzeugt
+src/styles/tokens.css

@@ -1,0 +1,64 @@
+@import 'tailwindcss';
+@import './tokens.css';
+
+@layer base {
+  html {
+    background-color: var(--color-background);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    overscroll-behavior: none;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Zahlen immer gleich breit, damit Werte beim Ändern nicht springen. */
+  body {
+    font-variant-numeric: tabular-nums;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+/* Scrollbereich der Screens: oben 56 px bzw. unter der Statusleiste,
+   unten Platz für die schwebende Navigation (64 + 24 px + Safe Area) plus Luft. */
+@utility screen-scroll {
+  padding-top: max(var(--spacing-top-safe), calc(env(safe-area-inset-top) + var(--spacing-gap-lg)));
+  padding-bottom: calc(
+    var(--spacing-nav) + var(--spacing-nav-inset-bottom) + env(safe-area-inset-bottom) + var(--spacing-gap-lg)
+  );
+}
+
+/* Schwebende Navigation: 24 px über dem unteren Rand plus Safe Area (Home-Indikator). */
+@utility nav-position {
+  bottom: calc(var(--spacing-nav-inset-bottom) + env(safe-area-inset-bottom));
+}
+
+/* Bewegung reduzieren: alle CSS-Animationen und -Übergänge aus.
+   Motion-Animationen werden über <MotionConfig reducedMotion="user"> abgeschaltet. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

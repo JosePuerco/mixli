@@ -156,8 +156,10 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
 
 ### Phase 0 – Fundament
 
-- [ ] Projekt aufsetzen: Vite + React + TypeScript + Tailwind + Motion + Dexie + vite-plugin-pwa
+- [x] Projekt aufsetzen: Vite + React + TypeScript + Tailwind + Motion + Dexie + vite-plugin-pwa
 - [ ] Design-System aus `design/` umsetzen: Tokens, Schrift, Karten, Buttons, Chips, Bottom-Sheet, schwebende Navigation
+  - [x] Tokens (generiert aus `design/tokens.json`), Schrift Manrope lokal, schwebende Navigation mit vier leeren Screens
+  - [ ] Karten, Buttons, Chips, Bottom-Sheet
 - [ ] GitHub Pages per GitHub Actions, App auf dem iPhone installieren und offline testen
 
 ### Phase 1 – Zutaten mit Foto
