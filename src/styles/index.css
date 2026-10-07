@@ -90,6 +90,29 @@
   }
 }
 
+/* Horizontale Chip-Leiste: wischbar, ohne Scrollleiste, zieht den Screen nicht seitlich mit. */
+@utility chip-scroller {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Sheet: höchstens bis knapp unter die Statusleiste, unten 32 px plus Home-Indikator. */
+@utility sheet-panel {
+  max-height: calc(100dvh - max(var(--spacing-gap-lg), env(safe-area-inset-top)) - var(--spacing-gap-lg));
+}
+
+/* Inhalt des Sheets scrollt in sich, wenn er zu lang ist. */
+@utility sheet-body {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: calc(32px + env(safe-area-inset-bottom));
+}
+
 /* Bewegung reduzieren: alle CSS-Animationen und -Übergänge aus.
    Motion-Animationen werden über <MotionConfig reducedMotion="user"> abgeschaltet. */
 @media (prefers-reduced-motion: reduce) {

@@ -35,3 +35,22 @@ export function cardIn(index = 0) {
     transition: { duration: ms(durationMs), ease: ease.spring, delay: ms(staggerMs * index) },
   } as const
 }
+
+/** Allergen-Chip kommt dazu: springt kurz auf (.6 → 1,08 → 1), 350 ms. */
+export function chipIn() {
+  const { durationMs, overshoot } = tokens.motion.chipIn
+  return {
+    initial: { opacity: 0, scale: 0.6 },
+    animate: { opacity: 1, scale: [0.6, overshoot, 1] },
+    transition: { duration: ms(durationMs), ease: ease.springStrong, times: [0, 0.7, 1] },
+  }
+}
+
+/** Sheet: fährt von unten hoch (420 ms), schließt etwas schneller. */
+export const sheetTransition = {
+  enter: { duration: ms(tokens.motion.sheetIn.durationMs), ease: ease.out },
+  exit: { duration: ms(tokens.motion.sheetIn.durationMs) * 0.7, ease: ease.out },
+} as const
+
+/** Overlay hinter dem Sheet: blendet in 250 ms ein. */
+export const overlayTransition = { duration: ms(tokens.motion.overlayIn.durationMs), ease: 'easeOut' } as const

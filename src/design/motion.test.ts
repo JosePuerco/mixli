@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { bezier, cardIn } from './motion'
+import { bezier, cardIn, chipIn } from './motion'
 
 describe('bezier', () => {
   it('liest cubic-bezier-Werte aus den Tokens', () => {
@@ -15,5 +15,12 @@ describe('cardIn', () => {
   it('staffelt Karten um 70 ms', () => {
     expect(cardIn(0).transition.delay).toBe(0)
     expect(cardIn(3).transition.delay).toBeCloseTo(0.21)
+  })
+})
+
+describe('chipIn', () => {
+  it('springt mit Überschwinger aus den Tokens auf', () => {
+    expect(chipIn().animate.scale).toEqual([0.6, 1.08, 1])
+    expect(chipIn().transition.duration).toBeCloseTo(0.35)
   })
 })
