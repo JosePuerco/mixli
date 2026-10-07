@@ -21,6 +21,13 @@ describe('cardIn', () => {
 describe('chipIn', () => {
   it('springt mit Überschwinger aus den Tokens auf', () => {
     expect(chipIn().animate.scale).toEqual([0.6, 1.08, 1])
-    expect(chipIn().transition.duration).toBeCloseTo(0.35)
+    expect(chipIn().transition.scale.duration).toBeCloseTo(0.35)
+  })
+
+  it('gibt der Deckkraft einen eigenen Übergang ohne Zwischenzeitpunkte', () => {
+    // Sonst gelten die drei Skalierungs-Zeitpunkte auch für die Deckkraft und der Chip blinkt.
+    const { opacity, scale } = chipIn().transition
+    expect(scale.times).toHaveLength(3)
+    expect(opacity).not.toHaveProperty('times')
   })
 })

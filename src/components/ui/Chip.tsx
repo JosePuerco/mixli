@@ -2,7 +2,7 @@
 // Auswahl-Chips: weiß, ausgewählt dunkel (Tags: Akzent). Auf weißen Flächen (Sheets) mit Rahmen.
 // „+ Neu“-Chips: gestrichelter Rahmen. Allergen-Chips: reine Anzeige, „Spuren“ gestrichelt.
 import type { ReactNode } from 'react'
-import { motion, type HTMLMotionProps } from 'motion/react'
+import { motion, useReducedMotion, type HTMLMotionProps } from 'motion/react'
 import { chipIn, press } from '../../design/motion'
 
 type ChipSize = 'md' | 'lg'
@@ -82,11 +82,13 @@ interface AllergenChipProps {
 
 /** Anzeige eines Allergens, nicht antippbar. */
 export function AllergenChip({ label, kind, appear = false }: AllergenChipProps) {
+  // Bei „Bewegung reduzieren“ erscheint der Chip sofort, auch ohne Einblenden.
+  const reduceMotion = useReducedMotion()
   const kindClasses =
     kind === 'contains' ? 'bg-surface text-text' : 'border border-dashed border-border-dashed text-text-muted'
   return (
     <motion.span
-      {...(appear ? chipIn() : {})}
+      {...(appear && !reduceMotion ? chipIn() : {})}
       className={`inline-flex h-7.5 shrink-0 items-center rounded-pill px-3 text-label font-semibold ${kindClasses}`}
     >
       {kind === 'traces' ? `Spuren: ${label}` : label}

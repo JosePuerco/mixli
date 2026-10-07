@@ -2,7 +2,7 @@
 // Innenabstände aus den Prototypen: normal 16 px, Listen 4 × 16 px (Zeilen bringen eigene Höhe mit),
 // Zutatenkarten 8 px (Foto fast randlos).
 import type { ReactNode } from 'react'
-import { motion, type HTMLMotionProps } from 'motion/react'
+import { motion, useReducedMotion, type HTMLMotionProps } from 'motion/react'
 import { cardIn } from '../../design/motion'
 
 type CardPadding = 'normal' | 'list' | 'tight' | 'none'
@@ -26,7 +26,9 @@ interface CardProps extends HTMLMotionProps<'div'> {
 }
 
 export function Card({ padding = 'normal', appearIndex, className = '', ...rest }: CardProps) {
-  const appear = appearIndex === undefined ? {} : cardIn(appearIndex)
+  // Bei „Bewegung reduzieren“ erscheint die Karte sofort (MotionConfig würde nur die Bewegung abschalten, nicht das Einblenden).
+  const reduceMotion = useReducedMotion()
+  const appear = appearIndex === undefined || reduceMotion ? {} : cardIn(appearIndex)
   return <motion.div {...appear} className={`rounded-card bg-surface ${paddingClasses[padding]} ${className}`} {...rest} />
 }
 

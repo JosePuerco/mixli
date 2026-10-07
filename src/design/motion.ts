@@ -36,13 +36,22 @@ export function cardIn(index = 0) {
   } as const
 }
 
-/** Allergen-Chip kommt dazu: springt kurz auf (.6 → 1,08 → 1), 350 ms. */
+/**
+ * Allergen-Chip kommt dazu: springt kurz auf (.6 → 1,08 → 1), 350 ms.
+ * Skalierung und Deckkraft brauchen getrennte Übergänge: Die Zeitpunkte (times) gelten
+ * nur für die drei Skalierungswerte. Gemeinsam angewendet ließen sie die Deckkraft
+ * zwischendurch auf 0 fallen – der Chip „blinkte“ dann rein statt aufzuspringen.
+ * Der Überschwinger kommt allein aus dem Zwischenwert, die Kurven selbst schwingen nicht über.
+ */
 export function chipIn() {
   const { durationMs, overshoot } = tokens.motion.chipIn
   return {
     initial: { opacity: 0, scale: 0.6 },
     animate: { opacity: 1, scale: [0.6, overshoot, 1] },
-    transition: { duration: ms(durationMs), ease: ease.springStrong, times: [0, 0.7, 1] },
+    transition: {
+      scale: { duration: ms(durationMs), times: [0, 0.7, 1], ease: [ease.out, 'easeInOut' as const] },
+      opacity: { duration: ms(durationMs) * 0.4, ease: 'easeOut' as const },
+    },
   }
 }
 
