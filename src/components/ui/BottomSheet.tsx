@@ -93,8 +93,12 @@ export function BottomSheet({
             drag="y"
             dragControls={dragControls}
             dragListener={false}
-            dragConstraints={{ top: 0, bottom: 0 }}
-            dragElastic={{ top: 0, bottom: 0.6 }}
+            // Nach unten ohne Grenze: Das Sheet folgt dem Daumen 1:1 (wie native Sheets).
+            // Nach oben fest. Beim Loslassen schließen oder zurückfedern, ohne Nachgleiten.
+            dragConstraints={{ top: 0 }}
+            dragElastic={{ top: 0 }}
+            dragMomentum={false}
+            dragSnapToOrigin
             onDragEnd={onDragEnd}
           >
             {/* Griffbereich: hier lässt sich das Sheet nach unten wegziehen. */}

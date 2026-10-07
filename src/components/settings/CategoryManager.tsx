@@ -1,7 +1,16 @@
 // Karte „Kategorien“ in „Mehr“: Liste mit Griff (Sortieren), Umbenennen per Tipp auf den Namen,
 // Löschen mit Rückfrage; darunter Feld + „Hinzufügen“. Gelöschte Kategorien setzen ihre Zutaten
 // auf „ohne Kategorie“ (repo.deleteCategory).
-import { useId, useState, type FormEvent, type KeyboardEvent, type PointerEvent } from 'react'
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type FormEvent,
+  type KeyboardEvent,
+  type PointerEvent,
+  type RefObject,
+} from 'react'
 import { Reorder, useDragControls, useReducedMotion } from 'motion/react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Card, CardTitle } from '../ui/Card'
@@ -15,7 +24,7 @@ import { db } from '../../db/db'
 import { addCategory, deleteCategory, listCategories, renameCategory, reorderCategories } from '../../db/repo'
 import type { Category } from '../../db/types'
 import { sameName } from '../../domain/ingredient'
-import { ease } from '../../design/motion'
+import { ease, softSpring } from '../../design/motion'
 
 function categoryCountLabel(n: number) {
   return n === 1 ? '1 Kategorie' : `${n} Kategorien`
@@ -23,8 +32,11 @@ function categoryCountLabel(n: number) {
 
 export function CategoryManager() {
   const categories = useLiveQuery(listCategories, [], [])
-  // Während des Ziehens die Reihenfolge lokal halten, gespeichert wird beim Loslassen.
-  const [dragOrder, setDragOrder] = useState<Category[] | null>(null)
+  // Reihenfolge (ids) während des Ziehens lokal halten; gespeichert wird beim Loslassen.
+  // Erst wenn die Datenbank dieselbe Reihenfolge meldet, wieder freigeben – sonst springt die
+  // Liste für einen Moment auf die alte Reihenfolge zurück (sah aus wie Blinken).
+  const [dragOrder, setDragOrder] = useState<string[] | null>(null)
+  const groupRef = useRef<HTMLUListElement>(null)
   const [draft, setDraft] = useState('')
   const [addError, setAddError] = useState<string>()
   const [justAdded, setJustAdded] = useState<string>()
@@ -32,26 +44,35 @@ export function CategoryManager() {
   const [deleting, setDeleting] = useState<Category | null>(null)
   const addErrorId = useId()
 
-  const items = dragOrder ?? categories
+  const byId = new Map(categories.map((c) => [c.id, c]))
+  const storedOrder = categories.map((c) => c.id).join()
+  // Reorder erkennt Zeilen an ihrem Wert: ids bleiben gleich, Objekte aus der Datenbank sind bei
+  // jeder Aktualisierung neu (sonst hält Motion sie für neue Zeilen und die Liste springt).
+  const order = (dragOrder ?? categories.map((c) => c.id)).filter((id) => byId.has(id))
+  const items = order.map((id) => byId.get(id)!)
+
+  useEffect(() => {
+    if (dragOrder && dragOrder.join() === storedOrder) setDragOrder(null)
+  }, [dragOrder, storedOrder])
   const deleteCount = useLiveQuery(
     () => (deleting ? db.ingredients.where('categoryId').equals(deleting.id).count() : 0),
     [deleting?.id],
     0,
   )
 
-  async function persistOrder(order: Category[]) {
-    await reorderCategories(order.map((c) => c.id))
-    setDragOrder(null)
+  function persistOrder(next: string[]) {
+    setDragOrder(next)
+    void reorderCategories(next)
   }
 
   /** Mit der Tastatur verschieben: Pfeil hoch/runter auf dem Griff. */
   function moveBy(c: Category, delta: number) {
-    const from = items.findIndex((x) => x.id === c.id)
+    const from = order.indexOf(c.id)
     const to = from + delta
-    if (to < 0 || to >= items.length) return
-    const next = [...items]
+    if (to < 0 || to >= order.length) return
+    const next = [...order]
     next.splice(to, 0, ...next.splice(from, 1))
-    void persistOrder(next)
+    persistOrder(next)
   }
 
   async function add(e: FormEvent) {
@@ -78,13 +99,14 @@ export function CategoryManager() {
           Noch keine Kategorien. Sie helfen, die Zutatenliste zu filtern.
         </p>
       ) : (
-        <Reorder.Group axis="y" values={items} onReorder={setDragOrder} className="flex flex-col">
+        <Reorder.Group ref={groupRef} axis="y" values={order} onReorder={setDragOrder} className="flex flex-col">
           {items.map((c) => (
             <CategoryRow
               key={c.id}
               category={c}
               appear={c.id === justAdded}
-              onDragEnd={() => dragOrder && void persistOrder(dragOrder)}
+              bounds={groupRef}
+              onDragEnd={() => persistOrder(order)}
               onMove={(delta) => moveBy(c, delta)}
               onRename={() => setRenaming(c)}
               onDelete={() => setDeleting(c)}
@@ -156,13 +178,15 @@ export function CategoryManager() {
 interface CategoryRowProps {
   category: Category
   appear: boolean
+  /** Ziehen bleibt innerhalb der Liste (nicht darüber oder darunter hinaus). */
+  bounds: RefObject<HTMLUListElement | null>
   onDragEnd: () => void
   onMove: (delta: number) => void
   onRename: () => void
   onDelete: () => void
 }
 
-function CategoryRow({ category: c, appear, onDragEnd, onMove, onRename, onDelete }: CategoryRowProps) {
+function CategoryRow({ category: c, appear, bounds, onDragEnd, onMove, onRename, onDelete }: CategoryRowProps) {
   const controls = useDragControls()
   const reduceMotion = useReducedMotion()
 
@@ -175,14 +199,18 @@ function CategoryRow({ category: c, appear, onDragEnd, onMove, onRename, onDelet
 
   return (
     <Reorder.Item
-      value={c}
+      value={c.id}
       dragListener={false}
       dragControls={controls}
+      dragConstraints={bounds}
+      // Am Rand der Liste nur ganz leicht nachgeben, statt frei darüber hinaus zu wandern.
+      dragElastic={0.04}
       onDragEnd={onDragEnd}
       // Neue Zeile gleitet kurz von oben herein (wie im Prototyp, 300 ms).
       initial={appear && !reduceMotion ? { opacity: 0, y: -6 } : false}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, ease: ease.out }}
+      // Platzwechsel der anderen Zeilen mit weicher Feder statt fester 300-ms-Kurve.
+      transition={{ duration: 0.3, ease: ease.out, layout: softSpring }}
       // Beim Ziehen über den anderen Zeilen liegen und nicht durchscheinen.
       whileDrag={{ zIndex: 1 }}
       className="relative flex h-12 items-center gap-1 border-b border-divider bg-surface last:border-b-0"
