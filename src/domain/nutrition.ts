@@ -97,5 +97,9 @@ export function parseNutritionInput(input: NutritionInput): NutritionResult {
     const key = issue.path[0] as NutrientKey
     schemaErrors[key] ??= issue.message
   }
+  // Zod prüft die „davon“-Regeln erst, wenn alle Felder gültig sind. Damit alle Meldungen
+  // auf einmal erscheinen, hier zusätzlich prüfen, sobald beide Werte des Paars lesbar sind.
+  if (values.saturatedFat > values.fat) schemaErrors.saturatedFat ??= 'Mehr als Fett'
+  if (values.sugar > values.carbs) schemaErrors.sugar ??= 'Mehr als Kohlenhydrate'
   return { ok: false, errors: { ...schemaErrors, ...errors } }
 }

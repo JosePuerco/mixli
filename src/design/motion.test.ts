@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { bezier, cardIn, chipIn } from './motion'
+import { bezier, cardIn, chipIn, stepIn } from './motion'
 
 describe('bezier', () => {
   it('liest cubic-bezier-Werte aus den Tokens', () => {
@@ -29,5 +29,13 @@ describe('chipIn', () => {
     const { opacity, scale } = chipIn().transition
     expect(scale.times).toHaveLength(3)
     expect(opacity).not.toHaveProperty('times')
+  })
+})
+
+describe('stepIn', () => {
+  it('gleitet vorwärts von rechts und zurück von links herein (28 px, 380 ms)', () => {
+    expect(stepIn(1).initial.x).toBe(28)
+    expect(stepIn(-1).initial.x).toBe(-28)
+    expect(stepIn().transition.duration).toBeCloseTo(0.38)
   })
 })

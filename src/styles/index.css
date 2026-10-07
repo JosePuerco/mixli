@@ -125,3 +125,29 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Abläufe ohne Navigation (z. B. „Zutat anlegen“): feste Kopfzeile, scrollender Inhalt, feste Fußzeile. */
+@utility flow-header {
+  padding-top: max(var(--spacing-top-safe), calc(env(safe-area-inset-top) + var(--spacing-gap-lg)));
+  padding-left: max(var(--spacing-screen), env(safe-area-inset-left));
+  padding-right: max(var(--spacing-screen), env(safe-area-inset-right));
+}
+
+@utility flow-body {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding-top: 20px;
+  padding-bottom: var(--spacing-gap-lg);
+  padding-left: max(var(--spacing-screen), env(safe-area-inset-left));
+  padding-right: max(var(--spacing-screen), env(safe-area-inset-right));
+}
+
+/* Unten 32 px wie im Prototyp, bei Home-Indikator mindestens 16 px darüber. */
+@utility flow-footer {
+  padding-top: var(--spacing-gap-sm);
+  padding-left: max(var(--spacing-screen), env(safe-area-inset-left));
+  padding-right: max(var(--spacing-screen), env(safe-area-inset-right));
+  padding-bottom: max(32px, calc(env(safe-area-inset-bottom) + var(--spacing-gap-lg)));
+}

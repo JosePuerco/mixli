@@ -88,6 +88,12 @@ describe('parseNutritionInput', () => {
     }
   })
 
+  it('meldet „davon“-Fehler auch, wenn andere Felder noch leer sind', () => {
+    const r = parseNutritionInput({ ...emptyNutritionInput(), fat: '7', saturatedFat: '8' })
+    expect(!r.ok && r.errors.saturatedFat).toBe('Mehr als Fett')
+    expect(!r.ok && r.errors.carbs).toBe('Bitte ausfüllen')
+  })
+
   it('erlaubt „davon“-Werte gleich dem Oberwert', () => {
     const r = parseNutritionInput({ ...oats, carbs: '70', sugar: '70' })
     expect(r.ok).toBe(true)

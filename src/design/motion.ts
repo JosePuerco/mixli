@@ -63,3 +63,29 @@ export const sheetTransition = {
 
 /** Overlay hinter dem Sheet: blendet in 250 ms ein. */
 export const overlayTransition = { duration: ms(tokens.motion.overlayIn.durationMs), ease: 'easeOut' } as const
+
+/**
+ * Schritt im Ablauf wechselt: Inhalt gleitet 28 px herein (380 ms).
+ * Vorwärts von rechts, zurück von links – so bleibt die Richtung erkennbar.
+ */
+export function stepIn(direction: 1 | -1 = 1) {
+  const { durationMs } = tokens.motion.stepIn
+  return {
+    initial: { opacity: 0, x: 28 * direction },
+    animate: { opacity: 1, x: 0 },
+    transition: { duration: ms(durationMs), ease: ease.out },
+  } as const
+}
+
+/** Bestätigung (z. B. Häkchen „Foto übernommen“): ploppt mit kräftiger Feder auf (.85 → 1,04 → 1). */
+export function popIn() {
+  return {
+    initial: { opacity: 0, scale: 0.85 },
+    animate: { opacity: 1, scale: [0.85, 1.04, 1] },
+    exit: { opacity: 0, scale: 0.9 },
+    transition: {
+      scale: { duration: 0.4, times: [0, 0.7, 1], ease: [ease.out, 'easeInOut' as const] },
+      opacity: { duration: 0.16 },
+    },
+  }
+}
