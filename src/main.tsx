@@ -5,6 +5,7 @@ import { registerSW } from 'virtual:pwa-register'
 import '@fontsource-variable/manrope'
 import './styles/index.css'
 import { App } from './App'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import { requestPersistentStorage } from './db/db'
 
 // Service Worker: speichert die App für offline und lädt Updates im Hintergrund.
@@ -17,7 +18,9 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     {/* HashRouter (#/zutaten): funktioniert auf GitHub Pages ohne Server-Weiterleitung und offline. */}
     <HashRouter>
-      <App />
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
     </HashRouter>
   </StrictMode>,
 )
