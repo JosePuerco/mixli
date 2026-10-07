@@ -3,6 +3,7 @@ import { MotionConfig } from 'motion/react'
 import { BottomNav } from './components/nav/BottomNav'
 import { ZutatenScreen } from './screens/ZutatenScreen'
 import { ZutatNeuScreen } from './screens/ZutatNeuScreen'
+import { ZutatBearbeitenScreen } from './screens/ZutatBearbeitenScreen'
 import { MixenScreen } from './screens/MixenScreen'
 import { MueslisScreen } from './screens/MueslisScreen'
 import { MehrScreen } from './screens/MehrScreen'
@@ -21,6 +22,7 @@ export function App() {
         <Routes>
           <Route path="/zutaten" element={<ZutatenScreen />} />
           <Route path="/zutaten/neu" element={<ZutatNeuScreen />} />
+          <Route path="/zutaten/:id" element={<ZutatBearbeitenScreen />} />
           <Route path="/mixen" element={<MixenScreen />} />
           <Route path="/muesli" element={<MueslisScreen />} />
           <Route path="/mehr" element={<MehrScreen />} />
