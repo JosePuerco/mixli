@@ -7,7 +7,7 @@ interface PlaceholderCardProps {
 
 export function PlaceholderCard({ text }: PlaceholderCardProps) {
   return (
-    <Card appearIndex={0}>
+    <Card>
       <p className="text-body font-medium text-text-muted">{text}</p>
     </Card>
   )

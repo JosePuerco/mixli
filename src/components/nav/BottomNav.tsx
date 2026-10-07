@@ -49,11 +49,8 @@ export function BottomNav() {
               >
                 {/* Größen und Strichstärken wie im Prototyp: aktiv 20/1,8, inaktiv 22/1,7 */}
                 <Icon size={isActive ? 20 : 22} strokeWidth={isActive ? 1.8 : 1.7} />
-                {isActive && (
-                  <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
-                    {label}
-                  </motion.span>
-                )}
+                {/* Ohne eigenes Einblenden: Das dunkle Label wird sichtbar, sobald die helle Pille darunter gleitet. */}
+                {isActive && <span>{label}</span>}
               </motion.span>
             </>
           )}

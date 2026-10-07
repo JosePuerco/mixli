@@ -19,6 +19,8 @@ interface CardProps extends HTMLMotionProps<'div'> {
   /**
    * Position in einer Liste: Die Karte ploppt beim Erscheinen mit Federeffekt rein,
    * gestaffelt um 70 ms je Position. Ohne Angabe erscheint sie ohne Animation.
+   * Nur für Karten verwenden, die wirklich neu dazukommen – nicht bei jedem Tab-Wechsel
+   * (Screens werden beim Wechsel neu aufgebaut, die Animation würde sonst jedes Mal laufen).
    */
   appearIndex?: number
 }
