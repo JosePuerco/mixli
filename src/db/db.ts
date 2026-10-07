@@ -20,6 +20,11 @@ export class MixliDB extends Dexie {
       categories: 'id, order',
       settings: 'key',
     })
+    // v2: Tags indiziert (Mehrfach-Index *tags), damit die Liste aller eigenen Tags direkt abfragbar ist.
+    // „archived“ bleibt ohne Index: IndexedDB kann nicht nach true/false suchen, gefiltert wird im Speicher.
+    this.version(2).stores({
+      ingredients: 'id, name, categoryId, updatedAt, *tags',
+    })
   }
 }
 
