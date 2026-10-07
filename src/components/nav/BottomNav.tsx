@@ -5,7 +5,7 @@
 import { NavLink } from 'react-router'
 import { motion } from 'motion/react'
 import type { ComponentType } from 'react'
-import { IconBowl, IconIngredients, IconList, IconMore, type IconProps } from '../icons/NavIcons'
+import { IconBowl, IconIngredients, IconList, IconMore, type IconProps } from '../icons/Icons'
 import { press, softSpring } from '../../design/motion'
 
 interface Tab {

@@ -10,24 +10,35 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  /* Feste App-Hülle: Das Dokument selbst scrollt und federt nie (sonst lässt iOS
+     die ganze App hoch- und runterziehen). Gescrollt wird nur in <Screen>. */
   html,
-  body,
-  #root {
+  body {
     height: 100%;
-  }
-
-  body {
+    overflow: hidden;
     overscroll-behavior: none;
-    -webkit-font-smoothing: antialiased;
   }
 
-  /* Zahlen immer gleich breit, damit Werte beim Ändern nicht springen. */
   body {
+    position: fixed;
+    inset: 0;
+    background-color: var(--color-background);
+    -webkit-font-smoothing: antialiased;
+    /* Zahlen immer gleich breit, damit Werte beim Ändern nicht springen. */
     font-variant-numeric: tabular-nums;
   }
 
   button {
     cursor: pointer;
+  }
+
+  /* Bedienelemente nicht markierbar und ohne iOS-Kontextmenü bei langem Drücken – wie in nativen Apps. */
+  button,
+  a,
+  nav {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
   }
 
   :focus-visible {
@@ -36,10 +47,16 @@
   }
 }
 
-/* Scrollbereich der Screens: oben 56 px bzw. unter der Statusleiste,
-   unten Platz für die schwebende Navigation (64 + 24 px + Safe Area) plus Luft. */
+/* Scrollbereich eines Screens: scrollt nur, wenn der Inhalt länger ist, und gibt das
+   Ziehen am Ende nicht an die Hülle weiter. Oben 56 px bzw. unter der Statusleiste,
+   seitlich 16 px bzw. Safe Area, unten Platz für die schwebende Navigation. */
 @utility screen-scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   padding-top: max(var(--spacing-top-safe), calc(env(safe-area-inset-top) + var(--spacing-gap-lg)));
+  padding-left: max(var(--spacing-screen), env(safe-area-inset-left));
+  padding-right: max(var(--spacing-screen), env(safe-area-inset-right));
   padding-bottom: calc(
     var(--spacing-nav) + var(--spacing-nav-inset-bottom) + env(safe-area-inset-bottom) + var(--spacing-gap-lg)
   );
@@ -48,6 +65,29 @@
 /* Schwebende Navigation: 24 px über dem unteren Rand plus Safe Area (Home-Indikator). */
 @utility nav-position {
   bottom: calc(var(--spacing-nav-inset-bottom) + env(safe-area-inset-bottom));
+}
+
+/* FAB rechts über der Navigation (Prototyp: 20 px rechts, 20 px über der Navigation). */
+@utility fab-position {
+  right: calc(var(--spacing-screen) + 4px + env(safe-area-inset-right));
+  bottom: calc(
+    var(--spacing-nav) + var(--spacing-nav-inset-bottom) + env(safe-area-inset-bottom) + 20px
+  );
+}
+
+/* Kleine Bedienelemente (z. B. 36-px-Pillen) optisch klein lassen,
+   die Tippfläche aber auf mindestens 44 × 44 px vergrößern. */
+@utility touch-extend {
+  position: relative;
+  &::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, var(--spacing-touch));
+    height: max(100%, var(--spacing-touch));
+    transform: translate(-50%, -50%);
+  }
 }
 
 /* Bewegung reduzieren: alle CSS-Animationen und -Übergänge aus.
