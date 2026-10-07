@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { byName, cardAllergen, matchesSearch, mergeTags, normalizeDraft, normalizeTags } from './ingredient'
+import {
+  byName,
+  cardAllergen,
+  filterIngredients,
+  ingredientCountLabel,
+  matchesSearch,
+  mergeTags,
+  normalizeDraft,
+  normalizeTags,
+} from './ingredient'
 import type { Nutrition } from '../db/types'
 
 const nutrition: Nutrition = {
@@ -85,5 +94,41 @@ describe('byName', () => {
   it('sortiert Umlaute deutsch ein', () => {
     const names = ['Rosinen', 'Äpfel', 'Mandeln'].map((name) => ({ name }))
     expect(names.sort(byName).map((n) => n.name)).toEqual(['Äpfel', 'Mandeln', 'Rosinen'])
+  })
+})
+
+describe('filterIngredients', () => {
+  const list = [
+    { name: 'Rosinen', categoryId: 'fruit', archived: false },
+    { name: 'Mandeln', brand: 'ganz', categoryId: 'nuts', archived: false },
+    { name: 'Cashews', categoryId: 'nuts', archived: true },
+    { name: 'Haferflocken', archived: false },
+  ]
+
+  it('zeigt aktive Zutaten alphabetisch', () => {
+    expect(filterIngredients(list, { query: '', archived: false }).map((i) => i.name)).toEqual([
+      'Haferflocken',
+      'Mandeln',
+      'Rosinen',
+    ])
+  })
+
+  it('filtert nach Kategorie und Suche', () => {
+    expect(filterIngredients(list, { query: '', categoryId: 'nuts', archived: false }).map((i) => i.name)).toEqual([
+      'Mandeln',
+    ])
+    expect(filterIngredients(list, { query: 'GANZ', archived: false }).map((i) => i.name)).toEqual(['Mandeln'])
+  })
+
+  it('zeigt im Archiv nur archivierte', () => {
+    expect(filterIngredients(list, { query: '', archived: true }).map((i) => i.name)).toEqual(['Cashews'])
+  })
+})
+
+describe('ingredientCountLabel', () => {
+  it('unterscheidet Einzahl und Mehrzahl', () => {
+    expect(ingredientCountLabel(1)).toBe('1 Zutat')
+    expect(ingredientCountLabel(0)).toBe('0 Zutaten')
+    expect(ingredientCountLabel(7)).toBe('7 Zutaten')
   })
 })

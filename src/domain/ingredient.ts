@@ -80,3 +80,28 @@ export function matchesSearch(i: Pick<Ingredient, 'name' | 'brand'>, query: stri
 export function byName(a: Pick<Ingredient, 'name'>, b: Pick<Ingredient, 'name'>): number {
   return a.name.localeCompare(b.name, 'de')
 }
+
+export interface IngredientFilter {
+  query: string
+  /** undefined = alle Kategorien. */
+  categoryId?: string
+  /** true = nur archivierte, false = nur aktive. */
+  archived: boolean
+}
+
+/** Liste für die Übersicht: gefiltert und alphabetisch sortiert. */
+export function filterIngredients<T extends Pick<Ingredient, 'name' | 'brand' | 'categoryId' | 'archived'>>(
+  list: readonly T[],
+  { query, categoryId, archived }: IngredientFilter,
+): T[] {
+  return list
+    .filter((i) => i.archived === archived)
+    .filter((i) => categoryId === undefined || i.categoryId === categoryId)
+    .filter((i) => matchesSearch(i, query))
+    .sort(byName)
+}
+
+/** „1 Zutat“, „7 Zutaten“. */
+export function ingredientCountLabel(n: number): string {
+  return n === 1 ? '1 Zutat' : `${n} Zutaten`
+}
