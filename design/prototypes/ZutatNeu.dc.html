@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Zutat anlegen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#3F5A2E}a:hover{color:#2C4120}
+@keyframes stepIn{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes popIn{0%{transform:scale(.85);opacity:0}70%{transform:scale(1.04)}100%{transform:none;opacity:1}}
+.step{animation:stepIn .38s cubic-bezier(.2,.8,.2,1) both}
+.pop{animation:popIn .4s cubic-bezier(.2,.9,.3,1.3) both}
+.press{transition:transform .15s ease,background-color .2s ease,color .2s ease,border-color .2s ease}
+.press:active{transform:scale(.94)}
+.bar{transition:background-color .35s ease}
+input::placeholder{color:#A3A099}
+@media (prefers-reduced-motion: reduce){.step,.pop{animation:none}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F4F3EF; color: #1C1C1A; font-family: 'Manrope', system-ui, sans-serif; display: flex; flex-direction: column">
+  <div style="padding: 52px 16px 0; display: flex; flex-direction: column; gap: 14px">
+    <div style="display: flex; align-items: center; justify-content: space-between">
+      <sc-if value="{{isFirst}}" hint-placeholder-val="{{ true }}">
+        <a class="press" href="Zutaten.dc.html" aria-label="Abbrechen" style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; color: #1C1C1A">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"></path></svg></a>
+      </sc-if>
+      <sc-if value="{{notFirst}}" hint-placeholder-val="{{ false }}">
+        <button class="press" onClick="{{back}}" aria-label="Zurück" style="width: 44px; height: 44px; border-radius: 22px; border: none; background: #FFFFFF; display: flex; align-items: center; justify-content: center; color: #1C1C1A">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"></path></svg></button>
+      </sc-if>
+      <span style="font-size: 13px; font-weight: 600; color: #6A6964">{{stepLabel}}</span>
+      <span style="width: 44px"></span>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px">
+      <sc-for list="{{bars}}" as="b" hint-placeholder-count="4">
+        <span class="bar" style="height: 4px; border-radius: 2px; background: {{b.color}}"></span>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="flex: 1; overflow-y: auto; padding: 20px 16px 16px">
+    <sc-if value="{{s0}}" hint-placeholder-val="{{ true }}">
+      <div class="step" style="display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; flex-direction: column; gap: 4px; padding: 0 4px">
+          <h1 style="margin: 0; font-size: 26px; font-weight: 700">Foto</h1>
+          <span style="font-size: 14px; color: #6A6964">Damit du die Zutat überall sofort erkennst.</span>
+        </div>
+        <div style="height: 320px; border-radius: 28px; background: {{photoBg}}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: #6A6964; font-size: 14px; font-weight: 600">
+          <sc-if value="{{photo}}" hint-placeholder-val="{{ false }}">
+            <span class="pop" style="width: 56px; height: 56px; border-radius: 28px; background: #3F5A2E; color: #FFFFFF; display: flex; align-items: center; justify-content: center">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12.5l4.5 4.5L19 7"></path></svg></span>
+            <span style="color: #1C1C1A">Foto übernommen</span>
+          </sc-if>
+          <sc-if value="{{noPhoto}}" hint-placeholder-val="{{ true }}">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8h3l2-3h6l2 3h3v11H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg>
+            Noch kein Foto
+          </sc-if>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+          <button class="press" onClick="{{takePhoto}}" style="height: 52px; border-radius: 26px; border: none; background: #FFFFFF; font-family: inherit; font-size: 15px; font-weight: 700; color: #1C1C1A">Kamera</button>
+          <button class="press" onClick="{{takePhoto}}" style="height: 52px; border-radius: 26px; border: none; background: #FFFFFF; font-family: inherit; font-size: 15px; font-weight: 700; color: #1C1C1A">Galerie</button>
+        </div>
+        <span style="font-size: 12px; color: #6A6964; text-align: center">Das Foto wird verkleinert und nur auf diesem Gerät gespeichert.</span>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{s1}}" hint-placeholder-val="{{ false }}">
+      <div class="step" style="display: flex; flex-direction: column; gap: 18px">
+        <div style="display: flex; flex-direction: column; gap: 4px; padding: 0 4px">
+          <h1 style="margin: 0; font-size: 26px; font-weight: 700">Basisdaten</h1>
+          <span style="font-size: 14px; color: #6A6964">Name und Marke, so wie auf der Packung.</span>
+        </div>
+        <div style="background: #FFFFFF; border-radius: 24px; padding: 6px 16px">
+          <label style="display: flex; flex-direction: column; gap: 2px; padding: 10px 0; border-bottom: 1px solid #EDEBE5">
+            <span style="font-size: 12px; font-weight: 600; color: #6A6964">Name</span>
+            <input type="text" placeholder="z. B. Zarte Haferflocken" style="border: none; outline: none; padding: 4px 0; font-family: inherit; font-size: 17px; font-weight: 600; color: #1C1C1A; background: transparent">
+          </label>
+          <label style="display: flex; flex-direction: column; gap: 2px; padding: 10px 0">
+            <span style="font-size: 12px; font-weight: 600; color: #6A6964">Marke / Produkt (optional)</span>
+            <input type="text" placeholder="z. B. Vollkorn, Bio" style="border: none; outline: none; padding: 4px 0; font-family: inherit; font-size: 17px; font-weight: 600; color: #1C1C1A; background: transparent">
+          </label>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <span style="font-size: 13px; font-weight: 700; padding: 0 4px">Kategorie</span>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px">
+            <sc-for list="{{cats}}" as="c" hint-placeholder-count="5">
+              <button class="press" onClick="{{c.pick}}" style="height: 38px; padding: 0 14px; border-radius: 19px; border: none; background: {{c.bg}}; color: {{c.fg}}; font-family: inherit; font-size: 14px; font-weight: 700">{{c.label}}</button>
+            </sc-for>
+            <button class="press" style="height: 38px; padding: 0 14px; border-radius: 19px; border: 1.5px dashed #A8A59B; background: transparent; font-family: inherit; font-size: 14px; font-weight: 700; color: #6A6964">+ Neue Kategorie</button>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <span style="font-size: 13px; font-weight: 700; padding: 0 4px">Tags</span>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px">
+            <sc-for list="{{tags}}" as="t" hint-placeholder-count="3">
+              <button class="press" onClick="{{t.toggle}}" style="height: 38px; padding: 0 14px; border-radius: 19px; border: none; background: {{t.bg}}; color: {{t.fg}}; font-family: inherit; font-size: 14px; font-weight: 700">{{t.label}}</button>
+            </sc-for>
+            <button class="press" style="height: 38px; padding: 0 14px; border-radius: 19px; border: 1.5px dashed #A8A59B; background: transparent; font-family: inherit; font-size: 14px; font-weight: 700; color: #6A6964">+ Tag</button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{s2}}" hint-placeholder-val="{{ false }}">
+      <div class="step" style="display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; flex-direction: column; gap: 4px; padding: 0 4px">
+          <h1 style="margin: 0; font-size: 26px; font-weight: 700">Nährwerte</h1>
+          <span style="font-size: 14px; color: #6A6964">Pro 100 g, von der Packung abtippen.</span>
+        </div>
+        <div style="background: #FFFFFF; border-radius: 24px; padding: 4px 16px">
+          <sc-for list="{{nutrients}}" as="n" hint-placeholder-count="9">
+            <label style="display: flex; align-items: center; gap: 8px; min-height: 48px; border-bottom: 1px solid {{n.rule}}">
+              <span style="flex: 1; font-size: 15px; font-weight: {{n.weight}}; color: {{n.color}}; padding-left: {{n.indent}}px">{{n.label}}</span>
+              <input type="text" inputmode="decimal" placeholder="{{n.ph}}" onInput="{{n.input}}" style="width: 72px; border: none; outline: none; text-align: right; font-family: inherit; font-size: 16px; font-weight: 700; color: #1C1C1A; background: transparent">
+              <span style="width: 32px; font-size: 13px; color: #6A6964">{{n.unit}}</span>
+            </label>
+          </sc-for>
+        </div>
+        <span style="font-size: 12px; color: #6A6964; padding: 0 4px">kJ wird aus kcal vorgeschlagen, falls die Packung nur einen Wert nennt.</span>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{s3}}" hint-placeholder-val="{{ false }}">
+      <div class="step" style="display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; flex-direction: column; gap: 4px; padding: 0 4px">
+          <h1 style="margin: 0; font-size: 26px; font-weight: 700">Allergene</h1>
+          <span style="font-size: 14px; color: #6A6964">Einmal tippen: enthält. Zweimal: kann Spuren enthalten.</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+          <sc-for list="{{allergens}}" as="a" hint-placeholder-count="14">
+            <button class="press" onClick="{{a.cycle}}" aria-label="{{a.aria}}" style="height: 52px; padding: 0 14px; border-radius: 18px; border: 1.5px {{a.borderStyle}} {{a.border}}; background: {{a.bg}}; color: {{a.fg}}; font-family: inherit; text-align: left; display: flex; flex-direction: column; justify-content: center">
+              <span style="font-size: 14px; font-weight: 700">{{a.label}}</span>
+              <span style="font-size: 11px; font-weight: 600; opacity: 0.8">{{a.state}}</span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
+  <div style="padding: 8px 16px 32px">
+    <sc-if value="{{notLast}}" hint-placeholder-val="{{ true }}">
+      <button class="press" onClick="{{next}}" style="width: 100%; height: 56px; border-radius: 28px; border: none; background: #3F5A2E; color: #FFFFFF; font-family: inherit; font-size: 16px; font-weight: 700">Weiter</button>
+    </sc-if>
+    <sc-if value="{{isLast}}" hint-placeholder-val="{{ false }}">
+      <a class="press" href="Zutaten.dc.html" style="width: 100%; height: 56px; border-radius: 28px; background: #3F5A2E; color: #FFFFFF; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 16px; font-weight: 700">Zutat speichern</a>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+var CATS = ['Flocken', 'Nüsse', 'Samen', 'Trockenfrüchte', 'Extras'];
+var TAGS = ['vegan', 'ohne Zuckerzusatz', 'Bio'];
+var ALLERGENS = ['Gluten', 'Krebstiere', 'Eier', 'Fisch', 'Erdnüsse', 'Soja', 'Milch', 'Schalenfrüchte', 'Sellerie', 'Senf', 'Sesam', 'Sulfite', 'Lupinen', 'Weichtiere'];
+var NUTRIENTS = [
+  { key: 'kcal', label: 'Energie', unit: 'kcal' },
+  { key: 'kj', label: 'Energie', unit: 'kJ' },
+  { key: 'fat', label: 'Fett', unit: 'g' },
+  { key: 'sat', label: 'davon gesättigte Fettsäuren', unit: 'g', sub: true },
+  { key: 'carbs', label: 'Kohlenhydrate', unit: 'g' },
+  { key: 'sugar', label: 'davon Zucker', unit: 'g', sub: true },
+  { key: 'fiber', label: 'Ballaststoffe', unit: 'g' },
+  { key: 'protein', label: 'Eiweiß', unit: 'g' },
+  { key: 'salt', label: 'Salz', unit: 'g' }
+];
+var STEP_NAMES = ['Foto', 'Basisdaten', 'Nährwerte', 'Allergene'];
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { step: 0, photo: false, cat: null, tags: [], allergens: {}, kcal: '' };
+  }
+  renderVals() {
+    var self = this, s = this.state;
+    return {
+      s0: s.step === 0, s1: s.step === 1, s2: s.step === 2, s3: s.step === 3,
+      isFirst: s.step === 0, notFirst: s.step > 0, isLast: s.step === 3, notLast: s.step < 3,
+      stepLabel: 'Schritt ' + (s.step + 1) + ' von 4 · ' + STEP_NAMES[s.step],
+      bars: [0, 1, 2, 3].map(function (i) { return { color: i <= s.step ? '#3F5A2E' : '#DAD7CF' }; }),
+      next: function () { self.setState({ step: Math.min(3, s.step + 1) }); },
+      back: function () { self.setState({ step: Math.max(0, s.step - 1) }); },
+      photo: s.photo, noPhoto: !s.photo,
+      photoBg: s.photo ? '#DDE3D3' : '#E8E4D8',
+      takePhoto: function () { self.setState({ photo: true }); },
+      cats: CATS.map(function (c) {
+        var on = s.cat === c;
+        return { label: c, bg: on ? '#1C1C1A' : '#FFFFFF', fg: on ? '#FFFFFF' : '#1C1C1A', pick: function () { self.setState({ cat: on ? null : c }); } };
+      }),
+      tags: TAGS.map(function (t) {
+        var on = s.tags.indexOf(t) >= 0;
+        return {
+          label: t, bg: on ? '#3F5A2E' : '#FFFFFF', fg: on ? '#FFFFFF' : '#1C1C1A',
+          toggle: function () { self.setState(function (st) { return { tags: on ? st.tags.filter(function (x) { return x !== t; }) : st.tags.concat([t]) }; }); }
+        };
+      }),
+      nutrients: NUTRIENTS.map(function (n, i) {
+        var kcal = parseFloat(String(s.kcal).replace(',', '.'));
+        var ph = '0';
+        if (n.key === 'kj') ph = isNaN(kcal) ? 'auto' : String(Math.round(kcal * 4.184));
+        return {
+          label: n.label, unit: n.unit, ph: ph,
+          indent: n.sub ? 14 : 0, weight: n.sub ? 500 : 600, color: n.sub ? '#6A6964' : '#1C1C1A',
+          rule: i === NUTRIENTS.length - 1 ? 'transparent' : '#EDEBE5',
+          input: n.key === 'kcal' ? function (e) { self.setState({ kcal: e.target.value }); } : function () {}
+        };
+      }),
+      allergens: ALLERGENS.map(function (a) {
+        var v = s.allergens[a] || 0;
+        return {
+          label: a,
+          state: v === 1 ? 'enthält' : (v === 2 ? 'Spuren' : 'nicht enthalten'),
+          aria: a + ': ' + (v === 1 ? 'enthält' : (v === 2 ? 'Spuren' : 'nicht enthalten')),
+          bg: v === 1 ? '#1C1C1A' : '#FFFFFF',
+          fg: v === 1 ? '#FFFFFF' : (v === 2 ? '#1C1C1A' : '#6A6964'),
+          border: v === 2 ? '#1C1C1A' : (v === 1 ? '#1C1C1A' : '#FFFFFF'),
+          borderStyle: v === 2 ? 'dashed' : 'solid',
+          cycle: function () { self.setState(function (st) { var m = Object.assign({}, st.allergens); m[a] = ((m[a] || 0) + 1) % 3; return { allergens: m }; }); }
+        };
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>

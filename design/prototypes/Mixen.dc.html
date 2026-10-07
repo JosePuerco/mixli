@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Mixen – Prototyp</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#3F5A2E}a:hover{color:#2C4120}
+@keyframes pop{0%{opacity:0;transform:scale(.85) translateY(12px)}100%{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:none}}
+@keyframes chipIn{0%{opacity:0;transform:scale(.6)}70%{transform:scale(1.08)}100%{opacity:1;transform:none}}
+.card{animation:pop .45s cubic-bezier(.2,.9,.3,1.2) both}
+.chip{animation:chipIn .35s cubic-bezier(.2,.9,.3,1.3) both}
+.press{transition:transform .15s ease,background-color .2s ease}
+.press:active{transform:scale(.92)}
+.overlay{animation:fadeIn .25s ease both}
+.sheet{animation:slideUp .42s cubic-bezier(.2,.8,.2,1) both}
+.seg{transition:stroke-dasharray .55s cubic-bezier(.2,.8,.2,1),stroke-dashoffset .55s cubic-bezier(.2,.8,.2,1)}
+@media (prefers-reduced-motion: reduce){.card,.chip,.overlay,.sheet{animation:none}.seg{transition:none}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F4F3EF; color: #1C1C1A; font-family: 'Manrope', system-ui, sans-serif; display: flex; flex-direction: column">
+  <div style="flex: 1; display: flex; flex-direction: column; padding: 56px 16px 16px; gap: 16px; overflow-y: auto">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 4px">
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <span style="font-size: 13px; color: #6A6964">Neue Mischung</span>
+        <h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.01em">Frühstück Basic</h1>
+      </div>
+      <a class="press" href="Muesli.dc.html" style="height: 44px; padding: 0 18px; border-radius: 22px; background: {{accent}}; color: #FFFFFF; display: flex; align-items: center; text-decoration: none; font-size: 14px; font-weight: 700">Speichern</a>
+    </div>
+
+    <div style="background: #FFFFFF; border-radius: 24px; padding: 16px; display: flex; align-items: center; gap: 16px">
+      <div style="position: relative; width: 120px; height: 120px; flex-shrink: 0">
+        <svg width="120" height="120" viewBox="0 0 120 120" style="transform: rotate(-90deg)">
+          <circle cx="60" cy="60" r="52" fill="none" stroke="#EDEBE5" stroke-width="12"></circle>
+          <sc-for list="{{items}}" as="item" hint-placeholder-count="3">
+            <circle class="seg" cx="60" cy="60" r="52" fill="none" stroke-width="12" style="stroke: {{item.segColor}}; stroke-dasharray: {{item.segDash}}; stroke-dashoffset: {{item.segOffset}}"></circle>
+          </sc-for>
+        </svg>
+        <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center">
+          <span style="font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums">{{total}}</span>
+          <span style="font-size: 12px; color: #6A6964">gesamt</span>
+        </div>
+      </div>
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 8px">
+        <div style="display: flex; align-items: baseline; gap: 6px"><span style="font-size: 28px; font-weight: 800; font-variant-numeric: tabular-nums">{{kcal}}</span><span style="font-size: 13px; color: #6A6964">kcal / 100 g</span></div>
+        <div style="display: flex; justify-content: space-between; font-size: 13px"><span style="color: #6A6964">Eiweiß</span><span style="font-weight: 600; font-variant-numeric: tabular-nums">{{protein}}</span></div>
+        <div style="display: flex; justify-content: space-between; font-size: 13px"><span style="color: #6A6964">Kohlenhydrate</span><span style="font-weight: 600; font-variant-numeric: tabular-nums">{{carbs}}</span></div>
+        <div style="display: flex; justify-content: space-between; font-size: 13px"><span style="color: #6A6964">Fett</span><span style="font-weight: 600; font-variant-numeric: tabular-nums">{{fat}}</span></div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+      <sc-for list="{{items}}" as="item" hint-placeholder-count="3">
+        <div class="card" style="background: #FFFFFF; border-radius: 24px; padding: 8px 8px 12px; display: flex; flex-direction: column; gap: 10px; animation-delay: {{item.delay}}ms">
+          <div style="height: 96px; border-radius: 18px; background: {{item.tint}}; position: relative; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #6A6964">Foto<span style="position: absolute; top: 10px; left: 10px; width: 10px; height: 10px; border-radius: 5px; background: {{item.segColor}}"></span></div>
+          <div style="padding: 0 6px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 600">{{item.name}}</span><span style="font-size: 12px; color: #6A6964">{{item.pct}}</span></div>
+          <div style="display: flex; align-items: center; justify-content: space-between; background: #F4F3EF; border-radius: 22px">
+            <button class="press" aria-label="10 g weniger" onClick="{{item.dec}}" style="width: 44px; height: 44px; border: none; border-radius: 22px; background: transparent; font-size: 18px; color: #1C1C1A">−</button>
+            <button class="press" onClick="{{item.edit}}" aria-label="Menge genau eingeben" style="height: 36px; padding: 0 10px; border: none; border-radius: 12px; background: #FFFFFF; font-family: inherit; font-size: 15px; font-weight: 700; color: #1C1C1A; font-variant-numeric: tabular-nums">{{item.grams}}</button>
+            <button class="press" aria-label="10 g mehr" onClick="{{item.inc}}" style="width: 44px; height: 44px; border: none; border-radius: 22px; background: transparent; font-size: 18px; color: #1C1C1A">+</button>
+          </div>
+        </div>
+      </sc-for>
+      <button class="press" onClick="{{openSheet}}" style="min-height: 196px; border-radius: 24px; border: 1.5px dashed #BDBAB0; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: #6A6964; font-family: inherit; font-size: 14px; font-weight: 600">
+        <span style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 22px; color: {{accent}}">+</span>
+        Zutat hinzufügen
+      </button>
+    </div>
+
+    <div style="display: flex; gap: 8px; flex-wrap: wrap; padding: 0 4px">
+      <sc-for list="{{chips}}" as="chip" hint-placeholder-count="2">
+        <span class="chip" style="height: 30px; padding: 0 12px; border-radius: 15px; background: #FFFFFF; font-size: 13px; font-weight: 600; display: flex; align-items: center">{{chip.label}}</span>
+      </sc-for>
+      <sc-for list="{{traceChips}}" as="chip" hint-placeholder-count="1">
+        <span class="chip" style="height: 30px; padding: 0 12px; border-radius: 15px; border: 1px dashed #A8A59B; font-size: 13px; color: #6A6964; display: flex; align-items: center">{{chip.label}}</span>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="padding: 0 16px 24px">
+    <nav style="height: 64px; border-radius: 32px; background: #1C1C1A; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 6px; box-sizing: border-box; gap: 4px">
+      <a href="Zutaten.dc.html" aria-label="Zutaten" style="display: flex; align-items: center; justify-content: center; border-radius: 26px; color: #BDBAB0">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="3" width="7" height="7" rx="2"></rect><rect x="3" y="14" width="7" height="7" rx="2"></rect><rect x="14" y="14" width="7" height="7" rx="2"></rect></svg></a>
+      <a href="Mixen.dc.html" style="display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: 26px; background: #F4F3EF; color: #1C1C1A; text-decoration: none; font-size: 13px; font-weight: 700">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11h18a9 9 0 0 1-18 0z"></path><path d="M8 7c1-2 3-2 4 0s3 2 4 0"></path></svg>Mixen</a>
+      <a href="Muesli.dc.html" aria-label="Müslis" style="display: flex; align-items: center; justify-content: center; border-radius: 26px; color: #BDBAB0">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 6h13M8 12h13M8 18h13"></path><circle cx="4" cy="6" r="1"></circle><circle cx="4" cy="12" r="1"></circle><circle cx="4" cy="18" r="1"></circle></svg></a>
+      <a href="Einstellungen.dc.html" aria-label="Mehr" style="display: flex; align-items: center; justify-content: center; border-radius: 26px; color: #BDBAB0">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="5" cy="12" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="19" cy="12" r="1.5"></circle></svg></a>
+    </nav>
+  </div>
+
+  <sc-if value="{{sheetOpen}}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; z-index: 10">
+      <button class="overlay" aria-label="Schließen" onClick="{{closeSheet}}" style="position: absolute; inset: 0; width: 100%; height: 100%; border: none; background: rgba(28, 28, 26, 0.35)"></button>
+      <div class="sheet" style="position: absolute; left: 0; right: 0; bottom: 0; max-height: 640px; background: #FFFFFF; border-radius: 28px 28px 0 0; padding: 12px 16px 32px; display: flex; flex-direction: column; gap: 14px; box-sizing: border-box">
+        <div style="width: 40px; height: 5px; border-radius: 3px; background: #DAD7CF; align-self: center"></div>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 4px">
+          <h2 style="margin: 0; font-size: 20px; font-weight: 700">Zutat hinzufügen</h2>
+          <button class="press" onClick="{{closeSheet}}" style="height: 44px; padding: 0 16px; border-radius: 22px; border: none; background: #F4F3EF; font-family: inherit; font-size: 14px; font-weight: 700; color: #1C1C1A">Fertig</button>
+        </div>
+        <div style="display: flex; gap: 8px; padding: 0 4px">
+          <button class="press" onClick="{{toggleNoNuts}}" aria-pressed="{{noNuts}}" style="height: 36px; padding: 0 14px; border-radius: 18px; border: 1.5px solid {{filterBorder}}; background: {{filterBg}}; color: {{filterColor}}; font-family: inherit; font-size: 13px; font-weight: 700">Ohne Schalenfrüchte</button>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto">
+          <sc-for list="{{sheetItems}}" as="row" hint-placeholder-count="4">
+            <button class="press" onClick="{{row.add}}" disabled="{{row.blocked}}" style="display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 20px; border: none; background: #F4F3EF; text-align: left; font-family: inherit; color: #1C1C1A; opacity: {{row.opacity}}; transition: opacity .3s ease">
+              <span style="width: 52px; height: 52px; border-radius: 14px; background: {{row.tint}}; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #6A6964; flex-shrink: 0">Foto</span>
+              <span style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+                <span style="font-size: 15px; font-weight: 700">{{row.name}}</span>
+                <span style="font-size: 12px; color: #6A6964">{{row.note}}</span>
+              </span>
+              <span style="font-size: 12px; color: #6A6964; font-variant-numeric: tabular-nums">{{row.kcal}}</span>
+              <span style="width: 36px; height: 36px; border-radius: 18px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 20px; color: {{accent}}">+</span>
+            </button>
+          </sc-for>
+          <sc-if value="{{sheetEmpty}}" hint-placeholder-val="{{ false }}">
+            <span style="padding: 16px; text-align: center; font-size: 14px; color: #6A6964">Alle Zutaten sind schon im Mix.</span>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{amountOpen}}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; z-index: 11">
+      <button class="overlay" aria-label="Abbrechen" onClick="{{closeAmount}}" style="position: absolute; inset: 0; width: 100%; height: 100%; border: none; background: rgba(28, 28, 26, 0.35)"></button>
+      <div class="sheet" style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-radius: 28px 28px 0 0; padding: 12px 16px 32px; display: flex; flex-direction: column; gap: 16px; box-sizing: border-box">
+        <div style="width: 40px; height: 5px; border-radius: 3px; background: #DAD7CF; align-self: center"></div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 2px">
+          <span style="font-size: 14px; color: #6A6964">{{amountName}}</span>
+          <div style="display: flex; align-items: baseline; gap: 6px"><span style="font-size: 56px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums">{{amountDisplay}}</span><span style="font-size: 22px; font-weight: 700; color: #6A6964">g</span></div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+          <sc-for list="{{quick}}" as="q" hint-placeholder-count="3">
+            <button class="press" onClick="{{q.press}}" style="height: 40px; border-radius: 20px; border: 1.5px solid #DAD7CF; background: #FFFFFF; font-family: inherit; font-size: 14px; font-weight: 700; color: #1C1C1A">{{q.label}}</button>
+          </sc-for>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+          <sc-for list="{{keys}}" as="k" hint-placeholder-count="12">
+            <button class="press" onClick="{{k.press}}" aria-label="{{k.aria}}" style="height: 56px; border-radius: 18px; border: none; background: #F4F3EF; font-family: inherit; font-size: 22px; font-weight: 600; color: #1C1C1A">{{k.label}}</button>
+          </sc-for>
+        </div>
+        <button class="press" onClick="{{applyAmount}}" style="height: 54px; border-radius: 27px; border: none; background: {{accent}}; color: #FFFFFF; font-family: inherit; font-size: 16px; font-weight: 700">Übernehmen</button>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#3F5A2E","options":["#3F5A2E","#7A5A2F","#2F4F6B"]},"$preview":{"width":390,"height":844}}'>
+var DB = [
+  { id: 'hafer', name: 'Haferflocken', kcal: 372, protein: 13.5, carbs: 58.7, fat: 7.0, contains: ['Gluten'], traces: [], tint: '#E8E4D8' },
+  { id: 'mandeln', name: 'Mandeln', kcal: 600, protein: 22, carbs: 5.7, fat: 52, contains: ['Schalenfrüchte'], traces: [], tint: '#E4E8DC' },
+  { id: 'rosinen', name: 'Rosinen', kcal: 300, protein: 2.5, carbs: 68, fat: 0.5, contains: [], traces: [], tint: '#EDE5D6' },
+  { id: 'leinsamen', name: 'Leinsamen', kcal: 500, protein: 23, carbs: 2, fat: 31, contains: [], traces: ['Sesam'], tint: '#E6E2DA' },
+  { id: 'cashews', name: 'Cashewkerne', kcal: 580, protein: 18, carbs: 26, fat: 46, contains: ['Schalenfrüchte'], traces: [], tint: '#ECE6D9' },
+  { id: 'kokos', name: 'Kokoschips', kcal: 660, protein: 7, carbs: 6, fat: 64, contains: [], traces: ['Schalenfrüchte'], tint: '#F0EEE8' },
+  { id: 'kakao', name: 'Kakaonibs', kcal: 600, protein: 13, carbs: 25, fat: 50, contains: [], traces: ['Milch'], tint: '#E3DCD3' }
+];
+var PALETTE = ['#A7B88F', '#C9A97A', '#5E5B52', '#D8C3A0', '#8A9A7B', '#B5865A'];
+var CIRC = 2 * Math.PI * 52;
+function de(s) { return String(s).replace('.', ','); }
+function rG(v) { if (v >= 10) return Math.round(v) + ' g'; if (v > 0.5) return de(v.toFixed(1)) + ' g'; return '<0,5 g'; }
+function gramsLabel(g) { return (Number.isInteger(g) ? g : de(g.toFixed(1))) + ' g'; }
+function find(id) { for (var i = 0; i < DB.length; i++) { if (DB[i].id === id) return DB[i]; } return null; }
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { mix: [{ id: 'hafer', g: 300 }, { id: 'mandeln', g: 60 }, { id: 'rosinen', g: 40 }], sheet: false, noNuts: false, shown: null, editId: null, editStr: '' };
+    this._raf = null;
+    this._key = '';
+  }
+  totals() {
+    var g = 0, k = 0, p = 0, c = 0, f = 0;
+    this.state.mix.forEach(function (m) { var d = find(m.id); g += m.g; k += d.kcal * m.g; p += d.protein * m.g; c += d.carbs * m.g; f += d.fat * m.g; });
+    if (!g) return { total: 0, kcal: 0, protein: 0, carbs: 0, fat: 0 };
+    return { total: g, kcal: k / g, protein: p / g, carbs: c / g, fat: f / g };
+  }
+  componentDidMount() { var t = this.totals(); this._key = JSON.stringify(t); this.setState({ shown: t }); }
+  componentDidUpdate() {
+    var t = this.totals(); var key = JSON.stringify(t);
+    if (key !== this._key) { this.animateTo(t); }
+  }
+  componentWillUnmount() { cancelAnimationFrame(this._raf); }
+  animateTo(target) {
+    this._key = JSON.stringify(target);
+    cancelAnimationFrame(this._raf);
+    var from = this.state.shown || target;
+    var start = performance.now(), dur = 480, self = this;
+    var step = function (now) {
+      var t = Math.min(1, (now - start) / dur);
+      var e = 1 - Math.pow(1 - t, 3);
+      var cur = {};
+      Object.keys(target).forEach(function (k) { cur[k] = from[k] + (target[k] - from[k]) * e; });
+      self.setState({ shown: cur });
+      if (t < 1) self._raf = requestAnimationFrame(step);
+    };
+    this._raf = requestAnimationFrame(step);
+  }
+  setGrams(id, delta) {
+    this.setState(function (s) {
+      return { mix: s.mix.map(function (m) { return m.id === id ? { id: m.id, g: Math.max(0, m.g + delta) } : m; }).filter(function (m) { return m.g > 0; }) };
+    });
+  }
+  openAmount(id) {
+    var m = this.state.mix.filter(function (x) { return x.id === id; })[0];
+    this.setState({ editId: id, editStr: de(Number.isInteger(m.g) ? m.g : m.g.toFixed(1)) });
+  }
+  pressKey(k) {
+    this.setState(function (s) {
+      var str = s.editStr;
+      if (k === 'del') return { editStr: str.slice(0, -1) };
+      if (k === ',') { if (str.indexOf(',') >= 0) return null; return { editStr: (str || '0') + ',' }; }
+      var parts = str.split(',');
+      if (parts.length > 1 && parts[1].length >= 1) return null;
+      if (parts[0].length >= 4 && parts.length === 1) return null;
+      if (str === '0') return { editStr: k };
+      return { editStr: str + k };
+    });
+  }
+  applyAmount() {
+    var v = parseFloat(this.state.editStr.replace(',', '.')) || 0;
+    var id = this.state.editId;
+    this.setState(function (s) {
+      return { editId: null, mix: s.mix.map(function (m) { return m.id === id ? { id: m.id, g: Math.round(v * 10) / 10 } : m; }).filter(function (m) { return m.g > 0; }) };
+    });
+  }
+  add(id) { this.setState(function (s) { return { mix: s.mix.concat([{ id: id, g: 50 }]), sheet: false }; }); }
+  renderVals() {
+    var self = this;
+    var accent = this.props.accent ?? '#3F5A2E';
+    var colors = [accent].concat(PALETTE);
+    var t = this.totals();
+    var shown = this.state.shown || t;
+    var cum = 0;
+    var contains = [], traces = [];
+    var items = this.state.mix.map(function (m, i) {
+      var d = find(m.id);
+      var share = t.total ? m.g / t.total : 0;
+      var dash = Math.max(0, share * CIRC - 3).toFixed(1) + ' ' + CIRC.toFixed(1);
+      var offset = (-cum * CIRC).toFixed(1);
+      cum += share;
+      d.contains.forEach(function (a) { if (contains.indexOf(a) < 0) contains.push(a); });
+      d.traces.forEach(function (a) { if (traces.indexOf(a) < 0) traces.push(a); });
+      return {
+        id: m.id, name: d.name, grams: gramsLabel(m.g), pct: Math.round(share * 100) + ' %', tint: d.tint,
+        segColor: colors[i % colors.length], segDash: dash, segOffset: offset, delay: i * 70,
+        inc: function () { self.setGrams(m.id, 10); }, dec: function () { self.setGrams(m.id, -10); },
+        edit: function () { self.openAmount(m.id); }
+      };
+    });
+    var inMix = this.state.mix.map(function (m) { return m.id; });
+    var noNuts = this.state.noNuts;
+    var sheetItems = DB.filter(function (d) { return inMix.indexOf(d.id) < 0; }).map(function (d) {
+      var blocked = noNuts && (d.contains.indexOf('Schalenfrüchte') >= 0 || d.traces.indexOf('Schalenfrüchte') >= 0);
+      var parts = d.contains.concat(d.traces.map(function (x) { return 'Spuren: ' + x; }));
+      return {
+        name: d.name, tint: d.tint, kcal: d.kcal + ' kcal', blocked: blocked, opacity: blocked ? '0.35' : '1',
+        note: blocked ? 'Ausgeschlossen durch Filter' : (parts.length ? parts.join(' · ') : 'Keine Allergene'),
+        add: function () { if (!blocked) self.add(d.id); }
+      };
+    });
+    return {
+      accent: accent,
+      items: items,
+      chips: contains.map(function (a) { return { label: a }; }),
+      traceChips: traces.filter(function (a) { return contains.indexOf(a) < 0; }).map(function (a) { return { label: 'Spuren: ' + a }; }),
+      total: Math.round(shown.total) + ' g',
+      kcal: Math.round(shown.kcal),
+      protein: rG(shown.protein),
+      carbs: rG(shown.carbs),
+      fat: rG(shown.fat),
+      amountOpen: this.state.editId !== null,
+      amountName: this.state.editId ? find(this.state.editId).name : '',
+      amountDisplay: this.state.editStr === '' ? '0' : this.state.editStr,
+      keys: ['1', '2', '3', '4', '5', '6', '7', '8', '9', ',', '0', 'del'].map(function (k) {
+        return { label: k === 'del' ? '⌫' : k, aria: k === 'del' ? 'Löschen' : k, press: function () { self.pressKey(k); } };
+      }),
+      quick: [10, 25, 50].map(function (q) { return { label: q + ' g', press: function () { self.setState({ editStr: String(q) }); } }; }),
+      closeAmount: function () { self.setState({ editId: null }); },
+      applyAmount: function () { self.applyAmount(); },
+      sheetOpen: this.state.sheet,
+      sheetItems: sheetItems,
+      sheetEmpty: sheetItems.length === 0,
+      noNuts: noNuts,
+      filterBg: noNuts ? '#1C1C1A' : '#FFFFFF',
+      filterColor: noNuts ? '#FFFFFF' : '#1C1C1A',
+      filterBorder: noNuts ? '#1C1C1A' : '#DAD7CF',
+      openSheet: function () { self.setState({ sheet: true }); },
+      closeSheet: function () { self.setState({ sheet: false }); },
+      toggleNoNuts: function () { self.setState(function (s) { return { noNuts: !s.noNuts }; }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Müsli-Detail</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#3F5A2E}a:hover{color:#2C4120}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:none}}
+@keyframes labelIn{0%{opacity:0;transform:scale(1.1) rotate(-3deg)}100%{opacity:1;transform:scale(1.3) rotate(0deg)}}
+.overlay{animation:fadeIn .25s ease both}
+.sheet{animation:slideUp .42s cubic-bezier(.2,.8,.2,1) both}
+.label{transform:scale(1.3);transform-origin:center;animation:labelIn .5s .15s cubic-bezier(.2,.9,.3,1.2) both}
+.press{transition:transform .15s ease,background-color .2s ease}
+.press:active{transform:scale(.94)}
+@media (prefers-reduced-motion: reduce){.overlay,.sheet,.label{animation:none}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #F4F3EF; color: #1C1C1A; font-family: 'Manrope', system-ui, sans-serif; display: flex; flex-direction: column">
+  <div style="flex: 1; overflow-y: auto; padding: 52px 16px 16px; display: flex; flex-direction: column; gap: 14px">
+    <div style="display: flex; align-items: center; justify-content: space-between">
+      <a class="press" href="Muesli.dc.html" aria-label="Zurück" style="width: 44px; height: 44px; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; color: #1C1C1A">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5l-7 7 7 7"></path></svg></a>
+      <a class="press" href="Mixen.dc.html" style="height: 44px; padding: 0 16px; border-radius: 22px; background: #FFFFFF; display: flex; align-items: center; text-decoration: none; color: #1C1C1A; font-size: 14px; font-weight: 700">Bearbeiten</a>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 4px">
+      <span style="font-size: 13px; color: #6A6964">Für mich · 07.10.2026</span>
+      <h1 style="margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.01em">Frühstück Basic</h1>
+    </div>
+
+    <div style="background: #FFFFFF; border-radius: 24px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline">
+        <span style="font-size: 15px; font-weight: 700">Zusammensetzung</span>
+        <span style="font-size: 20px; font-weight: 800">400 g</span>
+      </div>
+      <div style="display: flex; height: 12px; gap: 3px">
+        <span style="width: 75%; border-radius: 6px; background: #3F5A2E"></span>
+        <span style="width: 15%; border-radius: 6px; background: #A7B88F"></span>
+        <span style="width: 10%; border-radius: 6px; background: #C9A97A"></span>
+      </div>
+      <div style="display: flex; flex-direction: column">
+        <div style="display: flex; align-items: center; gap: 10px; height: 40px; border-bottom: 1px solid #EDEBE5"><span style="width: 10px; height: 10px; border-radius: 5px; background: #3F5A2E"></span><span style="flex: 1; font-size: 15px; font-weight: 600">Haferflocken</span><span style="font-size: 14px; color: #6A6964">75 %</span><span style="width: 56px; text-align: right; font-size: 15px; font-weight: 700">300 g</span></div>
+        <div style="display: flex; align-items: center; gap: 10px; height: 40px; border-bottom: 1px solid #EDEBE5"><span style="width: 10px; height: 10px; border-radius: 5px; background: #A7B88F"></span><span style="flex: 1; font-size: 15px; font-weight: 600">Mandeln</span><span style="font-size: 14px; color: #6A6964">15 %</span><span style="width: 56px; text-align: right; font-size: 15px; font-weight: 700">60 g</span></div>
+        <div style="display: flex; align-items: center; gap: 10px; height: 40px"><span style="width: 10px; height: 10px; border-radius: 5px; background: #C9A97A"></span><span style="flex: 1; font-size: 15px; font-weight: 600">Rosinen</span><span style="font-size: 14px; color: #6A6964">10 %</span><span style="width: 56px; text-align: right; font-size: 15px; font-weight: 700">40 g</span></div>
+      </div>
+    </div>
+
+    <div style="background: #FFFFFF; border-radius: 24px; padding: 16px; display: flex; flex-direction: column; gap: 8px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline">
+        <span style="font-size: 15px; font-weight: 700">Nährwerte</span>
+        <span style="font-size: 13px; color: #6A6964">pro 100 g</span>
+      </div>
+      <div style="display: flex; flex-direction: column; font-size: 14px">
+        <div style="display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #EDEBE5"><span style="font-weight: 600">Energie</span><span style="font-weight: 700">1669 kJ / 399 kcal</span></div>
+        <div style="display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #EDEBE5"><span style="font-weight: 600">Fett</span><span style="font-weight: 700">13 g</span></div>
+        <div style="display: flex; justify-content: space-between; padding: 7px 0 7px 14px; border-bottom: 1px solid #EDEBE5; color: #6A6964"><span>davon gesättigte Fettsäuren</span><span style="font-weight: 700; color: #1C1C1A">1,6 g</span></div>
+        <div style="display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #EDEBE5"><span style="font-weight: 600">Kohlenhydrate</span><span style="font-weight: 700">52 g</span></div>
+        <div style="display: flex; justify-content: space-between; padding: 7px 0 7px 14px; border-bottom: 1px solid #EDEBE5; color: #6A6964"><span>davon Zucker</span><span style="font-weight: 700; color: #1C1C1A">7,8 g</span></div>
+        <div style="display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #EDEBE5"><span style="font-weight: 600">Ballaststoffe</span><span style="font-weight: 700">9,7 g</span></div>
+        <div style="display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #EDEBE5"><span style="font-weight: 600">Eiweiß</span><span style="font-weight: 700">14 g</span></div>
+        <div style="display: flex; justify-content: space-between; padding: 7px 0"><span style="font-weight: 600">Salz</span><span style="font-weight: 700">0,02 g</span></div>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 8px; flex-wrap: wrap; padding: 0 4px">
+      <span style="height: 30px; padding: 0 12px; border-radius: 15px; background: #FFFFFF; font-size: 13px; font-weight: 600; display: flex; align-items: center">Gluten</span>
+      <span style="height: 30px; padding: 0 12px; border-radius: 15px; background: #FFFFFF; font-size: 13px; font-weight: 600; display: flex; align-items: center">Schalenfrüchte</span>
+    </div>
+  </div>
+
+  <div style="padding: 8px 16px 32px; display: grid; grid-template-columns: 1fr 2fr; gap: 10px">
+    <button class="press" style="height: 56px; border-radius: 28px; border: none; background: #FFFFFF; font-family: inherit; font-size: 15px; font-weight: 700; color: #1C1C1A">Duplizieren</button>
+    <button class="press" onClick="{{openLabel}}" style="height: 56px; border-radius: 28px; border: none; background: #3F5A2E; color: #FFFFFF; font-family: inherit; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7l4-4h10l4 4v10l-4 4H7l-4-4z"></path><path d="M8 10h8M8 14h5"></path></svg>Etikett</button>
+  </div>
+
+  <sc-if value="{{labelOpen}}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; z-index: 10">
+      <button class="overlay" aria-label="Schließen" onClick="{{closeLabel}}" style="position: absolute; inset: 0; width: 100%; height: 100%; border: none; background: rgba(28, 28, 26, 0.35)"></button>
+      <div class="sheet" style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-radius: 28px 28px 0 0; padding: 12px 16px 32px; display: flex; flex-direction: column; gap: 16px; box-sizing: border-box">
+        <div style="width: 40px; height: 5px; border-radius: 3px; background: #DAD7CF; align-self: center"></div>
+        <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 4px">
+          <h2 style="margin: 0; font-size: 20px; font-weight: 700">Etikett</h2>
+          <span style="font-size: 13px; color: #6A6964">70 × 42,3 mm · A4-Bogen mit 21 Etiketten</span>
+        </div>
+        <div style="height: 260px; border-radius: 20px; background: #F4F3EF; display: flex; align-items: center; justify-content: center">
+          <div class="label" style="width: 265px; height: 160px; box-sizing: border-box; background: #FFFFFF; border-radius: 6px; box-shadow: 0 4px 14px rgba(28, 28, 26, 0.12); padding: 8px 9px; display: flex; flex-direction: column; gap: 5px; color: #1C1C1A">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid #1C1C1A; padding-bottom: 3px">
+              <span style="font-size: 11px; font-weight: 800">Frühstück Basic</span>
+              <span style="font-size: 11px; font-weight: 800">400 g</span>
+            </div>
+            <div style="flex: 1; display: flex; gap: 8px">
+              <div style="width: 104px; display: flex; flex-direction: column; gap: 4px; font-size: 7px; line-height: 1.3">
+                <span><span style="font-weight: 800">Zutaten:</span> <span style="font-weight: 800">Hafer</span>flocken (75 %), <span style="font-weight: 800">Mandeln</span> (15 %), Rosinen (10 %).</span>
+                <span style="color: #4A4944">Hergestellt am 07.10.2026. Nährwerte aus Herstellerangaben berechnet.</span>
+              </div>
+              <div style="flex: 1; display: flex; flex-direction: column; font-size: 7px; line-height: 1.15">
+                <div style="display: flex; justify-content: space-between; font-weight: 800; border-bottom: 1px solid #1C1C1A; padding-bottom: 1.5px"><span>Nährwerte</span><span>pro 100 g</span></div>
+                <div style="display: flex; justify-content: space-between; padding-top: 1.5px"><span>Energie</span><span>1669 kJ / 399 kcal</span></div>
+                <div style="display: flex; justify-content: space-between"><span>Fett</span><span>13 g</span></div>
+                <div style="display: flex; justify-content: space-between; padding-left: 5px"><span>davon gesättigte Fetts.</span><span>1,6 g</span></div>
+                <div style="display: flex; justify-content: space-between"><span>Kohlenhydrate</span><span>52 g</span></div>
+                <div style="display: flex; justify-content: space-between; padding-left: 5px"><span>davon Zucker</span><span>7,8 g</span></div>
+                <div style="display: flex; justify-content: space-between"><span>Ballaststoffe</span><span>9,7 g</span></div>
+                <div style="display: flex; justify-content: space-between"><span>Eiweiß</span><span>14 g</span></div>
+                <div style="display: flex; justify-content: space-between"><span>Salz</span><span>0,02 g</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+          <button class="press" style="height: 52px; border-radius: 26px; border: none; background: #3F5A2E; color: #FFFFFF; font-family: inherit; font-size: 14px; font-weight: 700">Drucken</button>
+          <button class="press" style="height: 52px; border-radius: 26px; border: none; background: #F4F3EF; font-family: inherit; font-size: 14px; font-weight: 700; color: #1C1C1A">PDF</button>
+          <button class="press" style="height: 52px; border-radius: 26px; border: none; background: #F4F3EF; font-family: inherit; font-size: 14px; font-weight: 700; color: #1C1C1A">Als Bild</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { label: false }; }
+  renderVals() {
+    var self = this;
+    return {
+      labelOpen: this.state.label,
+      openLabel: function () { self.setState({ label: true }); },
+      closeLabel: function () { self.setState({ label: false }); }
+    };
+  }
+}
+</script>
+</body>
+</html>
