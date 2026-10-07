@@ -139,3 +139,12 @@ export function IconLabel(props: IconProps) {
     </Icon>
   )
 }
+
+/** Griff zum Verschieben (6 Punkte), z. B. Kategorien sortieren. */
+export function IconGrip(props: IconProps) {
+  return (
+    <Icon strokeWidth={2} {...props}>
+      <path d="M9 6h.01M15 6h.01M9 12h.01M15 12h.01M9 18h.01M15 18h.01" strokeLinecap="round" />
+    </Icon>
+  )
+}

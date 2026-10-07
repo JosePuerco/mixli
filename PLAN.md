@@ -167,9 +167,9 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
 
 - [x] Zutat anlegen (4 Schritte) und bearbeiten (eine Seite), archivieren
 - [x] Foto aufnehmen oder auswählen, verkleinern, speichern, anzeigen
-- [ ] Zutaten-Übersicht mit Suche und Kategorie-Chips; Kategorien verwalten
+- [x] Zutaten-Übersicht mit Suche und Kategorie-Chips; Kategorien verwalten
   - [x] Übersicht mit Suche, Kategorie-Chips und Archiv („Archiviert (n)“, Wiederherstellen in „Zutat bearbeiten“)
-  - [ ] Kategorien verwalten in „Mehr“ (umbenennen, sortieren, löschen)
+  - [x] Kategorien verwalten in „Mehr“ (umbenennen, sortieren, löschen)
 - [x] Leerer Zustand beim ersten Start
 
 ### Phase 2 – Backup
