@@ -40,11 +40,16 @@ describe('saveIngredient', () => {
     expect(saved?.createdAt).toBeInstanceOf(Date)
   })
 
-  it('speichert ein Foto getrennt und verknüpft es', async () => {
-    const id = await saveIngredient(draft(), { kind: 'set', blob: blob('a') })
+  it('speichert ein Foto getrennt als Bytes mit Bildtyp und verknüpft es', async () => {
+    const id = await saveIngredient(draft(), { kind: 'set', blob: blob('abc') })
     const saved = await db.ingredients.get(id)
     expect(saved?.photoId).toBeDefined()
     expect(await db.photos.count()).toBe(1)
+
+    const photo = await db.photos.get(saved!.photoId!)
+    expect(photo?.blob).toBeUndefined()
+    expect(photo?.type).toBe('image/webp')
+    expect(new TextDecoder().decode(photo?.data)).toBe('abc')
   })
 
   it('löscht das alte Foto beim Ersetzen und Entfernen', async () => {

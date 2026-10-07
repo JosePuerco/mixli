@@ -54,10 +54,18 @@ export interface Mix {
   updatedAt: Date
 }
 
+/**
+ * Foto als reine Bytes plus Bildtyp. Bewusst kein Blob: Safari hatte wiederholt Fehler beim
+ * Speichern von Blobs in IndexedDB, Bytes (ArrayBuffer) funktionieren überall.
+ */
 export interface Photo {
   id: string
-  blob: Blob
+  data: ArrayBuffer
+  /** z. B. „image/webp“ oder „image/jpeg“. */
+  type: string
   createdAt: Date
+  /** Nur in Einträgen aus der allerersten Phase-1-Version; wird nur noch gelesen. */
+  blob?: Blob
 }
 
 export interface Category {

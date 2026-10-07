@@ -4,6 +4,7 @@ import { db } from './db'
 import type { Category, Ingredient } from './types'
 import { mergeTags, normalizeDraft, sameName, type IngredientDraft } from '../domain/ingredient'
 import { newId } from '../lib/id'
+import { blobToPhotoData } from './photo'
 
 /** Was mit dem Foto passieren soll: behalten, ersetzen oder entfernen. */
 export type PhotoChange = { kind: 'keep' } | { kind: 'set'; blob: Blob } | { kind: 'remove' }
@@ -15,6 +16,9 @@ export type PhotoChange = { kind: 'keep' } | { kind: 'set'; blob: Blob } | { kin
 export async function saveIngredient(draft: IngredientDraft, photo: PhotoChange, id?: string): Promise<string> {
   const data = normalizeDraft(draft)
   if (!data.name) throw new Error('Name fehlt')
+  // Vor der Transaktion umwandeln: Wartet eine Transaktion auf etwas anderes als die Datenbank,
+  // schließt IndexedDB sie vorzeitig.
+  const photoData = photo.kind === 'set' ? await blobToPhotoData(photo.blob) : undefined
 
   return db.transaction('rw', db.ingredients, db.photos, async () => {
     const now = new Date()
@@ -26,9 +30,9 @@ export async function saveIngredient(draft: IngredientDraft, photo: PhotoChange,
       if (photoId) await db.photos.delete(photoId)
       photoId = undefined
     }
-    if (photo.kind === 'set') {
+    if (photoData) {
       photoId = newId()
-      await db.photos.add({ id: photoId, blob: photo.blob, createdAt: now })
+      await db.photos.add({ id: photoId, ...photoData, createdAt: now })
     }
 
     const ingredient: Ingredient = {
@@ -49,10 +53,15 @@ export async function setArchived(id: string, archived: boolean): Promise<void> 
   await db.ingredients.update(id, { archived, updatedAt: new Date() })
 }
 
-/** Alle wählbaren Tags: Standard-Tags und alle eigenen Tags aus gespeicherten Zutaten. */
+/**
+ * Alle wählbaren Tags: Standard-Tags und alle eigenen Tags aus gespeicherten Zutaten.
+ * Bewusst über toArray() statt orderBy('tags').uniqueKeys(): uniqueKeys öffnet immer einen Cursor
+ * (openKeyCursor, „nextunique“), und genau das scheitert in Safari 18 (iOS 18.7) mit
+ * „UnknownError: Unable to open cursor“. toArray() nutzt getAll und läuft dort zuverlässig.
+ */
 export async function listTags(): Promise<string[]> {
-  const stored = (await db.ingredients.orderBy('tags').uniqueKeys()) as string[]
-  return mergeTags(stored)
+  const ingredients = await db.ingredients.toArray()
+  return mergeTags(ingredients.flatMap((i) => i.tags))
 }
 
 /** Kategorien in der eingestellten Reihenfolge. */

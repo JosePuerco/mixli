@@ -13,6 +13,7 @@ import { BasicsFields } from '../components/ingredient/BasicsFields'
 import { NutritionFields } from '../components/ingredient/NutritionFields'
 import { AllergenGrid } from '../components/ingredient/AllergenGrid'
 import { db } from '../db/db'
+import { photoToBlob } from '../db/photo'
 import { saveIngredient, setArchived, type PhotoChange } from '../db/repo'
 import type { Ingredient } from '../db/types'
 import { parseNutritionInput, type NutritionErrors } from '../domain/nutrition'
@@ -37,7 +38,7 @@ export function ZutatBearbeitenScreen() {
     const ingredient = await db.ingredients.get(id)
     if (!ingredient) return null
     const photo = ingredient.photoId ? await db.photos.get(ingredient.photoId) : undefined
-    return { ingredient, photo: photo?.blob ?? null }
+    return { ingredient, photo: photoToBlob(photo) }
   }, [id])
 
   if (loaded === undefined) return null
