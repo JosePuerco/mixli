@@ -1,6 +1,6 @@
 # Mixli – Projektplan
 
-Stand: 07.10.2026
+Stand: 08.10.2026
 
 Mixli ist eine Offline-PWA für iOS und Android, mit der ich Müslis aus selbst angelegten Rohzutaten nach Gewicht mische und sofort Nährwerte pro 100 g, Allergene und ein druckbares Etikett bekomme.
 
@@ -163,7 +163,7 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
   - [x] Chips (Auswahl, „+ Neu“, Allergene, Sortier-Umschalter), Bottom-Sheet (Wegziehen, Escape, Fokus); Übersicht unter `#/komponenten`
 - [x] GitHub Pages per GitHub Actions, App auf dem iPhone installieren und offline testen
 
-### Phase 1 – Zutaten mit Foto
+### Phase 1 – Zutaten mit Foto ✓ (abgenommen 08.10.2026)
 
 - [x] Zutat anlegen (4 Schritte) und bearbeiten (eine Seite), archivieren
 - [x] Foto aufnehmen oder auswählen, verkleinern, speichern, anzeigen
@@ -171,32 +171,6 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
   - [x] Übersicht mit Suche, Kategorie-Chips und Archiv („Archiviert (n)“, Wiederherstellen in „Zutat bearbeiten“)
   - [x] Kategorien verwalten in „Mehr“ (umbenennen, sortieren, löschen)
 - [x] Leerer Zustand beim ersten Start
-
-#### Zwischenstand Phase 1 (07.10.2026)
-
-Phase 1 ist fertig, deployt und auf dem iPhone (iOS 18.7) getestet: Anlegen mit Kamera/Galerie, Bearbeiten, Archivieren, Liste mit Suche und Kategorien, Kategorien sortieren und Bottom-Sheets funktionieren.
-
-Fertig und live:
-
-- Zutat anlegen (4 Schritte) und bearbeiten (eine Seite inkl. Notiz), archivieren und wiederherstellen
-- Fotos: Kamera/Galerie, Verkleinerung auf 800 px (WebP, sonst JPEG), gespeichert als Bytes + Bildtyp
-- Zutaten-Übersicht mit Live-Suche, Kategorie-Chips, Archiv-Ansicht; leerer Zustand beim ersten Start
-- Karte „Kategorien“ in „Mehr“: hinzufügen, umbenennen, sortieren (Griff oder Pfeiltasten), löschen
-- Fehlerseite statt leerer Seite („Fehler kopieren“, „Neu laden“)
-- 76 Tests (Vitest), Datenbank-Schema v2
-
-Gelernt beim Testen auf dem iPhone (für alle weiteren Phasen):
-
-- Safari 18 scheitert an IndexedDB-Cursorn („Unable to open cursor“). Dexie-Abfragen nur mit `toArray()`, `get()`, `where().equals()` – nie `uniqueKeys()`, `keys()`, `each()`, `.filter()`, `.or()`. Neue Abfragen mit dem Safari-18-Härtetest prüfen (WebKit, Cursor absichtlich kaputt).
-- Fotos als `ArrayBuffer` statt Blob speichern (robuster in Safari); ältere Blob-Einträge bleiben lesbar.
-- Ziehen (Sortieren, Sheets) muss dem Finger 1:1 folgen und innerhalb seines Bereichs bleiben.
-
-Als Nächstes: **Phase 2 – Backup.** Ab jetzt liegen echte Daten nur auf dem iPhone, deshalb kommt das Backup vor dem Mixen. Dabei beachten:
-
-- Fotos liegen als Bytes (`data`) + `type` vor → im Backup als Base64 mit Bildtyp
-- Ältere Foto-Einträge mit `blob` beim Export mitnehmen (über `photoToBlob`)
-- Import-Prüfung mit Zod; `nutritionSchema` aus `src/domain/nutrition.ts` wiederverwenden
-- Platzhalter-Karte „Backup“ in „Mehr“ ersetzen; „Backup importieren“ im leeren Zustand führt schon dorthin
 
 ### Phase 2 – Backup
 
