@@ -55,7 +55,7 @@ Mixli ist eine Offline-PWA für iOS und Android, mit der ich Müslis aus selbst 
 
 ### Etikett
 
-- 70 × 42,3 mm: Name, Gesamtmenge, Zutatenliste mit Anteilen, darunter einmal gesammelt **„Enthält: …“** (fett) und „Kann Spuren von … enthalten.“, Herstellungsdatum, Nährwerttabelle pro 100 g, Hinweis „Nährwerte aus Herstellerangaben berechnet“
+- 70 × 42,3 mm: Name, Gesamtmenge, Zutatenliste mit Anteilen, darunter einmal gesammelt „**Enthält:** …“ (nur das Wort fett) und „Kann Spuren von … enthalten.“, Herstellungsdatum, Nährwerttabelle pro 100 g, Hinweis „Nährwerte aus Herstellerangaben berechnet“
 - „Drucken“ über die Systemdruckfunktion (dort auch als PDF sichern; als installierte App auf dem iPhone als PDF über das Teilen-Menü), „Als Bild“ über das Teilen-Menü. Kein eigener PDF-Button (auf dem iPhone war er gleich wie „Drucken“)
 - Später optional: Startposition auf dem A4-Bogen wählen (angebrochene Bögen)
 
@@ -199,7 +199,7 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
 ### Phase 4 – Etikett
 
 - [x] Etikett-Layout in 70 × 42,3 mm
-  - [x] Inhalt als reine Funktion mit Tests (`src/domain/label.ts`): Zutaten absteigend nach Gewicht mit Anteilen, Allergene einmal gesammelt als **„Enthält: Gluten, Schalenfrüchte.“** (statt hinter jeder Zutat, sonst doppelt), Satz „Kann Spuren von … enthalten.“ (ohne schon enthaltene), Herstellungsdatum, Nährwerttabelle
+  - [x] Inhalt als reine Funktion mit Tests (`src/domain/label.ts`): Zutaten absteigend nach Gewicht mit Anteilen, Allergene einmal gesammelt als „**Enthält:** Gluten, Schalenfrüchte.“ (nur „Enthält:“ fett) (statt hinter jeder Zutat, sonst doppelt), Satz „Kann Spuren von … enthalten.“ (ohne schon enthaltene), Herstellungsdatum, Nährwerttabelle
   - [x] Etikett-Komponente in mm; Etikett-Sheet mit Vorschau im Müsli-Detail
   - [x] Platzmangel stufenweise: Schrift 7 → 6 px, dann Allergene, Spuren und Datum unter die Nährwerttabelle (nie abgeschnitten), dann bis 5,5 px; je Größe breitere Zutatenspalte nur, wenn es links eng ist (sonst Hinweis)
 - [x] Drucken, PDF, Bild teilen
@@ -208,7 +208,7 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
   - [x] Drucken als installierte App auf iPhone/iPad: iOS ignoriert dort `window.print()`, daher A4-Bogen als PDF über das Teilen-Menü (dort „Drucken“)
   - [x] Eigenen PDF-Button entfernt (auf allen Geräten)
   - [x] Platzprüfung misst sichtbare Zeilen statt nur `scrollHeight` (auf dem iPhone wurden Spuren ohne Hinweis abgeschnitten)
-- [ ] Auf dem iPhone testen: Vorschau, Fettschrift, Bild teilen, Drucken ✓; noch offen: zentrale Zeile „Enthält: …“ (fett) bei kleinem und großem Müsli
+- [ ] Auf dem iPhone testen: Vorschau, Fettschrift, Bild teilen, Drucken ✓; noch offen: zentrale Zeile „Enthält: …“ (nur „Enthält:“ fett) bei kleinem und großem Müsli
 
 ### Phase 5 – Filter
 

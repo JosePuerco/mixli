@@ -1,5 +1,5 @@
 // Etikett 70 × 42,3 mm nach design/DESIGN.md („Etikett“) und prototypes/Etikett.dc.html:
-// Kopfzeile Name links, Gesamtmenge rechts, Linie darunter; links Zutaten, „Enthält: …“ (fett), Spuren,
+// Kopfzeile Name links, Gesamtmenge rechts, Linie darunter; links Zutaten, „Enthält:“ (nur das Wort fett), Spuren,
 // Datum und Hinweis, rechts die Nährwerttabelle. Nur Schwarz auf Weiß. Maße in mm, Schrift in px (7 px ≈ 5 pt), damit
 // Vorschau, Druck, PDF und Bild gleich aussehen.
 // Zu viel Text: useLabelFit wählt die erste Stufe aus LAYOUT_STAGES, bei der alles passt – Allergene und
@@ -55,7 +55,11 @@ export function Label({ data, layout = DEFAULT_LAYOUT, preview = false, ref }: L
   // Allergene, Spuren, Datum und Hinweis stehen zweimal im DOM; data-notes blendet eine Stelle aus.
   const notes = (
     <>
-      {data.contains.length > 0 && <p className="font-extrabold">Enthält: {data.contains.join(', ')}.</p>}
+      {data.contains.length > 0 && (
+        <p>
+          <b className="font-extrabold">Enthält:</b> {data.contains.join(', ')}.
+        </p>
+      )}
       {data.traces && <p>{data.traces}</p>}
       <p>
         {data.madeOn} {LABEL_SOURCE_NOTE}
