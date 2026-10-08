@@ -3,15 +3,15 @@
 import { createPortal } from 'react-dom'
 import type { LabelData } from '../../domain/label'
 import { LABEL_HEIGHT_MM, PAGE_WIDTH_MM, sheetPositions } from '../../domain/labelSheet'
-import { Label } from './Label'
+import { Label, type LabelLayout } from './Label'
 
 interface PrintSheetProps {
   data: LabelData
-  /** Schriftgröße aus der Vorschau, damit der Druck genauso umbricht. */
-  textSize: number
+  /** Stufe aus der Vorschau (useLabelFit), damit der Druck genauso umbricht. */
+  layout: LabelLayout
 }
 
-export function PrintSheet({ data, textSize }: PrintSheetProps) {
+export function PrintSheet({ data, layout }: PrintSheetProps) {
   const positions = sheetPositions()
   const bottom = positions[positions.length - 1].y + LABEL_HEIGHT_MM
   return createPortal(
@@ -27,7 +27,7 @@ export function PrintSheet({ data, textSize }: PrintSheetProps) {
     >
       {positions.map((p, i) => (
         <div key={i} className="absolute" style={{ left: `${p.x}mm`, top: `${p.y}mm` }}>
-          <Label data={data} textSize={textSize} />
+          <Label data={data} layout={layout} />
         </div>
       ))}
     </div>,

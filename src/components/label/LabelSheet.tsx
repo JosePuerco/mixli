@@ -1,13 +1,14 @@
 // Etikett-Sheet im Müsli-Detail (prototypes/MuesliDetail.dc.html): Titel, Format, Vorschau in Originalgröße
 // auf grauer Fläche, darunter „Drucken“, „PDF“ und „Als Bild“. Passt der Text selbst klein nicht aufs
 // Etikett, steht unter der Vorschau ein Hinweis.
-// Drucken: Systemdruck des A4-Bogens (PrintSheet). PDF (Bogen) und Bild (ein Etikett) über das Teilen-Menü.
+// Drucken: Systemdruck des A4-Bogens (PrintSheet); als installierte App auf iPhone/iPad stattdessen die PDF
+// über das Teilen-Menü (dort „Drucken“). PDF (Bogen) und Bild (ein Etikett) über das Teilen-Menü.
 import { useId, useMemo, useRef, useState } from 'react'
 import type { Mix } from '../../db/types'
 import { buildLabel, labelFileName, type LabelData } from '../../domain/label'
 import { isAbort, isShareBlocked, shareOrDownload } from '../../lib/share'
 import { BottomSheet } from '../ui/BottomSheet'
-import { Button } from '../ui/Button'
+import { Button, type ButtonVariant } from '../ui/Button'
 import { FieldError } from '../ui/FieldError'
 import { Label, useLabelFit } from './Label'
 import { renderLabelPng, renderSheetPdf } from './labelExport'
@@ -30,16 +31,25 @@ export function LabelSheet({ open, onClose, mix }: LabelSheetProps) {
   )
 }
 
-type ExportKind = 'pdf' | 'png'
+/**
+ * Als installierte App (vom Home-Bildschirm) ignoriert iOS window.print() – es passiert einfach nichts.
+ * navigator.standalone gibt es nur in Safari auf iPhone/iPad und ist nur in diesem Modus true.
+ */
+function printViaShare(): boolean {
+  return (navigator as Navigator & { standalone?: boolean }).standalone === true
+}
+
+type ExportKind = 'print' | 'pdf' | 'png'
 
 const exportText: Record<ExportKind, { idle: string; pending: string; error: string }> = {
+  print: { idle: 'Drucken', pending: 'Drucken', error: 'Die Druckdatei konnte nicht erstellt werden.' },
   pdf: { idle: 'PDF', pending: 'PDF teilen', error: 'Die PDF konnte nicht erstellt werden.' },
   png: { idle: 'Als Bild', pending: 'Bild teilen', error: 'Das Bild konnte nicht erstellt werden.' },
 }
 
 function LabelContent({ data }: { data: LabelData }) {
   const labelRef = useRef<HTMLDivElement>(null)
-  const { textSize, fits } = useLabelFit(labelRef, data)
+  const { layout, fits } = useLabelFit(labelRef, data)
   const errorId = useId()
   const [busy, setBusy] = useState<ExportKind | null>(null)
   /** Fertige Datei, falls das Teilen-Menü einen zweiten Tipp braucht (Safari, siehe isShareBlocked). */
@@ -78,16 +88,21 @@ function LabelContent({ data }: { data: LabelData }) {
     }
   }
 
-  function exportButton(kind: ExportKind) {
+  function print() {
+    if (printViaShare()) exportLabel('print')
+    else window.print()
+  }
+
+  function actionButton(kind: ExportKind, variant: ButtonVariant, onClick: () => void) {
     return (
       <Button
-        variant="muted"
+        variant={variant}
         size="md"
         className="px-2"
         disabled={busy !== null}
         aria-busy={busy === kind}
         aria-describedby={error ? errorId : undefined}
-        onClick={() => exportLabel(kind)}
+        onClick={onClick}
       >
         {busy === kind ? 'Moment …' : pending?.kind === kind ? exportText[kind].pending : exportText[kind].idle}
       </Button>
@@ -97,24 +112,28 @@ function LabelContent({ data }: { data: LabelData }) {
   return (
     <>
       <div className="flex h-65 items-center justify-center rounded-input bg-surface-muted">
-        <Label ref={labelRef} data={data} textSize={textSize} preview />
+        <Label ref={labelRef} data={data} layout={layout} preview />
       </div>
       {!fits && (
         <p role="status" className="px-1 text-sm font-medium text-text-muted">
-          Zu viele Zutaten für das Etikett: Ein Teil des Textes ist abgeschnitten.
+          Zu viele Zutaten für das Etikett: Ein Teil der Zutatenliste ist abgeschnitten. Kürzere Zutatennamen
+          schaffen Platz.
         </p>
       )}
 
       <div className="grid grid-cols-3 gap-gap-sm">
-        <Button size="md" className="px-2" disabled={busy !== null} onClick={() => window.print()}>
-          Drucken
-        </Button>
-        {exportButton('pdf')}
-        {exportButton('png')}
+        {actionButton('print', 'primary', print)}
+        {actionButton('pdf', 'muted', () => exportLabel('pdf'))}
+        {actionButton('png', 'muted', () => exportLabel('png'))}
       </div>
+      {pending && !busy && (
+        <p role="status" className="px-1 text-caption font-semibold text-text">
+          Fertig – tippe noch einmal auf „{exportText[pending.kind].pending}“.
+        </p>
+      )}
       {error && <FieldError id={errorId}>{error}</FieldError>}
 
-      <PrintSheet data={data} textSize={textSize} />
+      <PrintSheet data={data} layout={layout} />
     </>
   )
 }

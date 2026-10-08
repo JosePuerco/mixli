@@ -1,39 +1,77 @@
 // Etikett 70 × 42,3 mm nach design/DESIGN.md („Etikett“) und prototypes/Etikett.dc.html:
 // Kopfzeile Name links, Gesamtmenge rechts, Linie darunter; links Zutaten, Spuren, Datum und Hinweis,
 // rechts die Nährwerttabelle. Nur Schwarz auf Weiß. Maße in mm, Schrift in px (7 px ≈ 5 pt), damit
-// Vorschau, Druck, PDF und Bild gleich aussehen. Zu viel Text: useLabelFit verkleinert die Schrift.
+// Vorschau, Druck, PDF und Bild gleich aussehen.
+// Zu viel Text: useLabelFit wählt die erste Stufe aus LAYOUT_STAGES, bei der alles passt – die Spuren
+// rutschen dabei unter die Nährwerttabelle, damit sie nie abgeschnitten werden.
 import { Fragment, useLayoutEffect, useState, type CSSProperties, type Ref, type RefObject } from 'react'
 import type { LabelData } from '../../domain/label'
 import { LABEL_SOURCE_NOTE } from '../../domain/label'
 import { LABEL_HEIGHT_MM, LABEL_WIDTH_MM } from '../../domain/labelSheet'
 
-/** Schriftgröße des Fließtexts in px: Vorgabe 7 px, bei Platzmangel schrittweise bis 5,5 px. */
-export const LABEL_TEXT_MAX = 7
-export const LABEL_TEXT_MIN = 5.5
-const LABEL_TEXT_STEP = 0.25
+export interface LabelLayout {
+  /** Schriftgröße des Fließtexts in px. */
+  textSize: number
+  /** Spuren, Datum und Hinweis unter der Nährwerttabelle statt unter den Zutaten. */
+  notesRight: boolean
+  /** Breitere Zutatenspalte (124 statt 104 px), Nährwerttabelle entsprechend schmaler. */
+  wide: boolean
+}
+
+/**
+ * Stufen bei Platzmangel, in dieser Reihenfolge: Schrift 7 → 6 px, dann Spuren und Datum nach rechts,
+ * dann breitere Zutatenspalte, zuletzt Schrift bis 5,5 px.
+ */
+export const LAYOUT_STAGES: readonly LabelLayout[] = [
+  ...[7, 6.75, 6.5, 6.25, 6].map((textSize) => ({ textSize, notesRight: false, wide: false })),
+  { textSize: 6, notesRight: true, wide: false },
+  ...[6, 5.75, 5.5].map((textSize) => ({ textSize, notesRight: true, wide: true })),
+]
+
+export const DEFAULT_LAYOUT = LAYOUT_STAGES[0]
+
+/** Überträgt eine Stufe aufs Etikett: als CSS-Variable und Daten-Attribute (siehe Label). */
+function layoutAttributes({ textSize, notesRight, wide }: LabelLayout) {
+  return {
+    '--label-text': `${textSize}px`,
+    'data-notes': notesRight ? 'right' : 'left',
+    'data-wide': wide ? 'true' : 'false',
+  }
+}
 
 interface LabelProps {
   data: LabelData
-  /** Schriftgröße des Fließtexts in px (aus useLabelFit). */
-  textSize?: number
+  layout?: LabelLayout
   /** Schatten und Rundung für die Vorschau; ohne für Druck, PDF und Bild. */
   preview?: boolean
   ref?: Ref<HTMLDivElement>
 }
 
-export function Label({ data, textSize = LABEL_TEXT_MAX, preview = false, ref }: LabelProps) {
+export function Label({ data, layout = DEFAULT_LAYOUT, preview = false, ref }: LabelProps) {
+  const { '--label-text': textSize, ...dataAttributes } = layoutAttributes(layout)
+  // Spuren, Datum und Hinweis stehen zweimal im DOM; data-notes blendet eine der beiden Stellen aus.
+  const notes = (
+    <>
+      {data.traces && <p>{data.traces}</p>}
+      <p>
+        {data.madeOn} {LABEL_SOURCE_NOTE}
+      </p>
+    </>
+  )
+
   return (
     <div
       ref={ref}
       lang="de"
-      className={`flex shrink-0 flex-col gap-[5px] overflow-hidden bg-surface px-[9px] py-[8px] text-text ${
+      {...dataAttributes}
+      className={`group/label flex shrink-0 flex-col gap-[5px] overflow-hidden bg-surface px-[9px] py-[8px] text-text ${
         preview ? 'rounded-[6px] shadow-label-preview' : ''
       }`}
       style={
         {
           width: `${LABEL_WIDTH_MM}mm`,
           height: `${LABEL_HEIGHT_MM}mm`,
-          '--label-text': `${textSize}px`,
+          '--label-text': textSize,
         } as CSSProperties
       }
     >
@@ -43,7 +81,10 @@ export function Label({ data, textSize = LABEL_TEXT_MAX, preview = false, ref }:
       </div>
 
       <div className="flex min-h-0 flex-1 gap-[8px] text-[length:var(--label-text)]">
-        <div data-label-fit className="flex min-h-0 w-[104px] shrink-0 flex-col gap-[4px] overflow-hidden leading-[1.3] hyphens-auto break-words">
+        <div
+          data-label-fit
+          className="flex min-h-0 w-[104px] shrink-0 flex-col gap-[4px] overflow-hidden leading-[1.3] hyphens-auto break-words group-data-[wide=true]/label:w-[124px]"
+        >
           <p>
             <b className="font-extrabold">Zutaten:</b>{' '}
             {data.ingredients.map((i, n) => (
@@ -59,58 +100,72 @@ export function Label({ data, textSize = LABEL_TEXT_MAX, preview = false, ref }:
               </Fragment>
             ))}
           </p>
-          {data.traces && <p>{data.traces}</p>}
-          <p>
-            {data.madeOn} {LABEL_SOURCE_NOTE}
-          </p>
+          <div className="flex flex-col gap-[4px] group-data-[notes=right]/label:hidden">{notes}</div>
         </div>
 
-        <dl data-label-fit className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden leading-[1.15]">
-          <div className="flex justify-between gap-1 border-b border-text pb-[1.5px] font-extrabold">
-            <dt>Nährwerte</dt>
-            <dd>pro 100 g</dd>
-          </div>
-          {data.nutrition.map((row, n) => (
-            <div key={row.label} className={`flex justify-between gap-1 ${n === 0 ? 'pt-[1.5px]' : ''} ${row.sub ? 'pl-[5px]' : ''}`}>
-              <dt className="min-w-0 truncate">{row.label}</dt>
-              <dd className="shrink-0">{row.value}</dd>
+        <div data-label-fit className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+          <dl className="flex flex-col leading-[1.15]">
+            <div className="flex justify-between gap-1 border-b border-text pb-[1.5px] font-extrabold">
+              <dt>Nährwerte</dt>
+              <dd>pro 100 g</dd>
             </div>
-          ))}
-        </dl>
+            {data.nutrition.map((row, n) => (
+              <div key={row.label} className={`flex justify-between gap-1 ${n === 0 ? 'pt-[1.5px]' : ''} ${row.sub ? 'pl-[5px]' : ''}`}>
+                <dt className="min-w-0 truncate">{row.label}</dt>
+                <dd className="shrink-0">{row.value}</dd>
+              </div>
+            ))}
+          </dl>
+          <div className="hidden flex-col gap-[4px] pt-[5px] leading-[1.3] hyphens-auto break-words group-data-[notes=right]/label:flex">
+            {notes}
+          </div>
+        </div>
       </div>
     </div>
   )
 }
 
 export interface LabelFit {
-  textSize: number
-  /** false: Selbst in der kleinsten Schrift passt nicht alles aufs Etikett. */
+  layout: LabelLayout
+  /** false: Selbst in der letzten Stufe passt nicht alles aufs Etikett. */
   fits: boolean
 }
 
 /**
- * Sucht die größte Schrift (7 → 5,5 px), bei der Zutaten und Nährwerte vollständig aufs Etikett passen.
+ * Sucht die erste Stufe aus LAYOUT_STAGES, bei der alles vollständig aufs Etikett passt.
  * Misst am gerenderten Etikett (ref); läuft erneut, wenn sich die Daten ändern oder die Schrift geladen ist.
  */
 export function useLabelFit(ref: RefObject<HTMLDivElement | null>, data: LabelData | null): LabelFit {
-  const [fit, setFit] = useState<LabelFit>({ textSize: LABEL_TEXT_MAX, fits: true })
+  const [fit, setFit] = useState<LabelFit>({ layout: DEFAULT_LAYOUT, fits: true })
 
   useLayoutEffect(() => {
     let cancelled = false
+
+    function apply(el: HTMLElement, layout: LabelLayout) {
+      for (const [name, value] of Object.entries(layoutAttributes(layout))) {
+        if (name.startsWith('--')) el.style.setProperty(name, value)
+        else el.setAttribute(name, value)
+      }
+    }
 
     function measure() {
       const el = ref.current
       if (!el || cancelled) return
       const columns = [...el.querySelectorAll<HTMLElement>('[data-label-fit]')]
       const overflows = () => columns.some((c) => c.scrollHeight > c.clientHeight + 0.5)
-      let size = LABEL_TEXT_MAX
-      el.style.setProperty('--label-text', `${size}px`)
-      while (overflows() && size > LABEL_TEXT_MIN) {
-        size -= LABEL_TEXT_STEP
-        el.style.setProperty('--label-text', `${size}px`)
+      // Ohne passende Stufe bleibt die letzte (kleinste) stehen.
+      let layout = LAYOUT_STAGES[LAYOUT_STAGES.length - 1]
+      let fits = false
+      for (const stage of LAYOUT_STAGES) {
+        apply(el, stage)
+        if (!overflows()) {
+          layout = stage
+          fits = true
+          break
+        }
       }
-      const fits = !overflows()
-      setFit((prev) => (prev.textSize === size && prev.fits === fits ? prev : { textSize: size, fits }))
+      apply(el, layout)
+      setFit((prev) => (prev.layout === layout && prev.fits === fits ? prev : { layout, fits }))
     }
 
     measure()
