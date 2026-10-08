@@ -1,10 +1,11 @@
 // Müsli-Detail: Zurück, „Bearbeiten“; für wen · Datum, Name groß; Karte Zusammensetzung (Balken, Zeilen mit
 // Farbpunkt, Name, %, Gramm); volle Nährwerttabelle pro 100 g; Allergene; Notiz; Löschen.
-// Unten „Duplizieren“ (das „Etikett“ kommt in Phase 4 daneben). Alle Werte stammen aus den Snapshots.
+// Unten „Duplizieren“ und „Etikett“ (öffnet den Etikett-Sheet). Alle Werte stammen aus den Snapshots.
 import { useState, type ReactNode } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { IconBack, IconCopy } from '../components/icons/Icons'
+import { IconBack, IconLabel } from '../components/icons/Icons'
+import { LabelSheet } from '../components/label/LabelSheet'
 import { MixBar } from '../components/mix/MixBar'
 import { segmentColor } from '../components/mix/MixRing'
 import { NutritionTable } from '../components/mix/NutritionTable'
@@ -66,6 +67,7 @@ function Detail({ mix }: { mix: Mix }) {
   const navigate = useNavigate()
   const { open, confirmSheet } = useOpenInMixer()
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [labelOpen, setLabelOpen] = useState(false)
 
   const total = totalGrams(mix.items)
   const itemShares = shares(mix.items)
@@ -91,10 +93,16 @@ function Detail({ mix }: { mix: Mix }) {
           />
         }
         footer={
-          <Button variant="surface" fullWidth onClick={() => open('duplicate', mix.id)}>
-            <IconCopy size={18} strokeWidth={1.8} />
-            Duplizieren
-          </Button>
+          <div className="grid grid-cols-[1fr_2fr] gap-2.5">
+            {/* Schmale Spalte: ohne Icon und mit wenig Innenabstand, wie im Prototyp. */}
+            <Button variant="surface" className="px-2" onClick={() => open('duplicate', mix.id)}>
+              Duplizieren
+            </Button>
+            <Button disabled={!nutrition} onClick={() => setLabelOpen(true)}>
+              <IconLabel size={18} />
+              Etikett
+            </Button>
+          </div>
         }
       >
         <div className="flex flex-col gap-3.5">
@@ -157,6 +165,7 @@ function Detail({ mix }: { mix: Mix }) {
       </FlowLayout>
 
       {confirmSheet}
+      <LabelSheet open={labelOpen} onClose={() => setLabelOpen(false)} mix={mix} />
       <ConfirmSheet
         open={confirmDelete}
         onClose={() => setConfirmDelete(false)}

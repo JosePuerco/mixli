@@ -198,7 +198,9 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
 
 ### Phase 4 – Etikett
 
-- [ ] Etikett-Layout in 70 × 42,3 mm
+- [x] Etikett-Layout in 70 × 42,3 mm
+  - [x] Inhalt als reine Funktion mit Tests (`src/domain/label.ts`): Zutaten absteigend nach Gewicht mit Anteilen, enthaltene Allergene fett in Klammern („Haferflocken (**Gluten**) 75 %“), Satz „Kann Spuren von … enthalten.“, Herstellungsdatum, Nährwerttabelle
+  - [x] Etikett-Komponente in mm, Schrift wird bei vielen Zutaten bis 5,5 px kleiner (sonst Hinweis); Etikett-Sheet mit Vorschau im Müsli-Detail
 - [ ] Drucken, PDF, Bild teilen
 
 ### Phase 5 – Filter
