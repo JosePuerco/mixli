@@ -196,7 +196,7 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
   - [x] Müsli-Liste („Neueste | A–Z“, Duplizieren) und Detail (Zusammensetzung, Nährwerttabelle, Allergene, Notiz, Bearbeiten, Duplizieren, Löschen); vor Bearbeiten/Duplizieren Rückfrage, wenn in „Mixen“ etwas in Arbeit ist
 - [x] Auf dem iPhone testen: Mischen, Mengen-Sheet, Speichern, Liste, Detail, Bearbeiten, Duplizieren, Löschen
 
-### Phase 4 – Etikett
+### Phase 4 – Etikett ✓ (abgenommen 08.10.2026)
 
 - [x] Etikett-Layout in 70 × 42,3 mm
   - [x] Inhalt als reine Funktion mit Tests (`src/domain/label.ts`): Zutaten absteigend nach Gewicht mit Anteilen, Allergene einmal gesammelt als „**Enthält:** Gluten, Schalenfrüchte.“ (nur „Enthält:“ fett) (statt hinter jeder Zutat, sonst doppelt), Satz „Kann Spuren von … enthalten.“ (ohne schon enthaltene), Herstellungsdatum, Nährwerttabelle
@@ -208,7 +208,7 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
   - [x] Drucken als installierte App auf iPhone/iPad: iOS ignoriert dort `window.print()`, daher A4-Bogen als PDF über das Teilen-Menü (dort „Drucken“)
   - [x] Eigenen PDF-Button entfernt (auf allen Geräten)
   - [x] Platzprüfung misst sichtbare Zeilen statt nur `scrollHeight` (auf dem iPhone wurden Spuren ohne Hinweis abgeschnitten)
-- [ ] Auf dem iPhone testen: Vorschau, Fettschrift, Bild teilen, Drucken ✓; noch offen: zentrale Zeile „Enthält: …“ (nur „Enthält:“ fett) bei kleinem und großem Müsli
+- [x] Auf dem iPhone testen: Vorschau, Fettschrift (nur „Zutaten:“ und „Enthält:“), Bild teilen, Drucken über das Teilen-Menü, großes Müsli
 
 ### Phase 5 – Filter
 
