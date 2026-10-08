@@ -18,3 +18,8 @@ export const ALLERGENS = [
 ] as const
 
 export type AllergenId = (typeof ALLERGENS)[number]['id']
+
+/** Kurzer Anzeigename, z. B. „Schalenfrüchte“. */
+export function allergenLabel(id: AllergenId): string {
+  return ALLERGENS.find((a) => a.id === id)?.label ?? id
+}

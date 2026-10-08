@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  allergenLine,
   byName,
   cardAllergen,
   filterIngredients,
@@ -130,5 +131,17 @@ describe('ingredientCountLabel', () => {
     expect(ingredientCountLabel(1)).toBe('1 Zutat')
     expect(ingredientCountLabel(0)).toBe('0 Zutaten')
     expect(ingredientCountLabel(7)).toBe('7 Zutaten')
+  })
+})
+
+describe('allergenLine', () => {
+  it('nennt erst „enthält“, dann Spuren', () => {
+    expect(allergenLine({ allergensContains: ['gluten', 'nuts'], allergensTraces: ['sesame'] })).toBe(
+      'Gluten · Schalenfrüchte · Spuren: Sesam',
+    )
+  })
+
+  it('sagt „Keine Allergene“, wenn es keine gibt', () => {
+    expect(allergenLine({ allergensContains: [], allergensTraces: [] })).toBe('Keine Allergene')
   })
 })

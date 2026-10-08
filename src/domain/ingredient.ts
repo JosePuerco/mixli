@@ -1,6 +1,6 @@
 // Zutaten: Standard-Tags, Aufbereitung von Formulardaten und Anzeige-Hilfen für Liste und Karte.
 import type { Ingredient } from '../db/types'
-import { ALLERGENS, type AllergenId } from './allergens'
+import { allergenLabel } from './allergens'
 
 /** Feste Vorschläge, stehen immer zur Auswahl. Eigene Tags kommen aus den gespeicherten Zutaten. */
 export const DEFAULT_TAGS = ['vegan', 'ohne Zuckerzusatz', 'Bio'] as const
@@ -48,8 +48,6 @@ export function normalizeDraft(draft: IngredientDraft): IngredientDraft {
   }
 }
 
-const allergenLabel = (id: AllergenId) => ALLERGENS.find((a) => a.id === id)?.label ?? id
-
 export interface CardAllergen {
   label: string
   kind: 'contains' | 'traces'
@@ -67,6 +65,15 @@ export function cardAllergen(i: Pick<Ingredient, 'allergensContains' | 'allergen
   const contains = i.allergensContains.length > 0
   const first = contains ? i.allergensContains[0] : i.allergensTraces[0]
   return { label: allergenLabel(first), kind: contains ? 'contains' : 'traces', more: total - 1 }
+}
+
+/** Alle Allergene in einer Zeile, z. B. „Gluten · Spuren: Sesam“; ohne Allergene „Keine Allergene“. */
+export function allergenLine(i: Pick<Ingredient, 'allergensContains' | 'allergensTraces'>): string {
+  const parts = [
+    ...i.allergensContains.map(allergenLabel),
+    ...i.allergensTraces.map((id) => `Spuren: ${allergenLabel(id)}`),
+  ]
+  return parts.length > 0 ? parts.join(' · ') : 'Keine Allergene'
 }
 
 /** Live-Suche: Name oder Marke enthält den Suchtext, ohne Rücksicht auf Groß-/Kleinschreibung. */

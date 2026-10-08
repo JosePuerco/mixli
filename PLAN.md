@@ -187,6 +187,7 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
 ### Phase 3 – Mixen und Speichern (MVP fertig)
 
 - [ ] Zutaten hinzufügen, +/−, Mengen-Sheet mit Ziffernblock
+  - [x] Mixen-Screen mit Ring, Übersicht, Zutatenkarten mit Stepper, Allergen-Chips, Hinzufügen-Sheet und Mengen-Sheet (erste Ziffer ersetzt den vorgegebenen Wert); fehlt noch: Test auf dem iPhone
 - [ ] Live-Berechnung inkl. Rundung (mit Tests)
   - [x] Berechnung und Anzeige-Rundung als reine Funktionen mit Tests (`src/domain/mix.ts`, `src/domain/rounding.ts`)
 - [ ] Müsli mit Snapshot speichern, Liste, Detail, Duplizieren

@@ -64,6 +64,14 @@ export function IconMore(props: IconProps) {
   )
 }
 
+export function IconMinus(props: IconProps) {
+  return (
+    <Icon strokeWidth={2} {...props}>
+      <path d="M5 12h14" />
+    </Icon>
+  )
+}
+
 export function IconPlus(props: IconProps) {
   return (
     <Icon strokeWidth={2} {...props}>
