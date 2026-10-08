@@ -1,8 +1,10 @@
 // Etikett-Sheet im Müsli-Detail (prototypes/MuesliDetail.dc.html): Titel, Format, Vorschau in Originalgröße
-// auf grauer Fläche, darunter „Drucken“, „PDF“ und „Als Bild“. Passt der Text selbst klein nicht aufs
-// Etikett, steht unter der Vorschau ein Hinweis.
-// Drucken: Systemdruck des A4-Bogens (PrintSheet); als installierte App auf iPhone/iPad stattdessen die PDF
-// über das Teilen-Menü (dort „Drucken“). PDF (Bogen) und Bild (ein Etikett) über das Teilen-Menü.
+// auf grauer Fläche, darunter „Drucken“ und „Als Bild“. Passt der Text selbst klein nicht aufs Etikett,
+// steht unter der Vorschau ein Hinweis.
+// Drucken: Systemdruck des A4-Bogens (PrintSheet; dort auch „Als PDF sichern“). Als installierte App auf
+// iPhone/iPad stattdessen der Bogen als PDF über das Teilen-Menü (dort „Drucken“, „In Dateien sichern“ …).
+// Bild (ein Etikett) über das Teilen-Menü. Einen eigenen PDF-Button gibt es nicht mehr: Auf dem iPhone tat
+// er dasselbe wie „Drucken“.
 import { useId, useMemo, useRef, useState } from 'react'
 import type { Mix } from '../../db/types'
 import { buildLabel, labelFileName, type LabelData } from '../../domain/label'
@@ -39,11 +41,10 @@ function printViaShare(): boolean {
   return (navigator as Navigator & { standalone?: boolean }).standalone === true
 }
 
-type ExportKind = 'print' | 'pdf' | 'png'
+type ExportKind = 'print' | 'png'
 
 const exportText: Record<ExportKind, { idle: string; pending: string; error: string }> = {
   print: { idle: 'Drucken', pending: 'Drucken', error: 'Die Druckdatei konnte nicht erstellt werden.' },
-  pdf: { idle: 'PDF', pending: 'PDF teilen', error: 'Die PDF konnte nicht erstellt werden.' },
   png: { idle: 'Als Bild', pending: 'Bild teilen', error: 'Das Bild konnte nicht erstellt werden.' },
 }
 
@@ -121,9 +122,8 @@ function LabelContent({ data }: { data: LabelData }) {
         </p>
       )}
 
-      <div className="grid grid-cols-3 gap-gap-sm">
+      <div className="grid grid-cols-2 gap-gap-sm">
         {actionButton('print', 'primary', print)}
-        {actionButton('pdf', 'muted', () => exportLabel('pdf'))}
         {actionButton('png', 'muted', () => exportLabel('png'))}
       </div>
       {pending && !busy && (

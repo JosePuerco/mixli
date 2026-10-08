@@ -56,7 +56,7 @@ Mixli ist eine Offline-PWA für iOS und Android, mit der ich Müslis aus selbst 
 ### Etikett
 
 - 70 × 42,3 mm: Name, Gesamtmenge, Zutatenliste mit Anteilen (Allergene **fett** hervorgehoben), Herstellungsdatum, Nährwerttabelle pro 100 g, Hinweis „Nährwerte aus Herstellerangaben berechnet“
-- Drucken über die Systemdruckfunktion, digital als PDF oder Bild über das Teilen-Menü
+- „Drucken“ über die Systemdruckfunktion (dort auch als PDF sichern; als installierte App auf dem iPhone als PDF über das Teilen-Menü), „Als Bild“ über das Teilen-Menü. Kein eigener PDF-Button (auf dem iPhone war er gleich wie „Drucken“)
 - Später optional: Startposition auf dem A4-Bogen wählen (angebrochene Bögen)
 
 ### Backup
@@ -94,7 +94,7 @@ Dezimaltrennzeichen in der Anzeige ist das Komma.
 | Lokale Datenbank | Dexie.js (IndexedDB) | Zutaten, Müslis, Fotos, Kategorien |
 | PWA/Offline | vite-plugin-pwa (Workbox) | Service Worker, Installierbarkeit, Updates |
 | Validierung | Zod | Eingaben und Backup-Import |
-| Etikett | Druck-CSS + html-to-image/jsPDF | Druck, PDF, Bild |
+| Etikett | Druck-CSS + html-to-image/jsPDF | Druck, Bild, PDF für den Druck auf dem iPhone |
 | Fotos | Canvas-Verkleinerung im Browser | ca. 800 px, WebP/JPEG |
 | Tests | Vitest | Vor allem Nährwert-, Rundungs- und Allergenlogik |
 
@@ -204,9 +204,11 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
   - [x] Platzmangel stufenweise: Schrift 7 → 6 px, dann Spuren und Datum unter die Nährwerttabelle (nie abgeschnitten), dann breitere Zutatenspalte, zuletzt 5,5 px (sonst Hinweis)
 - [x] Drucken, PDF, Bild teilen
   - [x] Druck-CSS: A4 ohne Seitenrand, 3 × 7 Etiketten an festen mm-Positionen (`src/domain/labelSheet.ts`, Standardmaße: seitlich randlos, oben/unten je 0,45 mm)
-  - [x] „PDF“ = A4-Bogen mit 21 Etiketten, „Als Bild“ = ein Etikett als PNG in 600 dpi; über das Teilen-Menü (sonst Download), Bibliotheken werden erst beim Antippen geladen
-  - [x] Drucken als installierte App auf iPhone/iPad: iOS ignoriert dort `window.print()`, daher PDF über das Teilen-Menü (dort „Drucken“)
-- [ ] Auf dem iPhone testen: Vorschau, Fettschrift, PDF und Bild teilen ✓; noch offen: Drucken über das Teilen-Menü (Ränder!), großes Müsli mit Spuren rechts
+  - [x] „Als Bild“ = ein Etikett als PNG in 600 dpi über das Teilen-Menü (sonst Download); Bibliotheken werden erst beim Antippen geladen
+  - [x] Drucken als installierte App auf iPhone/iPad: iOS ignoriert dort `window.print()`, daher A4-Bogen als PDF über das Teilen-Menü (dort „Drucken“)
+  - [x] Eigenen PDF-Button entfernt (auf allen Geräten)
+  - [x] Platzprüfung misst sichtbare Zeilen statt nur `scrollHeight` (auf dem iPhone wurden Spuren ohne Hinweis abgeschnitten)
+- [ ] Auf dem iPhone testen: Vorschau, Fettschrift, Bild teilen, Drucken ✓; noch offen: großes Müsli mit Spuren vollständig in der Vorschau
 
 ### Phase 5 – Filter
 

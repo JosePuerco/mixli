@@ -152,7 +152,20 @@ export function useLabelFit(ref: RefObject<HTMLDivElement | null>, data: LabelDa
       const el = ref.current
       if (!el || cancelled) return
       const columns = [...el.querySelectorAll<HTMLElement>('[data-label-fit]')]
-      const overflows = () => columns.some((c) => c.scrollHeight > c.clientHeight + 0.5)
+      const lines = columns.map((c) => [...c.querySelectorAll<HTMLElement>('p, dl > div')])
+      const paddingBottom = parseFloat(getComputedStyle(el).paddingBottom) || 0
+      // Gemessen wird, was sichtbar ist: Jeder Absatz und jede Tabellenzeile muss innerhalb seiner Spalte
+      // und innerhalb des Etiketts enden. Mit scrollHeight allein blieben auf dem iPhone (Safari 18)
+      // abgeschnittene Spuren unbemerkt.
+      const overflows = () => {
+        const labelBottom = el.getBoundingClientRect().bottom - paddingBottom
+        return columns.some((column, i) => {
+          if (column.scrollHeight > column.clientHeight + 0.5) return true
+          const bottom = Math.min(column.getBoundingClientRect().bottom, labelBottom) + 0.5
+          // Ausgeblendete Absätze (data-notes) haben keine Boxen und zählen nicht.
+          return lines[i].some((line) => line.getClientRects().length > 0 && line.getBoundingClientRect().bottom > bottom)
+        })
+      }
       // Ohne passende Stufe bleibt die letzte (kleinste) stehen.
       let layout = LAYOUT_STAGES[LAYOUT_STAGES.length - 1]
       let fits = false
