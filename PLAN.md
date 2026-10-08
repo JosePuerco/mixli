@@ -172,13 +172,13 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
   - [x] Kategorien verwalten in „Mehr“ (umbenennen, sortieren, löschen)
 - [x] Leerer Zustand beim ersten Start
 
-### Phase 2 – Backup
+### Phase 2 – Backup ✓ (abgenommen 08.10.2026)
 
 - [x] Export als Datei über das Teilen-Menü (Download, wo Teilen fehlt)
 - [x] Import mit Prüfung (Zod) und Wahl „ersetzen“ oder „zusammenführen“
   - Zusammenführen streng über die id: Zutaten und Müslis mit neuerem `updatedAt` gewinnen; Kategorien, Fotos und Einstellungen nur ergänzen
 - [x] Erinnerung bei Backup älter als 14 Tage (Status in der Backup-Karte)
-- [ ] Auf dem iPhone testen: Export in iCloud Drive, Import beider Varianten
+- [x] Auf dem iPhone testen: Export in iCloud Drive, Import beider Varianten
 
 ### Phase 3 – Mixen und Speichern (MVP fertig)
 
