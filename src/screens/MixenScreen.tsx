@@ -11,9 +11,11 @@ import { AmountSheet } from '../components/mix/AmountSheet'
 import { MixItemCard } from '../components/mix/MixItemCard'
 import { segmentColor } from '../components/mix/MixRing'
 import { MixSummaryCard } from '../components/mix/MixSummaryCard'
+import { SaveMixSheet } from '../components/mix/SaveMixSheet'
 import { useMixDraft } from '../components/mix/useMixDraft'
 import { AllergenChip } from '../components/ui/Chip'
 import { Card } from '../components/ui/Card'
+import { ConfirmSheet } from '../components/ui/ConfirmSheet'
 import { Button } from '../components/ui/Button'
 import { Screen } from '../components/ui/Screen'
 import { ScreenHeader } from '../components/ui/ScreenHeader'
@@ -22,13 +24,14 @@ import { press } from '../design/motion'
 import { allergenLabel } from '../domain/allergens'
 import { byName } from '../domain/ingredient'
 import { mixAllergens, nutritionPer100g, shares, totalGrams } from '../domain/mix'
-import { addItem, resolveLines, setGrams, stepItem } from '../domain/mixDraft'
+import { addItem, emptyDraft, resolveLines, setGrams, stepItem } from '../domain/mixDraft'
 
 export function MixenScreen() {
   const navigate = useNavigate()
   const { draft, update } = useMixDraft()
   const ingredients = useLiveQuery(() => db.ingredients.toArray(), [])
   const [adding, setAdding] = useState(false)
+  const [sheet, setSheet] = useState<'save' | 'discard' | null>(null)
   // Mengen-Sheet: Zutat beim Öffnen merken und getrennt vom Offen-Zustand halten, damit der Inhalt
   // beim Hinausgleiten stehen bleibt (auch wenn die Zutat bei 0 g gerade aus dem Mix geflogen ist).
   const [amountItem, setAmountItem] = useState({ id: '', name: '', grams: 0 })
@@ -66,6 +69,18 @@ export function MixenScreen() {
         <ScreenHeader
           eyebrow={draft.mixId ? 'Müsli bearbeiten' : 'Neue Mischung'}
           title={draft.name || 'Mixen'}
+          action={
+            (lines.length > 0 || draft.mixId) && (
+              <div className="flex shrink-0 items-center gap-gap-sm">
+                <Button variant="surface" size="compact" onClick={() => setSheet('discard')}>
+                  Verwerfen
+                </Button>
+                <Button size="xs" disabled={lines.length === 0} onClick={() => setSheet('save')}>
+                  Speichern
+                </Button>
+              </div>
+            )
+          }
         />
 
         {nutrition ? (
@@ -154,6 +169,31 @@ export function MixenScreen() {
         onApply={(g) => {
           update((d) => setGrams(d, amountItem.id, g))
           setAmountOpen(false)
+        }}
+      />
+
+      <SaveMixSheet
+        open={sheet === 'save'}
+        onClose={() => setSheet(null)}
+        draft={draft}
+        // Der Entwurf ist beim Speichern schon geleert worden. Detailansicht folgt in Schritt D.
+        onSaved={() => navigate('/muesli')}
+      />
+
+      <ConfirmSheet
+        open={sheet === 'discard'}
+        onClose={() => setSheet(null)}
+        title={draft.mixId ? 'Änderungen verwerfen?' : 'Mischung verwerfen?'}
+        text={
+          draft.mixId
+            ? `Deine Änderungen gehen verloren. Das gespeicherte Müsli „${draft.name}“ bleibt, wie es ist.`
+            : 'Die Zutaten und Mengen dieser Mischung gehen verloren.'
+        }
+        confirmLabel="Verwerfen"
+        onConfirm={() => {
+          added.current.clear()
+          update(() => emptyDraft())
+          setSheet(null)
         }}
       />
     </>

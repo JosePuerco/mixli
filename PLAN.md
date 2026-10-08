@@ -192,6 +192,7 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
   - [x] Berechnung und Anzeige-Rundung als reine Funktionen mit Tests (`src/domain/mix.ts`, `src/domain/rounding.ts`)
 - [ ] Müsli mit Snapshot speichern, Liste, Detail, Duplizieren
   - [x] Entwurf, Speichern, Bearbeiten, Duplizieren, Löschen in der Datenbank mit Tests (`src/domain/mixDraft.ts`, `src/db/repo.ts`)
+  - [x] Speichern-Sheet (Name, für wen, Notiz) und „Verwerfen“ mit Rückfrage im Mixen-Screen
 
 ### Phase 4 – Etikett
 
