@@ -48,6 +48,10 @@ Mixli ist eine Offline-PWA für iOS und Android, mit der ich Müslis aus selbst 
 - Name, für wen, Datum, Notiz
 - Liste, sortierbar nach „Neueste“ und „A–Z“, Duplizieren als Vorlage
 - Detailansicht mit Zusammensetzung, voller Nährwerttabelle, Allergenen und Etikett
+- Datum ist der Tag des ersten Speicherns (`createdAt`), nicht änderbar; es wird später das Herstellungsdatum auf dem Etikett
+- **Bearbeiten:** Zutaten behalten ihre Snapshots von damals; nur neu hinzugefügte bekommen aktuelle Werte. Datum bleibt.
+- **Duplizieren:** Zutaten und Mengen landen als neuer, ungespeicherter Mix in „Mixen“, mit den aktuellen Werten der Zutaten
+- Der Mix in Arbeit wird laufend auf dem Gerät gespeichert (übersteht Tab-Wechsel und App-Neustart), aber nicht ins Backup übernommen
 
 ### Etikett
 
@@ -184,7 +188,9 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
 
 - [ ] Zutaten hinzufügen, +/−, Mengen-Sheet mit Ziffernblock
 - [ ] Live-Berechnung inkl. Rundung (mit Tests)
+  - [x] Berechnung und Anzeige-Rundung als reine Funktionen mit Tests (`src/domain/mix.ts`, `src/domain/rounding.ts`)
 - [ ] Müsli mit Snapshot speichern, Liste, Detail, Duplizieren
+  - [x] Entwurf, Speichern, Bearbeiten, Duplizieren, Löschen in der Datenbank mit Tests (`src/domain/mixDraft.ts`, `src/db/repo.ts`)
 
 ### Phase 4 – Etikett
 

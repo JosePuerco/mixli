@@ -4,15 +4,23 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { db } from './db'
 import {
   addCategory,
+  clearDraft,
   deleteCategory,
+  deleteMix,
+  duplicateMix,
+  editMix,
   listCategories,
   listTags,
+  loadDraft,
   renameCategory,
   reorderCategories,
+  saveDraft,
   saveIngredient,
+  saveMix,
   setArchived,
 } from './repo'
 import type { IngredientDraft } from '../domain/ingredient'
+import { addItem, emptyDraft, type MixDraft } from '../domain/mixDraft'
 
 const draft = (overrides: Partial<IngredientDraft> = {}): IngredientDraft => ({
   name: 'Haferflocken',
@@ -139,5 +147,131 @@ describe('Kategorien', () => {
     expect(await db.categories.get(nuts)).toBeUndefined()
     expect((await db.ingredients.get(almond))?.categoryId).toBeUndefined()
     expect((await db.ingredients.get(oats))?.categoryId).toBe(other)
+  })
+})
+
+describe('Entwurf (Mix in Arbeit)', () => {
+  it('ist am Anfang leer', async () => {
+    expect(await loadDraft()).toEqual(emptyDraft())
+  })
+
+  it('wird gespeichert, geladen und geleert', async () => {
+    const d: MixDraft = { name: 'Test', items: [{ ingredientId: 'a', grams: 50 }] }
+    await saveDraft(d)
+    expect(await loadDraft()).toEqual(d)
+    await clearDraft()
+    expect(await loadDraft()).toEqual(emptyDraft())
+  })
+
+  it('ergibt bei einem kaputten Eintrag einen leeren Entwurf', async () => {
+    await db.settings.put({ key: 'mixDraft', value: { items: 'kaputt' } })
+    expect(await loadDraft()).toEqual(emptyDraft())
+  })
+})
+
+describe('Müslis', () => {
+  async function twoIngredients() {
+    const oats = await saveIngredient(draft(), { kind: 'keep' })
+    const almonds = await saveIngredient(
+      draft({ name: 'Mandeln', allergensContains: ['nuts'], nutrition: { ...draft().nutrition, protein: 22 } }),
+      { kind: 'keep' },
+    )
+    return { oats, almonds }
+  }
+
+  async function newMix(name = 'Frühstück') {
+    const { oats, almonds } = await twoIngredients()
+    const d = { ...addItem(addItem(emptyDraft(), oats), almonds), name, forWhom: ' Lena ', note: ' ' }
+    await saveDraft(d)
+    const id = await saveMix(d)
+    return { id, oats, almonds }
+  }
+
+  it('speichert ein Müsli mit Snapshots der aktuellen Zutaten und leert den Entwurf', async () => {
+    const { id, oats } = await newMix()
+    const mix = await db.mixes.get(id)
+    expect(mix?.name).toBe('Frühstück')
+    expect(mix?.forWhom).toBe('Lena')
+    expect(mix).not.toHaveProperty('note')
+    expect(mix?.items).toHaveLength(2)
+    expect(mix?.items[0]).toMatchObject({ ingredientId: oats, grams: 50, snapshot: { name: 'Haferflocken', allergensContains: ['gluten'] } })
+    expect(mix?.items[1].snapshot.nutrition.protein).toBe(22)
+    expect(mix?.createdAt).toBeInstanceOf(Date)
+    expect(await loadDraft()).toEqual(emptyDraft())
+  })
+
+  it('lässt alte Snapshots unverändert, wenn die Zutat später geändert wird', async () => {
+    const { id, oats } = await newMix()
+    await saveIngredient(draft({ name: 'Hafer neu', nutrition: { ...draft().nutrition, protein: 99 } }), { kind: 'keep' }, oats)
+    const mix = await db.mixes.get(id)
+    expect(mix?.items[0].snapshot).toMatchObject({ name: 'Haferflocken', nutrition: { protein: 13.5 } })
+  })
+
+  it('lehnt Müslis ohne Namen oder ohne Zutaten ab', async () => {
+    const { oats } = await twoIngredients()
+    await expect(saveMix({ ...addItem(emptyDraft(), oats), name: '  ' })).rejects.toThrow('Name fehlt')
+    await expect(saveMix({ ...emptyDraft(), name: 'Leer' })).rejects.toThrow('Keine Zutaten')
+    expect(await db.mixes.count()).toBe(0)
+  })
+
+  it('lehnt Zeilen ab, deren Zutat fehlt und die keinen Snapshot haben', async () => {
+    await expect(saveMix({ name: 'X', items: [{ ingredientId: 'weg', grams: 10 }] })).rejects.toThrow('Zutat nicht gefunden')
+  })
+
+  it('speichert Zeilen mit 0 g nicht mit', async () => {
+    const { oats, almonds } = await twoIngredients()
+    const id = await saveMix({ name: 'X', items: [{ ingredientId: oats, grams: 30 }, { ingredientId: almonds, grams: 0 }] })
+    expect((await db.mixes.get(id))?.items.map((i) => i.ingredientId)).toEqual([oats])
+  })
+
+  it('Bearbeiten: behält alte Snapshots und das Datum, neue Zutaten bekommen aktuelle Werte', async () => {
+    const { id, oats } = await newMix()
+    const before = (await db.mixes.get(id))!
+    await saveIngredient(draft({ nutrition: { ...draft().nutrition, protein: 99 } }), { kind: 'keep' }, oats)
+    const raisins = await saveIngredient(draft({ name: 'Rosinen', allergensContains: ['sulphites'] }), { kind: 'keep' })
+
+    const edit = await editMix(id)
+    expect(await loadDraft()).toEqual(edit)
+    expect(edit.mixId).toBe(id)
+    const savedId = await saveMix({ ...addItem(edit, raisins), name: 'Frühstück 2' })
+
+    expect(savedId).toBe(id)
+    expect(await db.mixes.count()).toBe(1)
+    const after = (await db.mixes.get(id))!
+    expect(after.name).toBe('Frühstück 2')
+    expect(after.createdAt).toEqual(before.createdAt)
+    expect(after.updatedAt.getTime()).toBeGreaterThanOrEqual(before.updatedAt.getTime())
+    expect(after.items[0].snapshot.nutrition.protein).toBe(13.5) // alter Snapshot
+    expect(after.items[2].snapshot.name).toBe('Rosinen') // neu hinzugefügt
+  })
+
+  it('Bearbeiten scheitert, wenn das Müsli inzwischen gelöscht ist', async () => {
+    const { id } = await newMix()
+    const edit = await editMix(id)
+    await deleteMix(id)
+    await expect(saveMix(edit)).rejects.toThrow('Müsli nicht gefunden')
+  })
+
+  it('Duplizieren: legt einen neuen Entwurf mit aktuellen Werten an, das Original bleibt', async () => {
+    const { id, oats } = await newMix()
+    await saveIngredient(draft({ nutrition: { ...draft().nutrition, protein: 99 } }), { kind: 'keep' }, oats)
+
+    const template = await duplicateMix(id)
+    expect(template).not.toHaveProperty('mixId')
+    expect(template.items.every((i) => i.snapshot === undefined)).toBe(true)
+    expect(await loadDraft()).toEqual(template)
+
+    const copyId = await saveMix({ ...template, name: 'Frühstück (neu)' })
+    expect(copyId).not.toBe(id)
+    expect(await db.mixes.count()).toBe(2)
+    expect((await db.mixes.get(copyId))?.items[0].snapshot.nutrition.protein).toBe(99)
+    expect((await db.mixes.get(id))?.items[0].snapshot.nutrition.protein).toBe(13.5)
+  })
+
+  it('löscht ein Müsli, die Zutaten bleiben', async () => {
+    const { id } = await newMix()
+    await deleteMix(id)
+    expect(await db.mixes.count()).toBe(0)
+    expect(await db.ingredients.count()).toBe(2)
   })
 })

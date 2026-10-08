@@ -10,7 +10,9 @@ export const FORMAT_VERSION = 1
 
 /** Einstellungen, die nur zu diesem Gerät gehören und weder exportiert noch importiert werden. */
 export const LAST_BACKUP_KEY = 'lastBackupAt'
-export const DEVICE_SETTING_KEYS: readonly string[] = [LAST_BACKUP_KEY]
+/** Der Mix in Arbeit (Mixen-Screen). Halbfertiges gehört nicht ins Backup. */
+export const MIX_DRAFT_KEY = 'mixDraft'
+export const DEVICE_SETTING_KEYS: readonly string[] = [LAST_BACKUP_KEY, MIX_DRAFT_KEY]
 
 const allergenIds = ALLERGENS.map((a) => a.id) as [AllergenId, ...AllergenId[]]
 

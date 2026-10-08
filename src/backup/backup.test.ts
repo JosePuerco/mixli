@@ -2,7 +2,7 @@
 import 'fake-indexeddb/auto'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { db } from '../db/db'
-import { saveIngredient } from '../db/repo'
+import { loadDraft, saveDraft, saveIngredient } from '../db/repo'
 import type { Ingredient, Mix } from '../db/types'
 import type { IngredientDraft } from '../domain/ingredient'
 import { base64ToBytes, bytesToBase64 } from './base64'
@@ -120,6 +120,15 @@ describe('Export und Import (ersetzen)', () => {
     await setLastBackupAt(new Date('2026-10-07T00:00:00Z'))
     await importBackup(text, 'replace')
     expect(await getLastBackupAt()).toEqual(new Date('2026-10-07T00:00:00Z'))
+  })
+
+  it('exportiert den Mix in Arbeit nicht und lässt ihn beim Import stehen', async () => {
+    await saveDraft({ name: 'Halbfertig', items: [{ ingredientId: 'x', grams: 50 }] })
+    const text = await exportText()
+    expect((JSON.parse(text) as BackupFile).data.settings).toEqual([])
+
+    await importBackup(text, 'replace')
+    expect((await loadDraft()).name).toBe('Halbfertig')
   })
 
   it('ersetzt löscht alles, was nicht im Backup steht', async () => {
