@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { IngredientSnapshot, MixItem, Nutrition } from '../db/types'
 import { NBSP } from '../lib/format'
 import type { AllergenId } from './allergens'
-import { buildLabel, joinGerman, type LabelData } from './label'
+import { buildLabel, joinGerman, labelFileName, type LabelData } from './label'
 
 const zero: Nutrition = {
   kj: 0, kcal: 0, fat: 0, saturatedFat: 0, carbs: 0, sugar: 0, fiber: 0, protein: 0, salt: 0,
@@ -124,5 +124,22 @@ describe('buildLabel', () => {
   it('liefert null für ein Müsli ohne Menge', () => {
     expect(buildLabel({ ...planMix, items: [] })).toBeNull()
     expect(buildLabel({ ...planMix, items: [item('o', 0, oats)] })).toBeNull()
+  })
+})
+
+describe('labelFileName', () => {
+  it('macht aus dem Namen einen Dateinamen ohne Umlaute und Sonderzeichen', () => {
+    expect(labelFileName('Frühstück Basic', 'pdf')).toBe('mixli-etikett-fruehstueck-basic.pdf')
+    expect(labelFileName('Crème & Nüsse / Größe XL!', 'png')).toBe('mixli-etikett-creme-nuesse-groesse-xl.png')
+  })
+
+  it('kommt ohne verwertbaren Namen aus', () => {
+    expect(labelFileName('  ?!  ', 'png')).toBe('mixli-etikett.png')
+  })
+
+  it('kürzt sehr lange Namen', () => {
+    const name = labelFileName('Sehr '.repeat(30), 'pdf')
+    expect(name.length).toBeLessThanOrEqual('mixli-etikett-.pdf'.length + 60)
+    expect(name).not.toMatch(/-\.pdf$/)
   })
 })

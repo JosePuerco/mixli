@@ -85,3 +85,20 @@ export function buildLabel(mix: Pick<Mix, 'name' | 'items' | 'createdAt'>): Labe
     ],
   }
 }
+
+const UMLAUTS: Record<string, string> = { ä: 'ae', ö: 'oe', ü: 'ue', ß: 'ss' }
+
+/** Dateiname für PDF und Bild: „mixli-etikett-fruehstueck-basic.pdf“. */
+export function labelFileName(name: string, extension: 'pdf' | 'png'): string {
+  const slug = name
+    .toLowerCase()
+    .replace(/[äöüß]/g, (c) => UMLAUTS[c])
+    .normalize('NFKD')
+    // Übrige Akzente entfernen: „Crème“ → „creme“.
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60)
+    .replace(/-+$/, '')
+  return `mixli-etikett${slug ? `-${slug}` : ''}.${extension}`
+}

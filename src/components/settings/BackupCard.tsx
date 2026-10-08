@@ -15,24 +15,12 @@ import { applyBackup, backupCounts, parseBackup, type ImportMode } from '../../b
 import { BackupError } from '../../backup/migrate'
 import type { BackupData } from '../../backup/format'
 import { backupStatus, countsText, importResultText, type BackupTone } from '../../backup/status'
+import { isAbort, isShareBlocked, shareOrDownload } from '../../lib/share'
 
 const toneClasses: Record<BackupTone, { box: string; dot: string }> = {
   ok: { box: 'bg-success-bg', dot: 'bg-accent' },
   warn: { box: 'bg-warning-bg', dot: 'bg-warning-dot' },
   neutral: { box: 'bg-surface-muted', dot: 'bg-text-placeholder' },
-}
-
-function isAbort(e: unknown) {
-  return e instanceof DOMException && e.name === 'AbortError'
-}
-
-function download(file: File) {
-  const url = URL.createObjectURL(file)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = file.name
-  a.click()
-  setTimeout(() => URL.revokeObjectURL(url), 10_000)
 }
 
 export function BackupCard() {
@@ -52,11 +40,7 @@ export function BackupCard() {
   const [confirmReplace, setConfirmReplace] = useState(false)
 
   async function share(file: File) {
-    if (navigator.canShare?.({ files: [file] })) {
-      await navigator.share({ files: [file], title: 'Mixli-Backup' })
-    } else {
-      download(file)
-    }
+    await shareOrDownload(file, 'Mixli-Backup')
     setPending(null)
     await setLastBackupAt(new Date())
     setNotice(undefined)
@@ -70,9 +54,8 @@ export function BackupCard() {
       await share(pending ?? (await createBackupFile()))
     } catch (e) {
       if (isAbort(e)) return
-      if (e instanceof DOMException && e.name === 'NotAllowedError' && !pending) {
-        // Safari öffnet das Teilen-Menü nur kurz nach einem Tipp. Hat das Zusammenstellen zu lange
-        // gedauert, die Datei bereithalten: Der nächste Tipp teilt sie sofort.
+      if (isShareBlocked(e) && !pending) {
+        // Zusammenstellen hat zu lange gedauert: Datei bereithalten, der nächste Tipp teilt sie sofort.
         setPending(await createBackupFile())
         return
       }

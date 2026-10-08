@@ -3,13 +3,24 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { fileURLToPath } from 'node:url'
 import tokens from './design/tokens.json' with { type: 'json' }
 
 // Die App läuft auf GitHub Pages unter https://<nutzername>.github.io/mixli/
 const BASE = '/mixli/'
 
+const unusedJspdfDependency = fileURLToPath(new URL('./src/lib/stubs/unusedJspdfDependency.ts', import.meta.url))
+
 export default defineConfig({
   base: BASE,
+  resolve: {
+    // Optionale Pakete von jsPDF, die Mixli nicht braucht (siehe src/lib/stubs/unusedJspdfDependency.ts).
+    alias: {
+      html2canvas: unusedJspdfDependency,
+      dompurify: unusedJspdfDependency,
+      canvg: unusedJspdfDependency,
+    },
+  },
   plugins: [
     react(),
     tailwindcss(),

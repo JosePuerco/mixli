@@ -201,7 +201,10 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
 - [x] Etikett-Layout in 70 × 42,3 mm
   - [x] Inhalt als reine Funktion mit Tests (`src/domain/label.ts`): Zutaten absteigend nach Gewicht mit Anteilen, enthaltene Allergene fett in Klammern („Haferflocken (**Gluten**) 75 %“), Satz „Kann Spuren von … enthalten.“, Herstellungsdatum, Nährwerttabelle
   - [x] Etikett-Komponente in mm, Schrift wird bei vielen Zutaten bis 5,5 px kleiner (sonst Hinweis); Etikett-Sheet mit Vorschau im Müsli-Detail
-- [ ] Drucken, PDF, Bild teilen
+- [x] Drucken, PDF, Bild teilen
+  - [x] Druck-CSS: A4 ohne Seitenrand, 3 × 7 Etiketten an festen mm-Positionen (`src/domain/labelSheet.ts`, Standardmaße: seitlich randlos, oben/unten je 0,45 mm)
+  - [x] „PDF“ = A4-Bogen mit 21 Etiketten, „Als Bild“ = ein Etikett als PNG in 600 dpi; über das Teilen-Menü (sonst Download), Bibliotheken werden erst beim Antippen geladen
+- [ ] Auf dem iPhone testen: Vorschau, Fettschrift im Etikett und im Bild, Drucken aus der installierten App (Ränder!), PDF und Bild teilen
 
 ### Phase 5 – Filter
 

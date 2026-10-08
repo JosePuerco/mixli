@@ -196,3 +196,34 @@
 @utility flake-3 {
   animation-delay: 1.9s;
 }
+
+/* Druck: nur der Etikettenbogen (components/label/PrintSheet.tsx), A4 ohne Seitenrand, Etiketten an
+   festen mm-Positionen. Die feste App-Hülle (body fixed, overflow hidden) wird dafür aufgehoben. */
+.print-sheet {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  html,
+  body {
+    position: static;
+    height: auto;
+    overflow: visible;
+    background: var(--color-surface);
+  }
+
+  body > :not(.print-sheet) {
+    display: none !important;
+  }
+
+  .print-sheet {
+    display: block;
+    position: relative;
+    overflow: hidden;
+  }
+}
