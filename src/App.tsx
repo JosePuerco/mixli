@@ -6,11 +6,12 @@ import { ZutatNeuScreen } from './screens/ZutatNeuScreen'
 import { ZutatBearbeitenScreen } from './screens/ZutatBearbeitenScreen'
 import { MixenScreen } from './screens/MixenScreen'
 import { MueslisScreen } from './screens/MueslisScreen'
+import { MuesliDetailScreen } from './screens/MuesliDetailScreen'
 import { MehrScreen } from './screens/MehrScreen'
 import { KomponentenScreen } from './screens/KomponentenScreen'
 
-/** Ganzseitige Abläufe (Zutat anlegen/bearbeiten) zeigen keine Navigation. */
-const FLOW_PATH = /^\/zutaten\/.+/
+/** Ganzseitige Abläufe (Zutat anlegen/bearbeiten, Müsli-Detail) zeigen keine Navigation. */
+const FLOW_PATH = /^\/(zutaten|muesli)\/.+/
 
 export function App() {
   const { pathname } = useLocation()
@@ -25,6 +26,7 @@ export function App() {
           <Route path="/zutaten/:id" element={<ZutatBearbeitenScreen />} />
           <Route path="/mixen" element={<MixenScreen />} />
           <Route path="/muesli" element={<MueslisScreen />} />
+          <Route path="/muesli/:id" element={<MuesliDetailScreen />} />
           <Route path="/mehr" element={<MehrScreen />} />
           {/* Übersicht der UI-Bausteine zum Prüfen auf dem Handy, nicht in der Navigation verlinkt. */}
           <Route path="/komponenten" element={<KomponentenScreen />} />

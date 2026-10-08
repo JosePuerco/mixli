@@ -27,3 +27,10 @@ export function formatNumber(value: number, decimals = 0): string {
 export function formatWithUnit(value: number, unit: string, decimals = 0): string {
   return `${formatNumber(value, decimals)}${NBSP}${unit}`
 }
+
+const dateFormatter = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+
+/** Datum wie auf dem Etikett: „07.10.2026“ (Ortszeit des Geräts). */
+export function formatDate(date: Date): string {
+  return dateFormatter.format(date)
+}

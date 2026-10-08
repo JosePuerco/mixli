@@ -176,8 +176,8 @@ export function MixenScreen() {
         open={sheet === 'save'}
         onClose={() => setSheet(null)}
         draft={draft}
-        // Der Entwurf ist beim Speichern schon geleert worden. Detailansicht folgt in Schritt D.
-        onSaved={() => navigate('/muesli')}
+        // Der Entwurf ist beim Speichern schon geleert worden.
+        onSaved={(id) => navigate(`/muesli/${id}`)}
       />
 
       <ConfirmSheet

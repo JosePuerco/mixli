@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { NBSP, formatNumber, formatWithUnit } from './format'
+import { NBSP, formatDate, formatNumber, formatWithUnit } from './format'
 
 describe('formatNumber', () => {
   it('nutzt das Dezimalkomma', () => {
@@ -25,5 +25,12 @@ describe('formatWithUnit', () => {
   it('trennt Zahl und Einheit mit geschütztem Leerzeichen', () => {
     expect(formatWithUnit(14, 'g')).toBe(`14${NBSP}g`)
     expect(formatWithUnit(399, 'kcal')).toBe(`399${NBSP}kcal`)
+  })
+})
+
+describe('formatDate', () => {
+  it('zeigt Tag und Monat zweistellig', () => {
+    expect(formatDate(new Date(2026, 9, 7, 23, 30))).toBe('07.10.2026')
+    expect(formatDate(new Date(2026, 0, 1))).toBe('01.01.2026')
   })
 })
