@@ -1,7 +1,8 @@
-// „Mehr“: Backup (ab Phase 2), Kategorien verwalten, Infos zur App.
+// „Mehr“: Backup, Kategorien verwalten, Infos zur App.
 import { Screen } from '../components/ui/Screen'
 import { ScreenHeader } from '../components/ui/ScreenHeader'
-import { Card, CardTitle } from '../components/ui/Card'
+import { Card } from '../components/ui/Card'
+import { BackupCard } from '../components/settings/BackupCard'
 import { CategoryManager } from '../components/settings/CategoryManager'
 import { version } from '../../package.json'
 
@@ -10,12 +11,7 @@ export function MehrScreen() {
     <Screen>
       <ScreenHeader title="Mehr" />
 
-      <Card className="flex flex-col gap-gap-md">
-        <CardTitle>Backup</CardTitle>
-        <p className="text-caption text-text-muted">
-          Deine Daten liegen nur auf diesem Gerät. Export und Import als Datei kommen mit dem nächsten Update.
-        </p>
-      </Card>
+      <BackupCard />
 
       <CategoryManager />
 

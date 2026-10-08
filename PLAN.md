@@ -144,7 +144,7 @@ letztes Backup, Standardfilter.
 
 ### Backup-Datei
 
-JSON mit `formatVersion`, `exportedAt`, allen Tabellen und den Fotos als Base64.
+JSON mit `app: "mixli"`, `formatVersion`, `exportedAt`, allen Tabellen und den Fotos als Base64. Aufbau und Prüfung in `src/backup/format.ts`, Migrationen alter Formate in `src/backup/migrate.ts`. Das Datum des letzten Backups gehört zum Gerät und steht nicht in der Datei.
 
 ### Die 14 EU-Hauptallergene
 
@@ -174,9 +174,11 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
 
 ### Phase 2 – Backup
 
-- [ ] Export als Datei über das Teilen-Menü
-- [ ] Import mit Prüfung (Zod) und Wahl „ersetzen“ oder „zusammenführen“
-- [ ] Erinnerung bei Backup älter als 14 Tage
+- [x] Export als Datei über das Teilen-Menü (Download, wo Teilen fehlt)
+- [x] Import mit Prüfung (Zod) und Wahl „ersetzen“ oder „zusammenführen“
+  - Zusammenführen streng über die id: Zutaten und Müslis mit neuerem `updatedAt` gewinnen; Kategorien, Fotos und Einstellungen nur ergänzen
+- [x] Erinnerung bei Backup älter als 14 Tage (Status in der Backup-Karte)
+- [ ] Auf dem iPhone testen: Export in iCloud Drive, Import beider Varianten
 
 ### Phase 3 – Mixen und Speichern (MVP fertig)
 
