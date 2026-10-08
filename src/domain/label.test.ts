@@ -70,15 +70,15 @@ describe('buildLabel', () => {
     expect(l.ingredients.map((i) => i.name)).toEqual(['Mandeln', 'Haferflocken'])
   })
 
-  it('nennt die enthaltenen Allergene je Zutat in der festen Reihenfolge', () => {
+  it('sammelt die enthaltenen Allergene einmal für das ganze Müsli, in der festen Reihenfolge', () => {
+    // Schalenfrüchte stecken in Mandeln und im Nussmix – trotzdem nur einmal.
     const mixed = snap('Nussmix', {}, ['sesame', 'nuts', 'milk'])
     const l = label({ ...planMix, items: [...planMix.items, item('n', 10, mixed)] })
-    expect(l.ingredients.map((i) => i.allergens)).toEqual([
-      ['Gluten'],
-      ['Schalenfrüchte'],
-      [],
-      ['Milch', 'Schalenfrüchte', 'Sesam'],
-    ])
+    expect(l.contains).toEqual(['Gluten', 'Milch', 'Schalenfrüchte', 'Sesam'])
+  })
+
+  it('hat ohne Allergene eine leere Liste', () => {
+    expect(label({ ...planMix, items: [item('r', 40, raisins)] }).contains).toEqual([])
   })
 
   it('bildet den Spuren-Satz ohne Allergene, die schon enthalten sind', () => {

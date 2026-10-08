@@ -1,9 +1,9 @@
 // Etikett 70 × 42,3 mm nach design/DESIGN.md („Etikett“) und prototypes/Etikett.dc.html:
-// Kopfzeile Name links, Gesamtmenge rechts, Linie darunter; links Zutaten, Spuren, Datum und Hinweis,
-// rechts die Nährwerttabelle. Nur Schwarz auf Weiß. Maße in mm, Schrift in px (7 px ≈ 5 pt), damit
+// Kopfzeile Name links, Gesamtmenge rechts, Linie darunter; links Zutaten, „Enthält: …“ (fett), Spuren,
+// Datum und Hinweis, rechts die Nährwerttabelle. Nur Schwarz auf Weiß. Maße in mm, Schrift in px (7 px ≈ 5 pt), damit
 // Vorschau, Druck, PDF und Bild gleich aussehen.
-// Zu viel Text: useLabelFit wählt die erste Stufe aus LAYOUT_STAGES, bei der alles passt – die Spuren
-// rutschen dabei unter die Nährwerttabelle, damit sie nie abgeschnitten werden.
+// Zu viel Text: useLabelFit wählt die erste Stufe aus LAYOUT_STAGES, bei der alles passt – Allergene und
+// Spuren rutschen dabei unter die Nährwerttabelle, damit sie nie abgeschnitten werden.
 import { Fragment, useLayoutEffect, useState, type CSSProperties, type Ref, type RefObject } from 'react'
 import type { LabelData } from '../../domain/label'
 import { LABEL_SOURCE_NOTE } from '../../domain/label'
@@ -12,20 +12,23 @@ import { LABEL_HEIGHT_MM, LABEL_WIDTH_MM } from '../../domain/labelSheet'
 export interface LabelLayout {
   /** Schriftgröße des Fließtexts in px. */
   textSize: number
-  /** Spuren, Datum und Hinweis unter der Nährwerttabelle statt unter den Zutaten. */
+  /** Allergene, Spuren, Datum und Hinweis unter der Nährwerttabelle statt unter den Zutaten. */
   notesRight: boolean
   /** Breitere Zutatenspalte (124 statt 104 px), Nährwerttabelle entsprechend schmaler. */
   wide: boolean
 }
 
 /**
- * Stufen bei Platzmangel, in dieser Reihenfolge: Schrift 7 → 6 px, dann Spuren und Datum nach rechts,
- * dann breitere Zutatenspalte, zuletzt Schrift bis 5,5 px.
+ * Stufen bei Platzmangel, in dieser Reihenfolge: Schrift 7 → 6 px, dann Allergene, Spuren und Datum nach
+ * rechts, dann bis 5,5 px. Ab 6 px wird je Schriftgröße erst die normale, dann die breitere Zutatenspalte
+ * probiert – breiter nur, wenn es links eng ist (rechts wird es dadurch schmaler).
  */
 export const LAYOUT_STAGES: readonly LabelLayout[] = [
   ...[7, 6.75, 6.5, 6.25, 6].map((textSize) => ({ textSize, notesRight: false, wide: false })),
-  { textSize: 6, notesRight: true, wide: false },
-  ...[6, 5.75, 5.5].map((textSize) => ({ textSize, notesRight: true, wide: true })),
+  ...[6, 5.75, 5.5].flatMap((textSize) => [
+    { textSize, notesRight: true, wide: false },
+    { textSize, notesRight: true, wide: true },
+  ]),
 ]
 
 export const DEFAULT_LAYOUT = LAYOUT_STAGES[0]
@@ -49,9 +52,10 @@ interface LabelProps {
 
 export function Label({ data, layout = DEFAULT_LAYOUT, preview = false, ref }: LabelProps) {
   const { '--label-text': textSize, ...dataAttributes } = layoutAttributes(layout)
-  // Spuren, Datum und Hinweis stehen zweimal im DOM; data-notes blendet eine der beiden Stellen aus.
+  // Allergene, Spuren, Datum und Hinweis stehen zweimal im DOM; data-notes blendet eine Stelle aus.
   const notes = (
     <>
+      {data.contains.length > 0 && <p className="font-extrabold">Enthält: {data.contains.join(', ')}.</p>}
       {data.traces && <p>{data.traces}</p>}
       <p>
         {data.madeOn} {LABEL_SOURCE_NOTE}
@@ -89,13 +93,7 @@ export function Label({ data, layout = DEFAULT_LAYOUT, preview = false, ref }: L
             <b className="font-extrabold">Zutaten:</b>{' '}
             {data.ingredients.map((i, n) => (
               <Fragment key={n}>
-                {i.name}
-                {i.allergens.length > 0 && (
-                  <>
-                    {' '}(<b className="font-extrabold">{i.allergens.join(', ')}</b>)
-                  </>
-                )}{' '}
-                {i.share}
+                {i.name} {i.share}
                 {n < data.ingredients.length - 1 ? ', ' : '.'}
               </Fragment>
             ))}

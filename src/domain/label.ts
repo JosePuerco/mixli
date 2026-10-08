@@ -1,17 +1,17 @@
-// Inhalt des Etiketts (70 × 42,3 mm) als fertige Texte: Name, Gesamtmenge, Zutatenliste mit Anteilen und
-// Allergenen, Spuren-Satz, Herstellungsdatum und Nährwerttabelle pro 100 g. Gerechnet wird mit den Snapshots,
+// Inhalt des Etiketts (70 × 42,3 mm) als fertige Texte: Name, Gesamtmenge, Zutatenliste mit Anteilen,
+// eine zentrale Zeile „Enthält: …“, Spuren-Satz, Herstellungsdatum und Nährwerttabelle pro 100 g.
+// Allergene stehen bewusst nicht hinter jeder Zutat, sondern einmal gesammelt (sonst doppelt, z. B.
+// „Zutat 1 (Krebstiere), Zutat 2 (Eier, Krebstiere)“) – für selbst gemischtes Müsli übersichtlicher. Gerechnet wird mit den Snapshots,
 // gerundet nur hier für die Anzeige (rounding.ts). Die Darstellung übernimmt components/label/Label.tsx.
 import type { Mix } from '../db/types'
 import { formatDate } from '../lib/format'
-import { ALLERGENS, allergenDative, allergenLabel } from './allergens'
+import { allergenDative, allergenLabel } from './allergens'
 import { mixAllergens, nutritionPer100g, totalGrams } from './mix'
 import { NUTRIENT_FIELDS, type NutrientKey } from './nutrition'
 import { formatGrams, formatNutrient, formatShare } from './rounding'
 
 export interface LabelIngredient {
   name: string
-  /** Enthaltene Allergene der Zutat, fett in Klammern hinter dem Namen: „Haferflocken (Gluten)“. */
-  allergens: string[]
   /** „75 %“, „<1 %“. */
   share: string
 }
@@ -29,6 +29,8 @@ export interface LabelData {
   total: string
   /** Absteigend nach Gewicht, wie auf Zutatenlisten vorgeschrieben. */
   ingredients: LabelIngredient[]
+  /** Enthaltene Allergene des ganzen Müslis, ohne Doppelte, in der festen Reihenfolge; leer ohne Allergene. */
+  contains: string[]
   /** „Kann Spuren von Erdnüssen und Sesam enthalten.“ oder null ohne Spuren. */
   traces: string | null
   /** „Hergestellt am 07.10.2026.“ (Tag des ersten Speicherns). */
@@ -58,21 +60,16 @@ export function buildLabel(mix: Pick<Mix, 'name' | 'items' | 'createdAt'>): Labe
   // sort ist stabil: Gleich schwere Zutaten bleiben in der Reihenfolge des Mixes.
   const ingredients = [...items]
     .sort((a, b) => b.grams - a.grams)
-    .map((i) => {
-      const own = new Set(i.snapshot.allergensContains)
-      return {
-        name: i.snapshot.name,
-        allergens: ALLERGENS.filter((a) => own.has(a.id)).map((a) => allergenLabel(a.id)),
-        share: formatShare(i.grams / total),
-      }
-    })
+    .map((i) => ({ name: i.snapshot.name, share: formatShare(i.grams / total) }))
 
-  const { traces } = mixAllergens(items)
+  // Spuren ohne Allergene, die schon enthalten sind (sonst stünde Krebstiere unter „Enthält“ und „Spuren“).
+  const { contains, traces } = mixAllergens(items)
 
   return {
     name: mix.name,
     total: formatGrams(total),
     ingredients,
+    contains: contains.map(allergenLabel),
     traces: traces.length > 0 ? `Kann Spuren von ${joinGerman(traces.map(allergenDative))} enthalten.` : null,
     madeOn: `Hergestellt am ${formatDate(mix.createdAt)}.`,
     nutrition: [
