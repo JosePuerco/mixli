@@ -184,7 +184,7 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
 - [x] Erinnerung bei Backup älter als 14 Tage (Status in der Backup-Karte)
 - [x] Auf dem iPhone testen: Export in iCloud Drive, Import beider Varianten
 
-### Phase 3 – Mixen und Speichern (MVP fertig)
+### Phase 3 – Mixen und Speichern (MVP fertig) ✓ (abgenommen 08.10.2026)
 
 - [x] Zutaten hinzufügen, +/−, Mengen-Sheet mit Ziffernblock
   - [x] Mixen-Screen mit Ring, Übersicht, Zutatenkarten mit Stepper, Allergen-Chips, Hinzufügen-Sheet und Mengen-Sheet (erste Ziffer ersetzt den vorgegebenen Wert)
@@ -194,7 +194,7 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
   - [x] Entwurf, Speichern, Bearbeiten, Duplizieren, Löschen in der Datenbank mit Tests (`src/domain/mixDraft.ts`, `src/db/repo.ts`)
   - [x] Speichern-Sheet (Name, für wen, Notiz) und „Verwerfen“ mit Rückfrage im Mixen-Screen
   - [x] Müsli-Liste („Neueste | A–Z“, Duplizieren) und Detail (Zusammensetzung, Nährwerttabelle, Allergene, Notiz, Bearbeiten, Duplizieren, Löschen); vor Bearbeiten/Duplizieren Rückfrage, wenn in „Mixen“ etwas in Arbeit ist
-- [ ] Auf dem iPhone testen: Mischen, Mengen-Sheet, Speichern, Liste, Detail, Bearbeiten, Duplizieren, Löschen
+- [x] Auf dem iPhone testen: Mischen, Mengen-Sheet, Speichern, Liste, Detail, Bearbeiten, Duplizieren, Löschen
 
 ### Phase 4 – Etikett
 
