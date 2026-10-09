@@ -224,13 +224,14 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
   - [x] „Meine Müslis“ mit eigenem Filter (Chip-Zeile, Filter-Sheet): unpassende Müslis ausgeblendet, darunter Hinweis und „Filter ändern“; im Detail Hinweiskarte mit Zutaten und Gründen
 - [x] Auf dem iPhone testen: beide Filter getrennt setzen, Ausgrauen, Ausblenden, Schalter, Tags, Hinweise; Filter bleiben beim Menüwechsel, sind nach Speichern und Neustart zurückgesetzt
 
-### Phase 6 – Feinschliff
+### Phase 6 – Feinschliff ✓ (abgenommen 09.10.2026)
 
-- [ ] Motion-Feinschliff, animierte Zahlen, Übergänge
+- [x] Motion-Feinschliff, animierte Zahlen, Übergänge
   - [x] Zahlen im Mixen-Screen zählen zum neuen Wert (480 ms, easeOutCubic): Gesamtgewicht im Ring, kcal, Eiweiß, Kohlenhydrate, Fett, Anteile. Zwischenwerte schon gerundet, Gramm unterwegs ganzzahlig (`src/lib/countUp.ts`, `AnimatedNumber`); Grammzahl im Stepper bleibt sofort; Screenreader lesen nur den Endwert; bei „Bewegung reduzieren“ sofort
   - [x] Screen-Übergänge: Tabs blenden über (200 ms, neuer Screen legt sich über den alten), Details gleiten von rechts herein, zurück von links (380 ms); Navigation blendet beim Öffnen/Schließen eines Details aus und ein; bei „Bewegung reduzieren“ sofort (`screenChange`, `screenIn` in `src/design/motion.ts`, neues Token `motion.screenFade`)
   - [x] Zutatenkarte bei 0 g blendet aus (250 ms, wird etwas kleiner), die übrigen Karten und „Zutat hinzufügen“ gleiten mit weicher Feder nach; bei „Bewegung reduzieren“ sofort
-- [ ] App-Icon, Splashscreen
+- [x] App-Icon, Splashscreen
   - [x] Icon im Stil der Willkommens-Schale: weiße Schale mit dunkler Kontur, grüne Wellenlinie, hellgrüner Bogen, Schatten und rieselnde Flocken auf hellem Grund (erste Fassung mit gefüllter grüner Schale ersetzt), nur Token-Farben, Motiv im sicheren Kreis für maskierbare Icons (`public/favicon.svg`, PNGs mit `npm run icons`, volle PNG-Qualität)
   - [x] iOS-Startbilder für alle iPhones (Hochformat und Querformat): Hintergrundfarbe, Motiv klein in der Mitte; Links in `index.html` (Generator gibt falsche Dateinamen mit „-light“ aus, daher von Hand korrigiert), nicht im Offline-Cache. Android baut den Startbildschirm selbst aus Icon und `background_color`
+- [x] Auf dem iPhone testen: Icon, Startbild, Zahlen, Übergänge, Karte bei 0 g, „Bewegung reduzieren“
 - [ ] Später optional: Barcode-Scan mit Open Food Facts
