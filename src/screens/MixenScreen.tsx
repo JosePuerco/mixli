@@ -6,7 +6,7 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { motion } from 'motion/react'
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { IconPlus } from '../components/icons/Icons'
 import { AddIngredientSheet } from '../components/mix/AddIngredientSheet'
 import { AmountSheet } from '../components/mix/AmountSheet'
@@ -24,7 +24,7 @@ import { Button } from '../components/ui/Button'
 import { Screen } from '../components/ui/Screen'
 import { ScreenHeader } from '../components/ui/ScreenHeader'
 import { db } from '../db/db'
-import { press } from '../design/motion'
+import { cardOut, press, softSpring } from '../design/motion'
 import { allergenLabel } from '../domain/allergens'
 import { mixViolations, reasonsLine } from '../domain/filter'
 import { byName } from '../domain/ingredient'
@@ -33,6 +33,7 @@ import { addItem, emptyDraft, resolveLines, setGrams, stepItem } from '../domain
 
 export function MixenScreen() {
   const navigate = useNavigate()
+  const reduceMotion = useReducedMotion()
   const { draft, update } = useMixDraft()
   const [filter, setFilter] = useMixFilter()
   const ingredients = useLiveQuery(() => db.ingredients.toArray(), [])
@@ -114,35 +115,48 @@ export function MixenScreen() {
           </Card>
         )}
 
+        {/* Bei 0 g blendet die Karte aus (popLayout: sofort aus dem Raster), die übrigen gleiten nach.
+            Bei „Bewegung reduzieren“ verschwindet sie sofort. */}
         <div className="grid grid-cols-2 gap-gap-md">
-          {lines.map((l, i) => (
-            <MixItemCard
-              key={l.ingredientId}
-              ingredientId={l.ingredientId}
-              photoId={byId.get(l.ingredientId)?.photoId}
-              name={l.snapshot.name}
-              grams={l.grams}
-              share={lineShares[i]}
-              color={segmentColor(i)}
-              warning={violations.get(l.ingredientId)}
-              appear={added.current.has(l.ingredientId)}
-              onStep={(dir) => update((d) => stepItem(d, l.ingredientId, dir))}
-              onEditAmount={() => openAmount(l.ingredientId, l.snapshot.name, l.grams)}
-            />
-          ))}
-          {active.length > 0 && (
-            <motion.button
-              type="button"
-              {...press}
-              onClick={() => setAdding(true)}
-              className="flex min-h-49 flex-col items-center justify-center gap-gap-sm rounded-card border-[1.5px] border-dashed border-nav-icon text-sm font-semibold text-text-muted"
-            >
-              <span className="inline-flex size-touch items-center justify-center rounded-pill bg-surface text-accent" aria-hidden="true">
-                <IconPlus size={22} />
-              </span>
-              Zutat hinzufügen
-            </motion.button>
-          )}
+          <AnimatePresence mode="popLayout" initial={false}>
+            {lines.map((l, i) => (
+              <motion.div
+                key={l.ingredientId}
+                layout={!reduceMotion}
+                transition={softSpring}
+                {...(reduceMotion ? {} : cardOut)}
+              >
+                <MixItemCard
+                  ingredientId={l.ingredientId}
+                  photoId={byId.get(l.ingredientId)?.photoId}
+                  name={l.snapshot.name}
+                  grams={l.grams}
+                  share={lineShares[i]}
+                  color={segmentColor(i)}
+                  warning={violations.get(l.ingredientId)}
+                  appear={added.current.has(l.ingredientId)}
+                  onStep={(dir) => update((d) => stepItem(d, l.ingredientId, dir))}
+                  onEditAmount={() => openAmount(l.ingredientId, l.snapshot.name, l.grams)}
+                />
+              </motion.div>
+            ))}
+            {active.length > 0 && (
+              <motion.button
+                key="add"
+                layout={!reduceMotion}
+                type="button"
+                {...press}
+                transition={{ ...press.transition, layout: softSpring }}
+                onClick={() => setAdding(true)}
+                className="flex min-h-49 flex-col items-center justify-center gap-gap-sm rounded-card border-[1.5px] border-dashed border-nav-icon text-sm font-semibold text-text-muted"
+              >
+                <span className="inline-flex size-touch items-center justify-center rounded-pill bg-surface text-accent" aria-hidden="true">
+                  <IconPlus size={22} />
+                </span>
+                Zutat hinzufügen
+              </motion.button>
+            )}
+          </AnimatePresence>
         </div>
 
         {lines.length > 0 && (

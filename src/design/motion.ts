@@ -129,6 +129,14 @@ export const navFade = {
   transition: { duration: ms(tokens.motion.screenFade.durationMs), ease: 'easeOut' },
 } as const
 
+/**
+ * Karte verlässt ein Raster (z. B. Zutat bei 0 g): blendet aus und wird etwas kleiner (250 ms),
+ * die übrigen Karten gleiten mit weicher Feder an ihren neuen Platz (layout).
+ */
+export const cardOut = {
+  exit: { opacity: 0, scale: 0.85, transition: { duration: 0.25, ease: ease.out } },
+} as const
+
 /** Bestätigung (z. B. Häkchen „Foto übernommen“): ploppt mit kräftiger Feder auf (.85 → 1,04 → 1). */
 export function popIn() {
   return {

@@ -29,7 +29,7 @@ const stepButton = 'inline-flex size-touch shrink-0 items-center justify-center 
 export function MixItemCard({ ingredientId, photoId, name, grams, share, color, warning, onStep, onEditAmount, appear }: MixItemCardProps) {
   const gramsText = formatGrams(grams)
   return (
-    <Card padding="tight" appearIndex={appear ? 0 : undefined} className="flex min-w-0 flex-col gap-2.5">
+    <Card padding="tight" appearIndex={appear ? 0 : undefined} className="flex h-full min-w-0 flex-col gap-2.5">
       <div className="relative">
         <IngredientPhoto id={ingredientId} photoId={photoId} className="h-24 w-full rounded-photo" />
         <span className="absolute top-2.5 left-2.5 size-2.5 rounded-pill" style={{ backgroundColor: color }} aria-hidden="true" />
