@@ -54,6 +54,8 @@ export default defineConfig({
       workbox: {
         // Alles, was der Build erzeugt, wird beim Installieren vorab gespeichert → voll offline.
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+        // iOS-Startbilder lädt das iPhone nur beim Hinzufügen zum Home-Bildschirm – nicht offline vorhalten.
+        globIgnores: ['**/apple-splash-*.png'],
         navigateFallback: 'index.html',
         cleanupOutdatedCaches: true,
       },

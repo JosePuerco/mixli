@@ -231,4 +231,6 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
   - [x] Screen-Übergänge: Tabs blenden über (200 ms, neuer Screen legt sich über den alten), Details gleiten von rechts herein, zurück von links (380 ms); Navigation blendet beim Öffnen/Schließen eines Details aus und ein; bei „Bewegung reduzieren“ sofort (`screenChange`, `screenIn` in `src/design/motion.ts`, neues Token `motion.screenFade`)
   - [x] Zutatenkarte bei 0 g blendet aus (250 ms, wird etwas kleiner), die übrigen Karten und „Zutat hinzufügen“ gleiten mit weicher Feder nach; bei „Bewegung reduzieren“ sofort
 - [ ] App-Icon, Splashscreen
+  - [x] Icon nachgeschärft (Variante „Hell“): grüne gefüllte Schale mit Müsli-Häufchen in den Segmentfarben auf hellem Grund, nur Token-Farben, Motiv im sicheren Kreis für maskierbare Icons (`public/favicon.svg`, PNGs mit `npm run icons`, volle PNG-Qualität)
+  - [x] iOS-Startbilder für alle iPhones (Hochformat und Querformat): Hintergrundfarbe, Motiv klein in der Mitte; Links in `index.html` (Generator gibt falsche Dateinamen mit „-light“ aus, daher von Hand korrigiert), nicht im Offline-Cache. Android baut den Startbildschirm selbst aus Icon und `background_color`
 - [ ] Später optional: Barcode-Scan mit Open Food Facts
