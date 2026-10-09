@@ -2,6 +2,7 @@
 // Kachel „Zutat hinzufügen“, Allergen-Chips. Alles wird live aus dem Entwurf berechnet und erst bei der
 // Anzeige gerundet. Der Entwurf übersteht Tab-Wechsel und Neustart (useMixDraft).
 // Zutaten im Mix, die nicht zum Filter passen, bekommen einen Hinweis (sie bleiben aber drin).
+// Nach dem Speichern sind beide Filter zurückgesetzt, nach dem Verwerfen der Filter beim Mixen.
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
@@ -14,6 +15,7 @@ import { segmentColor } from '../components/mix/MixRing'
 import { MixSummaryCard } from '../components/mix/MixSummaryCard'
 import { SaveMixSheet } from '../components/mix/SaveMixSheet'
 import { useMixDraft } from '../components/mix/useMixDraft'
+import { resetFilters } from '../components/mix/filterStore'
 import { useMixFilter } from '../components/mix/useMixFilter'
 import { AllergenChip } from '../components/ui/Chip'
 import { Card } from '../components/ui/Card'
@@ -44,7 +46,7 @@ export function MixenScreen() {
   const added = useRef(new Set<string>())
 
   // Noch nicht geladen: nichts zeigen, damit nichts kurz aufblitzt.
-  if (!draft || !ingredients || !filter) return null
+  if (!draft || !ingredients) return null
 
   const byId = new Map(ingredients.map((i) => [i.id, i]))
   const lines = resolveLines(draft, byId)
@@ -184,8 +186,12 @@ export function MixenScreen() {
         open={sheet === 'save'}
         onClose={() => setSheet(null)}
         draft={draft}
-        // Der Entwurf ist beim Speichern schon geleert worden.
-        onSaved={(id) => navigate(`/muesli/${id}`)}
+        // Der Entwurf ist beim Speichern schon geleert worden. Das nächste Müsli beginnt ohne Filter, und das
+        // gerade gespeicherte soll in „Meine Müslis“ nicht ausgeblendet sein.
+        onSaved={(id) => {
+          resetFilters()
+          navigate(`/muesli/${id}`)
+        }}
       />
 
       <ConfirmSheet
@@ -201,6 +207,7 @@ export function MixenScreen() {
         onConfirm={() => {
           added.current.clear()
           update(() => emptyDraft())
+          resetFilters(['mix'])
           setSheet(null)
         }}
       />

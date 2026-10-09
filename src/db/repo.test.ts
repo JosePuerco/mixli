@@ -12,16 +12,14 @@ import {
   listCategories,
   listTags,
   loadDraft,
-  loadFilter,
   renameCategory,
   reorderCategories,
   saveDraft,
-  saveFilter,
+  removeOldFilters,
   saveIngredient,
   saveMix,
   setArchived,
 } from './repo'
-import { EMPTY_FILTER, type MixFilter } from '../domain/filter'
 import type { IngredientDraft } from '../domain/ingredient'
 import { addItem, emptyDraft, type MixDraft } from '../domain/mixDraft'
 
@@ -172,30 +170,15 @@ describe('Entwurf (Mix in Arbeit)', () => {
   })
 })
 
-describe('Filter', () => {
-  it('ist am Anfang leer', async () => {
-    expect(await loadFilter('defaultFilter')).toEqual(EMPTY_FILTER)
-    expect(await loadFilter('muesliFilter')).toEqual(EMPTY_FILTER)
-  })
-
-  it('wird gespeichert und geladen', async () => {
-    const f: MixFilter = { excludedAllergens: ['nuts'], excludeTraces: true, requiredTags: ['vegan'] }
-    await saveFilter('defaultFilter', f)
-    expect(await loadFilter('defaultFilter')).toEqual(f)
-  })
-
-  it('Mixen und Müslis haben getrennte Filter', async () => {
-    const mixing: MixFilter = { excludedAllergens: ['nuts'], excludeTraces: false, requiredTags: [] }
-    const muesli: MixFilter = { excludedAllergens: [], excludeTraces: false, requiredTags: ['vegan'] }
-    await saveFilter('defaultFilter', mixing)
-    await saveFilter('muesliFilter', muesli)
-    expect(await loadFilter('defaultFilter')).toEqual(mixing)
-    expect(await loadFilter('muesliFilter')).toEqual(muesli)
-  })
-
-  it('ergibt bei einem kaputten Eintrag den leeren Filter', async () => {
-    await db.settings.put({ key: 'defaultFilter', value: { exclude: ['nuts'] } })
-    expect(await loadFilter('defaultFilter')).toEqual(EMPTY_FILTER)
+describe('removeOldFilters', () => {
+  it('löscht dauerhaft gespeicherte Filter einer früheren Version, sonst nichts', async () => {
+    await db.settings.bulkPut([
+      { key: 'defaultFilter', value: {} },
+      { key: 'muesliFilter', value: {} },
+      { key: 'lastBackupAt', value: 'x' },
+    ])
+    await removeOldFilters()
+    expect((await db.settings.toArray()).map((s) => s.key)).toEqual(['lastBackupAt'])
   })
 })
 

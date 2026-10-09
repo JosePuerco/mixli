@@ -3,10 +3,9 @@
 import { db } from './db'
 import type { Category, Ingredient, Mix, MixItem } from './types'
 import { mergeTags, normalizeDraft, sameName, type IngredientDraft } from '../domain/ingredient'
-import { EMPTY_FILTER, parseFilter, type MixFilter } from '../domain/filter'
 import { snapshotOf } from '../domain/mix'
 import { draftFromMix, emptyDraft, normalizeDraftText, parseDraft, templateFromMix, type MixDraft } from '../domain/mixDraft'
-import { MIX_DRAFT_KEY, type FilterKey } from '../backup/format'
+import { MIX_DRAFT_KEY, OLD_FILTER_KEYS } from '../backup/format'
 import { newId } from '../lib/id'
 import { blobToPhotoData } from './photo'
 
@@ -138,14 +137,9 @@ export async function clearDraft(): Promise<void> {
   await db.settings.delete(MIX_DRAFT_KEY)
 }
 
-/** Ein Filter (beim Mixen oder bei „Meine Müslis“). Ohne gespeicherten (oder bei unlesbarem) der leere Filter. */
-export async function loadFilter(key: FilterKey): Promise<MixFilter> {
-  const row = await db.settings.get(key)
-  return row ? parseFilter(row.value) : EMPTY_FILTER
-}
-
-export async function saveFilter(key: FilterKey, filter: MixFilter): Promise<void> {
-  await db.settings.put({ key, value: filter })
+/** Löscht Filter, die eine frühere Version dauerhaft gespeichert hat (Filter gelten nur bis zum Neustart). */
+export async function removeOldFilters(): Promise<void> {
+  await db.settings.bulkDelete([...OLD_FILTER_KEYS])
 }
 
 /**

@@ -12,13 +12,13 @@ export const FORMAT_VERSION = 1
 export const LAST_BACKUP_KEY = 'lastBackupAt'
 /** Der Mix in Arbeit (Mixen-Screen). Halbfertiges gehört nicht ins Backup. */
 export const MIX_DRAFT_KEY = 'mixDraft'
-export const DEVICE_SETTING_KEYS: readonly string[] = [LAST_BACKUP_KEY, MIX_DRAFT_KEY]
-/** Der Filter beim Mixen (Allergene, Tags). Kommt mit ins Backup. */
-export const DEFAULT_FILTER_KEY = 'defaultFilter'
-/** Der eigene Filter bei „Meine Müslis“. Kommt mit ins Backup. */
-export const MUESLI_FILTER_KEY = 'muesliFilter'
-/** Unter diesen Schlüsseln liegen Filter. */
-export type FilterKey = typeof DEFAULT_FILTER_KEY | typeof MUESLI_FILTER_KEY
+/**
+ * Hier lagen kurzzeitig die Filter (Phase 5, erste Version). Filter gelten inzwischen nur bis zum Neustart;
+ * die alten Einträge werden beim Start gelöscht und beim Import nicht übernommen.
+ */
+export const OLD_FILTER_KEYS: readonly string[] = ['defaultFilter', 'muesliFilter']
+/** Diese Einstellungen gehören nicht ins Backup: werden weder exportiert noch importiert. */
+export const DEVICE_SETTING_KEYS: readonly string[] = [LAST_BACKUP_KEY, MIX_DRAFT_KEY, ...OLD_FILTER_KEYS]
 
 const allergenIds = ALLERGENS.map((a) => a.id) as [AllergenId, ...AllergenId[]]
 

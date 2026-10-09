@@ -2,7 +2,6 @@
 // Reine Funktionen: Prüfung einer Zutat, Prüfung eines gespeicherten Müslis, Texte für Chips und Hinweise.
 // Gespeicherte Müslis werden bei Allergenen nach ihrem Snapshot geprüft (das steht auf dem Etikett),
 // bei Tags nach der aktuellen Zutat (Tags sind Vorlieben und stehen nicht im Snapshot).
-import { z } from 'zod'
 import type { Ingredient, MixItem } from '../db/types'
 import { ALLERGENS, allergenLabel, type AllergenId } from './allergens'
 import { normalizeTags, sameName } from './ingredient'
@@ -116,23 +115,5 @@ export function toggleTag(f: MixFilter, tag: string): MixFilter {
   return {
     ...f,
     requiredTags: has ? f.requiredTags.filter((t) => !sameName(t, tag)) : normalizeTags([...f.requiredTags, tag]),
-  }
-}
-
-// Prüfung beim Laden: Der Filter liegt in den Einstellungen und kann aus einem Backup stammen.
-const filterSchema = z.object({
-  excludedAllergens: z.array(z.enum(ALLERGENS.map((a) => a.id))),
-  excludeTraces: z.boolean(),
-  requiredTags: z.array(z.string()),
-})
-
-/** Liest einen gespeicherten Filter. Unlesbares ergibt den leeren Filter statt eines Absturzes. */
-export function parseFilter(value: unknown): MixFilter {
-  const r = filterSchema.safeParse(value)
-  if (!r.success) return EMPTY_FILTER
-  return {
-    excludedAllergens: [...new Set(r.data.excludedAllergens)],
-    excludeTraces: r.data.excludeTraces,
-    requiredTags: normalizeTags(r.data.requiredTags),
   }
 }

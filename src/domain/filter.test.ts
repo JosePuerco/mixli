@@ -7,7 +7,6 @@ import {
   filterReasons,
   isFilterActive,
   mixViolations,
-  parseFilter,
   passesFilter,
   reasonLabel,
   reasonsLine,
@@ -183,25 +182,5 @@ describe('toggleAllergen / toggleTag', () => {
     const on = toggleTag(EMPTY_FILTER, 'vegan')
     expect(on.requiredTags).toEqual(['vegan'])
     expect(toggleTag(on, 'Vegan').requiredTags).toEqual([])
-  })
-})
-
-describe('parseFilter', () => {
-  it('liest einen gültigen Filter', () => {
-    const f = { excludedAllergens: ['nuts'], excludeTraces: true, requiredTags: ['vegan'] }
-    expect(parseFilter(f)).toEqual(f)
-  })
-
-  it('räumt Doppelte auf', () => {
-    expect(parseFilter({ excludedAllergens: ['nuts', 'nuts'], excludeTraces: false, requiredTags: [' vegan', 'Vegan'] })).toEqual({
-      excludedAllergens: ['nuts'],
-      excludeTraces: false,
-      requiredTags: ['vegan'],
-    })
-  })
-
-  it('Unlesbares ergibt den leeren Filter', () => {
-    expect(parseFilter(undefined)).toEqual(EMPTY_FILTER)
-    expect(parseFilter({ excludedAllergens: ['nichtda'], excludeTraces: false, requiredTags: [] })).toEqual(EMPTY_FILTER)
   })
 })

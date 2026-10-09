@@ -80,7 +80,7 @@ describe('Export und Import (ersetzen)', () => {
     const id = await saveIngredient(draft({ categoryId: 'cat-1', brand: 'Kölln' }), { kind: 'set', blob: photoBlob('foto-1') })
     const ingredient = (await db.ingredients.get(id))!
     await db.mixes.put(mixOf(ingredient))
-    await db.settings.put({ key: 'defaultFilter', value: { exclude: ['nuts'] } })
+    await db.settings.put({ key: 'beispiel', value: { a: 1 } })
 
     const before = {
       categories: await db.categories.toArray(),
@@ -129,6 +129,23 @@ describe('Export und Import (ersetzen)', () => {
 
     await importBackup(text, 'replace')
     expect((await loadDraft()).name).toBe('Halbfertig')
+  })
+
+  it('übernimmt keine Filter aus Backups der ersten Phase-5-Version', async () => {
+    const filter = { excludedAllergens: ['nuts'], excludeTraces: false, requiredTags: [] }
+    await db.settings.bulkPut([
+      { key: 'defaultFilter', value: filter },
+      { key: 'muesliFilter', value: filter },
+    ])
+    const text = await exportText()
+    expect((JSON.parse(text) as BackupFile).data.settings).toEqual([])
+
+    // Datei von damals, die die Filter noch enthielt.
+    const old = JSON.parse(text) as BackupFile
+    old.data.settings = [{ key: 'defaultFilter', value: filter }]
+    await resetDb()
+    await importBackup(JSON.stringify(old), 'replace')
+    expect(await db.settings.toArray()).toEqual([])
   })
 
   it('ersetzt löscht alles, was nicht im Backup steht', async () => {
