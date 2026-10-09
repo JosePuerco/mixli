@@ -1,33 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <!-- Mixli-Icon: grüne Schale mit Müsli-Häufchen auf hellem Grund. Nur Farben aus design/tokens.json.
-       Motiv liegt im sicheren Kreis für maskierbare Icons (Radius 205 um die Mitte). PNGs: npm run icons -->
+  <!-- Mixli-Icon im Stil der Willkommens-Schale (EmptyState.tsx): weiße Schale mit dunkler Kontur,
+       grüne Wellenlinie als Häufchen, hellgrüner Bogen innen, Schatten, drei rieselnde Flocken.
+       Nur Farben aus design/tokens.json. Motiv liegt im sicheren Kreis für maskierbare Icons
+       (Radius 205 um die Mitte). PNGs und Startbilder: npm run icons -->
   <rect width="512" height="512" rx="112" fill="#F4F3EF"/>
-  <g transform="translate(-25.6 -43.2) scale(1.1)">
-    <!-- Häufchen: Flocken und Nüsse in warmen Segmentfarben, unten von der Schale verdeckt -->
-    <g>
-      <ellipse cx="150" cy="252" rx="30" ry="18" transform="rotate(-15 150 252)" fill="#C9A97A"/>
-      <ellipse cx="205" cy="246" rx="32" ry="19" transform="rotate(10 205 246)" fill="#D8C3A0"/>
-      <ellipse cx="262" cy="244" rx="34" ry="20" transform="rotate(-5 262 244)" fill="#B5865A"/>
-      <ellipse cx="318" cy="247" rx="31" ry="19" transform="rotate(15 318 247)" fill="#A7B88F"/>
-      <ellipse cx="365" cy="253" rx="28" ry="17" transform="rotate(-10 365 253)" fill="#C9A97A"/>
-      <ellipse cx="180" cy="216" rx="28" ry="17" transform="rotate(20 180 216)" fill="#D8C3A0"/>
-      <ellipse cx="236" cy="208" rx="32" ry="19" transform="rotate(-12 236 208)" fill="#C9A97A"/>
-      <ellipse cx="292" cy="210" rx="30" ry="18" transform="rotate(8 292 210)" fill="#D8C3A0"/>
-      <ellipse cx="343" cy="222" rx="27" ry="16" transform="rotate(-20 343 222)" fill="#B5865A"/>
-      <ellipse cx="214" cy="180" rx="26" ry="16" transform="rotate(-8 214 180)" fill="#A7B88F"/>
-      <ellipse cx="268" cy="172" rx="28" ry="17" transform="rotate(14 268 172)" fill="#B5865A"/>
-      <ellipse cx="318" cy="186" rx="24" ry="15" transform="rotate(-25 318 186)" fill="#C9A97A"/>
-      <ellipse cx="246" cy="146" rx="22" ry="14" transform="rotate(5 246 146)" fill="#D8C3A0"/>
-      <!-- Rosinen: klein und länglich, damit sie nicht wie Augen wirken -->
-      <ellipse cx="198" cy="231" rx="11" ry="7" transform="rotate(-30 198 231)" fill="#5E5B52"/>
-      <ellipse cx="300" cy="190" rx="10" ry="6.5" transform="rotate(25 300 190)" fill="#5E5B52"/>
-      <ellipse cx="338" cy="244" rx="10" ry="6.5" transform="rotate(-15 338 244)" fill="#5E5B52"/>
-    </g>
-    <!-- Schale: Rand, Körper, Fuß -->
-    <g fill="#3F5A2E">
-      <rect x="84" y="256" width="344" height="26" rx="13"/>
-      <path d="M100 270h312a156 140 0 0 1-312 0z"/>
-      <rect x="206" y="404" width="100" height="16" rx="8"/>
+  <!-- Koordinaten wie im Willkommens-Screen (Bühne 200 × 180), vergrößert; Strich ≈ 11 px -->
+  <g transform="translate(46 37.6) scale(2.1)">
+    <!-- Flocken -->
+    <rect x="69" y="40" width="18" height="12" rx="6" transform="rotate(-20 78 46)" fill="#C9A97A"/>
+    <circle cx="104" cy="30" r="7.5" fill="#A7B88F"/>
+    <rect x="119" y="44.5" width="18" height="11" rx="5.5" transform="rotate(25 128 50)" fill="#D8C3A0"/>
+    <!-- Schale -->
+    <g transform="translate(0 60)" fill="none" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round">
+      <ellipse cx="100" cy="112" rx="58" ry="6" fill="#DAD7CF" stroke="none"/>
+      <path d="M20 40h160c0 38-34 66-80 66S20 78 20 40z" fill="#FFFFFF" stroke="#1C1C1A"/>
+      <path d="M34 40c8-10 20-12 30-6 8-8 22-9 32-2 10-8 26-7 34 2 10-6 24-3 30 6" stroke="#3F5A2E"/>
+      <path d="M44 62c10 14 30 22 56 22s46-8 56-22" stroke="#A7B88F"/>
     </g>
   </g>
 </svg>
