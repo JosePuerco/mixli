@@ -4,6 +4,7 @@ import { motion } from 'motion/react'
 import { ease } from '../../design/motion'
 import { ms, segmentColors, tokens } from '../../design/tokens'
 import { formatGrams } from '../../domain/rounding'
+import { AnimatedNumber } from '../ui/AnimatedNumber'
 
 const SIZE = 120
 const STROKE = 12
@@ -58,7 +59,7 @@ export function MixRing({ shares, keys, total }: MixRingProps) {
         ))}
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center" aria-hidden="true">
-        <span className="text-2xl font-extrabold">{totalText}</span>
+        <AnimatedNumber className="text-2xl font-extrabold" value={total} format={formatGrams} step={1} />
         <span className="text-caption text-text-muted">gesamt</span>
       </div>
     </div>

@@ -13,6 +13,8 @@ export function bezier(css: string): Bezier {
 
 export const ease = {
   out: bezier(tokens.motion.easeOut),
+  /** easeOutCubic (tokens.motion.numberCount.easing) als Bezier-Kurve. */
+  outCubic: [0.33, 1, 0.68, 1] as Bezier,
   spring: bezier(tokens.motion.spring),
   springStrong: bezier(tokens.motion.springStrong),
 }
@@ -54,6 +56,9 @@ export function chipIn() {
     },
   }
 }
+
+/** Zahl zählt zum neuen Wert (480 ms, easeOutCubic). */
+export const numberCount = { duration: ms(tokens.motion.numberCount.durationMs), ease: ease.outCubic } as const
 
 /** Sheet: fährt von unten hoch (420 ms), schließt etwas schneller. */
 export const sheetTransition = {

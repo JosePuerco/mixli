@@ -227,5 +227,6 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
 ### Phase 6 – Feinschliff
 
 - [ ] Motion-Feinschliff, animierte Zahlen, Übergänge
+  - [x] Zahlen im Mixen-Screen zählen zum neuen Wert (480 ms, easeOutCubic): Gesamtgewicht im Ring, kcal, Eiweiß, Kohlenhydrate, Fett, Anteile. Zwischenwerte schon gerundet, Gramm unterwegs ganzzahlig (`src/lib/countUp.ts`, `AnimatedNumber`); Grammzahl im Stepper bleibt sofort; Screenreader lesen nur den Endwert; bei „Bewegung reduzieren“ sofort
 - [ ] App-Icon, Splashscreen
 - [ ] Später optional: Barcode-Scan mit Open Food Facts

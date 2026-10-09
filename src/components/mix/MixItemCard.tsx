@@ -6,6 +6,7 @@ import { press } from '../../design/motion'
 import { formatGrams, formatShare } from '../../domain/rounding'
 import { IconMinus, IconPlus } from '../icons/Icons'
 import { IngredientPhoto } from '../ingredient/IngredientCard'
+import { AnimatedNumber } from '../ui/AnimatedNumber'
 import { Card } from '../ui/Card'
 
 interface MixItemCardProps {
@@ -35,7 +36,7 @@ export function MixItemCard({ ingredientId, photoId, name, grams, share, color, 
       </div>
       <div className="flex min-w-0 flex-col gap-0.5 px-1.5">
         <span className="truncate text-body">{name}</span>
-        <span className="text-caption text-text-muted">{formatShare(share)}</span>
+        <AnimatedNumber className="text-caption text-text-muted" value={share} format={formatShare} />
         {warning && (
           <span className="flex min-w-0 items-start gap-1.5 text-caption text-text-muted">
             <span className="mt-1.25 size-2 shrink-0 rounded-pill bg-warning-dot" aria-hidden="true" />
