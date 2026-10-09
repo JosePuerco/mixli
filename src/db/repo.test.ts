@@ -12,13 +12,16 @@ import {
   listCategories,
   listTags,
   loadDraft,
+  loadFilter,
   renameCategory,
   reorderCategories,
   saveDraft,
+  saveFilter,
   saveIngredient,
   saveMix,
   setArchived,
 } from './repo'
+import { EMPTY_FILTER, type MixFilter } from '../domain/filter'
 import type { IngredientDraft } from '../domain/ingredient'
 import { addItem, emptyDraft, type MixDraft } from '../domain/mixDraft'
 
@@ -166,6 +169,23 @@ describe('Entwurf (Mix in Arbeit)', () => {
   it('ergibt bei einem kaputten Eintrag einen leeren Entwurf', async () => {
     await db.settings.put({ key: 'mixDraft', value: { items: 'kaputt' } })
     expect(await loadDraft()).toEqual(emptyDraft())
+  })
+})
+
+describe('Filter', () => {
+  it('ist am Anfang leer', async () => {
+    expect(await loadFilter()).toEqual(EMPTY_FILTER)
+  })
+
+  it('wird gespeichert und geladen', async () => {
+    const f: MixFilter = { excludedAllergens: ['nuts'], excludeTraces: true, requiredTags: ['vegan'] }
+    await saveFilter(f)
+    expect(await loadFilter()).toEqual(f)
+  })
+
+  it('ergibt bei einem kaputten Eintrag den leeren Filter', async () => {
+    await db.settings.put({ key: 'defaultFilter', value: { exclude: ['nuts'] } })
+    expect(await loadFilter()).toEqual(EMPTY_FILTER)
   })
 })
 

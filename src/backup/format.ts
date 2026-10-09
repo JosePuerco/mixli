@@ -13,6 +13,8 @@ export const LAST_BACKUP_KEY = 'lastBackupAt'
 /** Der Mix in Arbeit (Mixen-Screen). Halbfertiges gehört nicht ins Backup. */
 export const MIX_DRAFT_KEY = 'mixDraft'
 export const DEVICE_SETTING_KEYS: readonly string[] = [LAST_BACKUP_KEY, MIX_DRAFT_KEY]
+/** Der Filter beim Mixen (Allergene, Tags). Kommt mit ins Backup. */
+export const DEFAULT_FILTER_KEY = 'defaultFilter'
 
 const allergenIds = ALLERGENS.map((a) => a.id) as [AllergenId, ...AllergenId[]]
 

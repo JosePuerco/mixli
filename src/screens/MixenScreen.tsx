@@ -1,6 +1,7 @@
 // Mixen: Übersichtskarte (Ring, kcal, Eiweiß, Kohlenhydrate, Fett), Zutatenkarten mit Stepper,
 // Kachel „Zutat hinzufügen“, Allergen-Chips. Alles wird live aus dem Entwurf berechnet und erst bei der
 // Anzeige gerundet. Der Entwurf übersteht Tab-Wechsel und Neustart (useMixDraft).
+// Zutaten im Mix, die nicht zum Filter passen, bekommen einen Hinweis (sie bleiben aber drin).
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
@@ -13,6 +14,7 @@ import { segmentColor } from '../components/mix/MixRing'
 import { MixSummaryCard } from '../components/mix/MixSummaryCard'
 import { SaveMixSheet } from '../components/mix/SaveMixSheet'
 import { useMixDraft } from '../components/mix/useMixDraft'
+import { useMixFilter } from '../components/mix/useMixFilter'
 import { AllergenChip } from '../components/ui/Chip'
 import { Card } from '../components/ui/Card'
 import { ConfirmSheet } from '../components/ui/ConfirmSheet'
@@ -22,6 +24,7 @@ import { ScreenHeader } from '../components/ui/ScreenHeader'
 import { db } from '../db/db'
 import { press } from '../design/motion'
 import { allergenLabel } from '../domain/allergens'
+import { mixViolations, reasonsLine } from '../domain/filter'
 import { byName } from '../domain/ingredient'
 import { mixAllergens, nutritionPer100g, shares, totalGrams } from '../domain/mix'
 import { addItem, emptyDraft, resolveLines, setGrams, stepItem } from '../domain/mixDraft'
@@ -29,6 +32,7 @@ import { addItem, emptyDraft, resolveLines, setGrams, stepItem } from '../domain
 export function MixenScreen() {
   const navigate = useNavigate()
   const { draft, update } = useMixDraft()
+  const [filter, setFilter] = useMixFilter()
   const ingredients = useLiveQuery(() => db.ingredients.toArray(), [])
   const [adding, setAdding] = useState(false)
   const [sheet, setSheet] = useState<'save' | 'discard' | null>(null)
@@ -40,7 +44,7 @@ export function MixenScreen() {
   const added = useRef(new Set<string>())
 
   // Noch nicht geladen: nichts zeigen, damit nichts kurz aufblitzt.
-  if (!draft || !ingredients) return null
+  if (!draft || !ingredients || !filter) return null
 
   const byId = new Map(ingredients.map((i) => [i.id, i]))
   const lines = resolveLines(draft, byId)
@@ -51,6 +55,7 @@ export function MixenScreen() {
   const active = ingredients.filter((i) => !i.archived)
   const inMix = new Set(draft.items.map((i) => i.ingredientId))
   const available = active.filter((i) => !inMix.has(i.id)).sort(byName)
+  const violations = new Map(mixViolations(lines, byId, filter).map((v) => [v.ingredientId, reasonsLine(v.reasons)]))
 
   function add(id: string) {
     added.current.add(id)
@@ -117,6 +122,7 @@ export function MixenScreen() {
               grams={l.grams}
               share={lineShares[i]}
               color={segmentColor(i)}
+              warning={violations.get(l.ingredientId)}
               appear={added.current.has(l.ingredientId)}
               onStep={(dir) => update((d) => stepItem(d, l.ingredientId, dir))}
               onEditAmount={() => openAmount(l.ingredientId, l.snapshot.name, l.grams)}
@@ -157,6 +163,8 @@ export function MixenScreen() {
         onClose={() => setAdding(false)}
         available={available}
         hasIngredients={active.length > 0}
+        filter={filter}
+        onFilterChange={setFilter}
         onAdd={add}
         onCreateIngredient={() => navigate('/zutaten/neu')}
       />

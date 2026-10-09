@@ -1,5 +1,6 @@
 // Zutatenkarte im Mixen-Screen: Foto mit Farbpunkt (Segmentfarbe), Name, Anteil in %, Stepper.
 // Stepper: graue Pille, ± ändert um 10 g, Tippen auf die Grammzahl öffnet das Mengen-Sheet.
+// Passt die Zutat nicht zum Filter, steht statt des Anteils ein Hinweis mit Warnpunkt.
 import { motion } from 'motion/react'
 import { press } from '../../design/motion'
 import { formatGrams, formatShare } from '../../domain/rounding'
@@ -16,13 +17,15 @@ interface MixItemCardProps {
   color: string
   onStep: (direction: 1 | -1) => void
   onEditAmount: () => void
+  /** Warum die Zutat nicht zum Filter passt, z. B. „enthält Schalenfrüchte“. */
+  warning?: string
   /** Nur für frisch hinzugefügte Zutaten: Karte ploppt herein. */
   appear?: boolean
 }
 
 const stepButton = 'inline-flex size-touch shrink-0 items-center justify-center rounded-pill text-text'
 
-export function MixItemCard({ ingredientId, photoId, name, grams, share, color, onStep, onEditAmount, appear }: MixItemCardProps) {
+export function MixItemCard({ ingredientId, photoId, name, grams, share, color, warning, onStep, onEditAmount, appear }: MixItemCardProps) {
   const gramsText = formatGrams(grams)
   return (
     <Card padding="tight" appearIndex={appear ? 0 : undefined} className="flex min-w-0 flex-col gap-2.5">
@@ -33,8 +36,18 @@ export function MixItemCard({ ingredientId, photoId, name, grams, share, color, 
       <div className="flex min-w-0 flex-col gap-0.5 px-1.5">
         <span className="truncate text-body">{name}</span>
         <span className="text-caption text-text-muted">{formatShare(share)}</span>
+        {warning && (
+          <span className="flex min-w-0 items-start gap-1.5 text-caption text-text-muted">
+            <span className="mt-1.25 size-2 shrink-0 rounded-pill bg-warning-dot" aria-hidden="true" />
+            <span className="line-clamp-2">
+              <span className="sr-only">Passt nicht zum Filter: </span>
+              {warning}
+            </span>
+          </span>
+        )}
       </div>
-      <div className="flex items-center justify-between rounded-pill bg-surface-muted">
+      {/* mt-auto: Stepper bleiben unten bündig, auch wenn eine Nachbarkarte einen Filter-Hinweis hat. */}
+      <div className="mt-auto flex items-center justify-between rounded-pill bg-surface-muted">
         <motion.button type="button" {...press} className={stepButton} aria-label={`${name}: 10 g weniger`} onClick={() => onStep(-1)}>
           <IconMinus size={18} />
         </motion.button>

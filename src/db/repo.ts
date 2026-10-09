@@ -3,9 +3,10 @@
 import { db } from './db'
 import type { Category, Ingredient, Mix, MixItem } from './types'
 import { mergeTags, normalizeDraft, sameName, type IngredientDraft } from '../domain/ingredient'
+import { EMPTY_FILTER, parseFilter, type MixFilter } from '../domain/filter'
 import { snapshotOf } from '../domain/mix'
 import { draftFromMix, emptyDraft, normalizeDraftText, parseDraft, templateFromMix, type MixDraft } from '../domain/mixDraft'
-import { MIX_DRAFT_KEY } from '../backup/format'
+import { DEFAULT_FILTER_KEY, MIX_DRAFT_KEY } from '../backup/format'
 import { newId } from '../lib/id'
 import { blobToPhotoData } from './photo'
 
@@ -135,6 +136,16 @@ export async function saveDraft(draft: MixDraft): Promise<void> {
 
 export async function clearDraft(): Promise<void> {
   await db.settings.delete(MIX_DRAFT_KEY)
+}
+
+/** Der Filter beim Mixen. Ohne gespeicherten (oder bei unlesbarem) der leere Filter. */
+export async function loadFilter(): Promise<MixFilter> {
+  const row = await db.settings.get(DEFAULT_FILTER_KEY)
+  return row ? parseFilter(row.value) : EMPTY_FILTER
+}
+
+export async function saveFilter(filter: MixFilter): Promise<void> {
+  await db.settings.put({ key: DEFAULT_FILTER_KEY, value: filter })
 }
 
 /**

@@ -144,7 +144,7 @@ id, Name, Reihenfolge. Beim Löschen werden betroffene Zutaten auf „ohne Kateg
 
 ### `settings`
 
-letztes Backup, Standardfilter.
+letztes Backup (nur Gerät), Mix in Arbeit (nur Gerät), Standardfilter (`defaultFilter`: ausgeschlossene Allergene, Spuren-Schalter, verlangte Tags; kommt mit ins Backup).
 
 ### Backup-Datei
 
@@ -212,9 +212,14 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
 
 ### Phase 5 – Filter
 
-- [ ] Allergene ausschließen, Schalter „Spuren auch ausschließen“
-- [ ] Nach Tags filtern
-- [ ] Warnung, wenn ein gespeichertes Müsli den Filter verletzt
+- [x] Allergene ausschließen, Schalter „Spuren auch ausschließen“
+  - [x] Filter-Logik als reine Funktionen mit Tests (`src/domain/filter.ts`); gespeichert in `settings` unter `defaultFilter` (kommt mit ins Backup, Format unverändert)
+  - [x] Im Sheet „Zutat hinzufügen“: Chip „Filter“ plus aktive Filter; „Filter“ wechselt im selben Sheet zur Filter-Ansicht (14 Allergene, Schalter, Tags, „Zurücksetzen“). Ausgeschlossene Zutaten auf 35 % und nicht wählbar, statt der Allergen-Zeile steht der Grund
+- [x] Nach Tags filtern (alle gewählten Tags müssen vorhanden sein)
+- [x] Warnung, wenn ein gespeichertes Müsli den Filter verletzt
+  - [x] Allergene nach dem Snapshot (wie auf dem Etikett), Tags nach der aktuellen Zutat (Tags stehen nicht im Snapshot)
+  - [x] Hinweis in der Müsli-Liste, Karte mit Zutaten und Gründen im Detail; im Mixen-Screen Hinweis an der Zutatenkarte (Zutat bleibt im Mix)
+- [ ] Auf dem iPhone testen: Filter setzen, Ausgrauen, Schalter, Tags, Warnungen, Filter nach Neustart noch da
 
 ### Phase 6 – Feinschliff
 

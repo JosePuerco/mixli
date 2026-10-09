@@ -8,7 +8,9 @@ import { IconBack, IconLabel } from '../components/icons/Icons'
 import { LabelSheet } from '../components/label/LabelSheet'
 import { MixBar } from '../components/mix/MixBar'
 import { segmentColor } from '../components/mix/MixRing'
+import { FilterWarningCard } from '../components/mix/FilterWarning'
 import { NutritionTable } from '../components/mix/NutritionTable'
+import { useMixViolations } from '../components/mix/useMixFilter'
 import { useOpenInMixer } from '../components/mix/useOpenInMixer'
 import { Button } from '../components/ui/Button'
 import { Card, CardTitle } from '../components/ui/Card'
@@ -68,6 +70,8 @@ function Detail({ mix }: { mix: Mix }) {
   const { open, confirmSheet } = useOpenInMixer()
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [labelOpen, setLabelOpen] = useState(false)
+  const { filter, check } = useMixViolations()
+  const violations = check(mix)
 
   const total = totalGrams(mix.items)
   const itemShares = shares(mix.items)
@@ -110,6 +114,8 @@ function Detail({ mix }: { mix: Mix }) {
             <span className="text-label font-normal text-text-muted">{mixMeta(mix)}</span>
             <h1 className="text-h1-detail tracking-tight">{mix.name}</h1>
           </div>
+
+          {filter && violations.length > 0 && <FilterWarningCard filter={filter} violations={violations} />}
 
           <Card className="flex flex-col gap-gap-md">
             <div className="flex items-baseline justify-between gap-gap-md">

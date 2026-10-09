@@ -1,11 +1,14 @@
 // Meine Müslis: Anzahl, Titel, Umschalter „Neueste | A–Z“, eine Karte je Müsli (Name, für wen · Datum,
 // Gesamtmenge, Anteilsbalken, Zutaten; Fußzeile mit Allergenen und „Duplizieren“). Antippen öffnet das Detail.
+// Müslis, die nicht zum Filter beim Mixen passen, bekommen einen Hinweis.
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { motion } from 'motion/react'
 import { IconCopy } from '../components/icons/Icons'
+import { FilterWarningLine } from '../components/mix/FilterWarning'
 import { MixBar } from '../components/mix/MixBar'
+import { useMixViolations } from '../components/mix/useMixFilter'
 import { useOpenInMixer } from '../components/mix/useOpenInMixer'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
@@ -29,6 +32,7 @@ export function MueslisScreen() {
   const mixes = useLiveQuery(() => db.mixes.toArray(), [])
   const [sort, setSort] = useState<MixSort>('newest')
   const { open, confirmSheet } = useOpenInMixer()
+  const { check } = useMixViolations()
 
   // Noch nicht geladen: nichts zeigen, damit der leere Zustand nicht kurz aufblitzt.
   if (mixes === undefined) return null
@@ -60,6 +64,7 @@ export function MueslisScreen() {
             <MuesliCard
               key={m.id}
               mix={m}
+              violatesFilter={check(m).length > 0}
               onOpen={() => navigate(`/muesli/${m.id}`)}
               onDuplicate={() => open('duplicate', m.id)}
             />
@@ -71,7 +76,14 @@ export function MueslisScreen() {
   )
 }
 
-function MuesliCard({ mix, onOpen, onDuplicate }: { mix: Mix; onOpen: () => void; onDuplicate: () => void }) {
+interface MuesliCardProps {
+  mix: Mix
+  violatesFilter: boolean
+  onOpen: () => void
+  onDuplicate: () => void
+}
+
+function MuesliCard({ mix, violatesFilter, onOpen, onDuplicate }: MuesliCardProps) {
   return (
     <Card className="flex flex-col gap-gap-md">
       <motion.button type="button" whileTap={{ scale: 0.98 }} onClick={onOpen} className="flex flex-col gap-gap-md text-left">
@@ -84,6 +96,7 @@ function MuesliCard({ mix, onOpen, onDuplicate }: { mix: Mix; onOpen: () => void
         </span>
         <MixBar shares={shares(mix.items)} />
         <span className="text-label font-normal text-text-muted">{ingredientNames(mix.items)}</span>
+        {violatesFilter && <FilterWarningLine />}
       </motion.button>
       <div className="flex items-center justify-between gap-gap-md border-t border-divider pt-2.5">
         <span className="min-w-0 text-caption font-bold">{allergenSummary(mixAllergens(mix.items))}</span>
