@@ -5,15 +5,14 @@ import { useEffect, useState } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import type { Ingredient } from '../../db/types'
 import { press } from '../../design/motion'
-import { filterChipLabels, filterReasons, isFilterActive, reasonsLine, type MixFilter } from '../../domain/filter'
+import { filterReasons, reasonsLine, type MixFilter } from '../../domain/filter'
 import { allergenLine } from '../../domain/ingredient'
 import { formatWithUnit } from '../../lib/format'
 import { IconPlus } from '../icons/Icons'
 import { IngredientPhoto } from '../ingredient/IngredientCard'
 import { BottomSheet } from '../ui/BottomSheet'
 import { Button } from '../ui/Button'
-import { ChipScroller, ChoiceChip } from '../ui/Chip'
-import { FilterPanel } from './FilterPanel'
+import { FilterChipRow, FilterPanel } from './FilterPanel'
 
 interface AddIngredientSheetProps {
   open: boolean
@@ -46,8 +45,6 @@ export function AddIngredientSheet({
     if (open) setView('list')
   }, [open])
 
-  const active = isFilterActive(filter)
-  const chips = filterChipLabels(filter)
   const rows = available.map((i) => ({ ingredient: i, reasons: filterReasons(i, filter) }))
   const allBlocked = rows.length > 0 && rows.every((r) => r.reasons.length > 0)
 
@@ -69,20 +66,11 @@ export function AddIngredientSheet({
       }
     >
       {view === 'filter' ? (
-        <FilterPanel filter={filter} onChange={onFilterChange} />
+        <FilterPanel target="ingredients" filter={filter} onChange={onFilterChange} />
       ) : (
         <>
           {hasIngredients && (
-            <ChipScroller aria-label="Filter">
-              <ChoiceChip outlined selected={active} onClick={() => setView('filter')}>
-                Filter
-              </ChoiceChip>
-              {chips.map((label) => (
-                <ChoiceChip key={label} outlined selected={false} onClick={() => setView('filter')}>
-                  {label}
-                </ChoiceChip>
-              ))}
-            </ChipScroller>
+            <FilterChipRow outlined filter={filter} onOpen={() => setView('filter')} />
           )}
           {rows.length > 0 ? (
             <>

@@ -6,7 +6,7 @@ import { mergeTags, normalizeDraft, sameName, type IngredientDraft } from '../do
 import { EMPTY_FILTER, parseFilter, type MixFilter } from '../domain/filter'
 import { snapshotOf } from '../domain/mix'
 import { draftFromMix, emptyDraft, normalizeDraftText, parseDraft, templateFromMix, type MixDraft } from '../domain/mixDraft'
-import { DEFAULT_FILTER_KEY, MIX_DRAFT_KEY } from '../backup/format'
+import { MIX_DRAFT_KEY, type FilterKey } from '../backup/format'
 import { newId } from '../lib/id'
 import { blobToPhotoData } from './photo'
 
@@ -138,14 +138,14 @@ export async function clearDraft(): Promise<void> {
   await db.settings.delete(MIX_DRAFT_KEY)
 }
 
-/** Der Filter beim Mixen. Ohne gespeicherten (oder bei unlesbarem) der leere Filter. */
-export async function loadFilter(): Promise<MixFilter> {
-  const row = await db.settings.get(DEFAULT_FILTER_KEY)
+/** Ein Filter (beim Mixen oder bei „Meine Müslis“). Ohne gespeicherten (oder bei unlesbarem) der leere Filter. */
+export async function loadFilter(key: FilterKey): Promise<MixFilter> {
+  const row = await db.settings.get(key)
   return row ? parseFilter(row.value) : EMPTY_FILTER
 }
 
-export async function saveFilter(filter: MixFilter): Promise<void> {
-  await db.settings.put({ key: DEFAULT_FILTER_KEY, value: filter })
+export async function saveFilter(key: FilterKey, filter: MixFilter): Promise<void> {
+  await db.settings.put({ key, value: filter })
 }
 
 /**

@@ -20,6 +20,13 @@ export function mixCountLabel(n: number): string {
   return `${n} gespeichert`
 }
 
+/** Hinweis unter der gefilterten Liste: „1 Müsli passt nicht zum Filter und ist ausgeblendet.“ */
+export function hiddenMixesLabel(n: number): string {
+  return n === 1
+    ? '1 Müsli passt nicht zum Filter und ist ausgeblendet.'
+    : `${n} Müslis passen nicht zum Filter und sind ausgeblendet.`
+}
+
 /** „Für Lena · 07.10.2026“, ohne „für wen“ nur das Datum. */
 export function mixMeta(mix: Pick<Mix, 'forWhom' | 'createdAt'>): string {
   const date = formatDate(mix.createdAt)

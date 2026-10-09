@@ -174,18 +174,28 @@ describe('Entwurf (Mix in Arbeit)', () => {
 
 describe('Filter', () => {
   it('ist am Anfang leer', async () => {
-    expect(await loadFilter()).toEqual(EMPTY_FILTER)
+    expect(await loadFilter('defaultFilter')).toEqual(EMPTY_FILTER)
+    expect(await loadFilter('muesliFilter')).toEqual(EMPTY_FILTER)
   })
 
   it('wird gespeichert und geladen', async () => {
     const f: MixFilter = { excludedAllergens: ['nuts'], excludeTraces: true, requiredTags: ['vegan'] }
-    await saveFilter(f)
-    expect(await loadFilter()).toEqual(f)
+    await saveFilter('defaultFilter', f)
+    expect(await loadFilter('defaultFilter')).toEqual(f)
+  })
+
+  it('Mixen und Müslis haben getrennte Filter', async () => {
+    const mixing: MixFilter = { excludedAllergens: ['nuts'], excludeTraces: false, requiredTags: [] }
+    const muesli: MixFilter = { excludedAllergens: [], excludeTraces: false, requiredTags: ['vegan'] }
+    await saveFilter('defaultFilter', mixing)
+    await saveFilter('muesliFilter', muesli)
+    expect(await loadFilter('defaultFilter')).toEqual(mixing)
+    expect(await loadFilter('muesliFilter')).toEqual(muesli)
   })
 
   it('ergibt bei einem kaputten Eintrag den leeren Filter', async () => {
     await db.settings.put({ key: 'defaultFilter', value: { exclude: ['nuts'] } })
-    expect(await loadFilter()).toEqual(EMPTY_FILTER)
+    expect(await loadFilter('defaultFilter')).toEqual(EMPTY_FILTER)
   })
 })
 

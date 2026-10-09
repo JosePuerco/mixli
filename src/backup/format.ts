@@ -15,6 +15,10 @@ export const MIX_DRAFT_KEY = 'mixDraft'
 export const DEVICE_SETTING_KEYS: readonly string[] = [LAST_BACKUP_KEY, MIX_DRAFT_KEY]
 /** Der Filter beim Mixen (Allergene, Tags). Kommt mit ins Backup. */
 export const DEFAULT_FILTER_KEY = 'defaultFilter'
+/** Der eigene Filter bei „Meine Müslis“. Kommt mit ins Backup. */
+export const MUESLI_FILTER_KEY = 'muesliFilter'
+/** Unter diesen Schlüsseln liegen Filter. */
+export type FilterKey = typeof DEFAULT_FILTER_KEY | typeof MUESLI_FILTER_KEY
 
 const allergenIds = ALLERGENS.map((a) => a.id) as [AllergenId, ...AllergenId[]]
 

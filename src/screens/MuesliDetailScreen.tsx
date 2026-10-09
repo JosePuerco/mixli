@@ -10,7 +10,7 @@ import { MixBar } from '../components/mix/MixBar'
 import { segmentColor } from '../components/mix/MixRing'
 import { FilterWarningCard } from '../components/mix/FilterWarning'
 import { NutritionTable } from '../components/mix/NutritionTable'
-import { useMixViolations } from '../components/mix/useMixFilter'
+import { useMuesliCheck } from '../components/mix/useMixFilter'
 import { useOpenInMixer } from '../components/mix/useOpenInMixer'
 import { Button } from '../components/ui/Button'
 import { Card, CardTitle } from '../components/ui/Card'
@@ -70,8 +70,9 @@ function Detail({ mix }: { mix: Mix }) {
   const { open, confirmSheet } = useOpenInMixer()
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [labelOpen, setLabelOpen] = useState(false)
-  const { filter, check } = useMixViolations()
-  const violations = check(mix)
+  // Hinweis gegen den Filter bei „Meine Müslis“ (nicht den beim Mixen).
+  const muesliCheck = useMuesliCheck()
+  const violations = muesliCheck?.check(mix) ?? []
 
   const total = totalGrams(mix.items)
   const itemShares = shares(mix.items)
@@ -115,7 +116,7 @@ function Detail({ mix }: { mix: Mix }) {
             <h1 className="text-h1-detail tracking-tight">{mix.name}</h1>
           </div>
 
-          {filter && violations.length > 0 && <FilterWarningCard filter={filter} violations={violations} />}
+          {muesliCheck && violations.length > 0 && <FilterWarningCard filter={muesliCheck.filter} violations={violations} />}
 
           <Card className="flex flex-col gap-gap-md">
             <div className="flex items-baseline justify-between gap-gap-md">

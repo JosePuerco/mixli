@@ -1,21 +1,31 @@
-// Ansicht „Filter“ im Sheet „Zutat hinzufügen“: Allergene ausschließen, Schalter „Spuren auch ausschließen“,
-// Tags verlangen. Jede Änderung wird sofort gespeichert.
+// Filter-Ansicht: Allergene ausschließen, Schalter „Spuren auch ausschließen“, Tags verlangen. Jede Änderung
+// wird sofort gespeichert. Genutzt beim Mixen (Sheet „Zutat hinzufügen“) und bei „Meine Müslis“ (eigenes Sheet),
+// jeweils mit eigenem Filter. Dazu die Chip-Zeile „Filter“ + aktive Filter, die die Ansicht öffnet.
 import { useId } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { listTags } from '../../db/repo'
 import { ALLERGENS } from '../../domain/allergens'
-import { isFilterActive, toggleAllergen, toggleTag, EMPTY_FILTER, type MixFilter } from '../../domain/filter'
+import { filterChipLabels, isFilterActive, toggleAllergen, toggleTag, EMPTY_FILTER, type MixFilter } from '../../domain/filter'
 import { DEFAULT_TAGS, mergeTags, sameName } from '../../domain/ingredient'
 import { Button } from '../ui/Button'
-import { ChoiceChip } from '../ui/Chip'
+import { ChipScroller, ChoiceChip } from '../ui/Chip'
 import { Switch } from '../ui/Switch'
+
+/** Texte je nach Ort: Beim Mixen werden Zutaten gefiltert, bei „Meine Müslis“ ganze Müslis. */
+const TEXTS = {
+  ingredients: { tracesHint: 'Auch Zutaten, die Spuren davon enthalten können', tags: 'Nur Zutaten mit' },
+  mixes: { tracesHint: 'Auch Müslis, die Spuren davon enthalten können', tags: 'Nur Müslis aus Zutaten mit' },
+}
 
 interface FilterPanelProps {
   filter: MixFilter
   onChange: (filter: MixFilter) => void
+  /** Was gefiltert wird. */
+  target: keyof typeof TEXTS
 }
 
-export function FilterPanel({ filter, onChange }: FilterPanelProps) {
+export function FilterPanel({ filter, onChange, target }: FilterPanelProps) {
+  const texts = TEXTS[target]
   const storedTags = useLiveQuery(listTags, [], [...DEFAULT_TAGS])
   // Verlangte Tags bleiben sichtbar, auch wenn gerade keine Zutat sie hat (sonst ließen sie sich nicht abwählen).
   const allTags = mergeTags([...storedTags, ...filter.requiredTags])
@@ -43,7 +53,7 @@ export function FilterPanel({ filter, onChange }: FilterPanelProps) {
         <div className="px-1">
           <Switch
             label="Spuren auch ausschließen"
-            hint="Auch Zutaten, die Spuren davon enthalten können"
+            hint={texts.tracesHint}
             checked={filter.excludeTraces}
             onChange={(excludeTraces) => onChange({ ...filter, excludeTraces })}
           />
@@ -52,7 +62,7 @@ export function FilterPanel({ filter, onChange }: FilterPanelProps) {
 
       <section className="flex flex-col gap-2.5" aria-labelledby={tagsHeadingId}>
         <h3 id={tagsHeadingId} className="px-1 text-label">
-          Nur Zutaten mit
+          {texts.tags}
         </h3>
         <div className="flex flex-wrap gap-gap-sm">
           {allTags.map((tag) => (
@@ -79,5 +89,28 @@ export function FilterPanel({ filter, onChange }: FilterPanelProps) {
         Zurücksetzen
       </Button>
     </div>
+  )
+}
+
+interface FilterChipRowProps {
+  filter: MixFilter
+  onOpen: () => void
+  /** Auf weißem Untergrund (im Sheet) mit Rahmen. */
+  outlined?: boolean
+}
+
+/** „Filter“ (dunkel, wenn aktiv) und die aktiven Filter; jeder Chip öffnet die Filter-Ansicht. */
+export function FilterChipRow({ filter, onOpen, outlined = false }: FilterChipRowProps) {
+  return (
+    <ChipScroller aria-label="Filter">
+      <ChoiceChip outlined={outlined} selected={isFilterActive(filter)} onClick={onOpen}>
+        Filter
+      </ChoiceChip>
+      {filterChipLabels(filter).map((label) => (
+        <ChoiceChip key={label} outlined={outlined} selected={false} onClick={onOpen}>
+          {label}
+        </ChoiceChip>
+      ))}
+    </ChipScroller>
   )
 }

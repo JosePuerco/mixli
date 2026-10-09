@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { allergenSummary, ingredientNames, mixCountLabel, mixMeta, sortMixes } from './mixList'
+import { allergenSummary, hiddenMixesLabel, ingredientNames, mixCountLabel, mixMeta, sortMixes } from './mixList'
 
 const mix = (name: string, day: number) => ({ name, createdAt: new Date(2026, 9, day, 8) })
 
@@ -23,6 +23,13 @@ describe('sortMixes', () => {
   it('sortiert gleiche Namen nach Datum, gleiches Datum nach Name', () => {
     expect(sortMixes([mix('B', 1), mix('B', 3)], 'az').map((m) => m.createdAt.getDate())).toEqual([3, 1])
     expect(sortMixes([mix('B', 1), mix('A', 1)], 'newest').map((m) => m.name)).toEqual(['A', 'B'])
+  })
+})
+
+describe('hiddenMixesLabel', () => {
+  it('Einzahl und Mehrzahl', () => {
+    expect(hiddenMixesLabel(1)).toBe('1 Müsli passt nicht zum Filter und ist ausgeblendet.')
+    expect(hiddenMixesLabel(3)).toBe('3 Müslis passen nicht zum Filter und sind ausgeblendet.')
   })
 })
 

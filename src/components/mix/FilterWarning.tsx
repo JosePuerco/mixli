@@ -1,19 +1,9 @@
-// Hinweis, dass ein gespeichertes Müsli nicht zum Filter beim Mixen passt (Warnfarbe aus den Tokens).
-// Kurz in der Müsli-Liste, ausführlich mit Zutaten und Gründen im Müsli-Detail.
+// Hinweis im Müsli-Detail, dass das Müsli nicht zum Filter bei „Meine Müslis“ passt (Warnfarbe aus den Tokens),
+// mit Zutaten und Gründen. In der Liste selbst sind unpassende Müslis ausgeblendet.
 import type { MixFilter, MixViolation } from '../../domain/filter'
 import { filterChipLabels, reasonsLine } from '../../domain/filter'
 
 const dot = <span className="size-2 shrink-0 rounded-pill bg-warning-dot" aria-hidden="true" />
-
-/** Eine Zeile für die Karte in der Liste. */
-export function FilterWarningLine() {
-  return (
-    <span className="inline-flex items-center gap-1.5 self-start rounded-pill bg-warning-bg px-2.5 py-1 text-caption font-semibold">
-      {dot}
-      Passt nicht zum Filter
-    </span>
-  )
-}
 
 /** Karte im Detail: welcher Filter gilt und welche Zutaten warum nicht passen. */
 export function FilterWarningCard({ filter, violations }: { filter: MixFilter; violations: readonly MixViolation[] }) {
@@ -30,7 +20,7 @@ export function FilterWarningCard({ filter, violations }: { filter: MixFilter; v
           </li>
         ))}
       </ul>
-      <p className="text-caption text-text-muted">Filter beim Mixen: {filterChipLabels(filter).join(', ')}</p>
+      <p className="text-caption text-text-muted">Filter bei „Meine Müslis“: {filterChipLabels(filter).join(', ')}</p>
     </section>
   )
 }

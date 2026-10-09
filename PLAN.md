@@ -41,12 +41,13 @@ Mixli ist eine Offline-PWA für iOS und Android, mit der ich Müslis aus selbst 
 - Menge per +/− in 10-g-Schritten; Antippen der Grammzahl öffnet ein Sheet mit Ziffernblock und Schnellwerten (10, 25, 50 g) für exakte Werte inkl. Kommastelle
 - Bei 0 g fliegt die Zutat aus dem Mix
 - Live: Gesamtgewicht, Anteile in %, Nährwerte pro 100 g, gesammelte Allergene und Spuren
-- Filter: Allergene ausschließen (wahlweise inkl. Spuren), Tags verlangen; ausgeschlossene Zutaten werden ausgegraut und sind nicht wählbar
+- Filter: Allergene ausschließen (wahlweise inkl. Spuren), Tags verlangen; ausgeschlossene Zutaten werden ausgegraut und sind nicht wählbar. Eigener Filter, getrennt von dem bei „Meine Müslis“
 
 ### Gespeicherte Müslis
 
 - Name, für wen, Datum, Notiz
 - Liste, sortierbar nach „Neueste“ und „A–Z“, Duplizieren als Vorlage
+- Eigener Filter (wie beim Mixen, aber getrennt): unpassende Müslis werden ausgeblendet, mit Hinweis „n Müslis … ausgeblendet“
 - Detailansicht mit Zusammensetzung, voller Nährwerttabelle, Allergenen und Etikett
 - Datum ist der Tag des ersten Speicherns (`createdAt`), nicht änderbar; es wird später das Herstellungsdatum auf dem Etikett
 - **Bearbeiten:** Zutaten behalten ihre Snapshots von damals; nur neu hinzugefügte bekommen aktuelle Werte. Datum bleibt.
@@ -144,7 +145,7 @@ id, Name, Reihenfolge. Beim Löschen werden betroffene Zutaten auf „ohne Kateg
 
 ### `settings`
 
-letztes Backup (nur Gerät), Mix in Arbeit (nur Gerät), Standardfilter (`defaultFilter`: ausgeschlossene Allergene, Spuren-Schalter, verlangte Tags; kommt mit ins Backup).
+letztes Backup (nur Gerät), Mix in Arbeit (nur Gerät), Filter beim Mixen (`defaultFilter`) und bei „Meine Müslis“ (`muesliFilter`), je ausgeschlossene Allergene, Spuren-Schalter, verlangte Tags; beide kommen mit ins Backup.
 
 ### Backup-Datei
 
@@ -213,13 +214,14 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
 ### Phase 5 – Filter
 
 - [x] Allergene ausschließen, Schalter „Spuren auch ausschließen“
-  - [x] Filter-Logik als reine Funktionen mit Tests (`src/domain/filter.ts`); gespeichert in `settings` unter `defaultFilter` (kommt mit ins Backup, Format unverändert)
+  - [x] Filter-Logik als reine Funktionen mit Tests (`src/domain/filter.ts`); zwei getrennte Filter in `settings`: `defaultFilter` (Mixen) und `muesliFilter` (Meine Müslis), beide im Backup, Format unverändert
   - [x] Im Sheet „Zutat hinzufügen“: Chip „Filter“ plus aktive Filter; „Filter“ wechselt im selben Sheet zur Filter-Ansicht (14 Allergene, Schalter, Tags, „Zurücksetzen“). Ausgeschlossene Zutaten auf 35 % und nicht wählbar, statt der Allergen-Zeile steht der Grund
 - [x] Nach Tags filtern (alle gewählten Tags müssen vorhanden sein)
 - [x] Warnung, wenn ein gespeichertes Müsli den Filter verletzt
   - [x] Allergene nach dem Snapshot (wie auf dem Etikett), Tags nach der aktuellen Zutat (Tags stehen nicht im Snapshot)
-  - [x] Hinweis in der Müsli-Liste, Karte mit Zutaten und Gründen im Detail; im Mixen-Screen Hinweis an der Zutatenkarte (Zutat bleibt im Mix)
-- [ ] Auf dem iPhone testen: Filter setzen, Ausgrauen, Schalter, Tags, Warnungen, Filter nach Neustart noch da
+  - [x] Im Mixen-Screen Hinweis an der Zutatenkarte nach dem Filter beim Mixen (Zutat bleibt im Mix)
+  - [x] „Meine Müslis“ mit eigenem Filter (Chip-Zeile, Filter-Sheet): unpassende Müslis ausgeblendet, darunter Hinweis und „Filter ändern“; im Detail Hinweiskarte mit Zutaten und Gründen
+- [ ] Auf dem iPhone testen: beide Filter getrennt setzen, Ausgrauen, Ausblenden, Schalter, Tags, Hinweise, Filter nach Neustart noch da
 
 ### Phase 6 – Feinschliff
 
