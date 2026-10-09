@@ -2,11 +2,12 @@
 // dunkle Pille (64 px, Radius 32), 16 px seitlich, 24 px unten plus Safe Area.
 // Aktiver Tab: helle Pille mit Icon und Label, gleitet mit Feder zum neuen Tab.
 // Inaktive Tabs: nur Icon in navIcon.
+// Beim Öffnen und Schließen eines Details blendet sie weich aus und ein (in App.tsx mit AnimatePresence).
 import { NavLink } from 'react-router'
-import { motion } from 'motion/react'
+import { motion, useReducedMotion } from 'motion/react'
 import type { ComponentType } from 'react'
 import { IconBowl, IconIngredients, IconList, IconMore, type IconProps } from '../icons/Icons'
-import { press, softSpring } from '../../design/motion'
+import { navFade, press, softSpring } from '../../design/motion'
 
 interface Tab {
   to: string
@@ -22,10 +23,13 @@ export const TABS: Tab[] = [
 ]
 
 export function BottomNav() {
+  // Bei „Bewegung reduzieren“ ohne Blenden (MotionConfig schaltet nur Bewegungen ab).
+  const reduceMotion = useReducedMotion()
   return (
-    <nav
+    <motion.nav
+      {...(reduceMotion ? {} : navFade)}
       aria-label="Hauptnavigation"
-      className="nav-position absolute inset-x-nav-inset-x grid h-nav grid-cols-4 gap-1 rounded-nav bg-nav p-1.5"
+      className="nav-position absolute z-10 inset-x-nav-inset-x grid h-nav grid-cols-4 gap-1 rounded-nav bg-nav p-1.5"
     >
       {TABS.map(({ to, label, Icon }) => (
         <NavLink
@@ -56,6 +60,6 @@ export function BottomNav() {
           )}
         </NavLink>
       ))}
-    </nav>
+    </motion.nav>
   )
 }

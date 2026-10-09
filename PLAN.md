@@ -228,5 +228,6 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
 
 - [ ] Motion-Feinschliff, animierte Zahlen, Übergänge
   - [x] Zahlen im Mixen-Screen zählen zum neuen Wert (480 ms, easeOutCubic): Gesamtgewicht im Ring, kcal, Eiweiß, Kohlenhydrate, Fett, Anteile. Zwischenwerte schon gerundet, Gramm unterwegs ganzzahlig (`src/lib/countUp.ts`, `AnimatedNumber`); Grammzahl im Stepper bleibt sofort; Screenreader lesen nur den Endwert; bei „Bewegung reduzieren“ sofort
+  - [x] Screen-Übergänge: Tabs blenden über (200 ms, neuer Screen legt sich über den alten), Details gleiten von rechts herein, zurück von links (380 ms); Navigation blendet beim Öffnen/Schließen eines Details aus und ein; bei „Bewegung reduzieren“ sofort (`screenChange`, `screenIn` in `src/design/motion.ts`, neues Token `motion.screenFade`)
 - [ ] App-Icon, Splashscreen
 - [ ] Später optional: Barcode-Scan mit Open Food Facts

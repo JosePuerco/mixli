@@ -86,6 +86,8 @@ Verbindlich für alle Screens. Werte stehen maschinenlesbar in `tokens.json`, Bi
 | Sheet öffnet | Fährt von unten hoch (ca. 420 ms), Overlay blendet ein (250 ms) |
 | Allergen-Chip kommt dazu | Springt kurz auf (Overshoot 1,08) |
 | Schritt im Ablauf wechselt | Inhalt gleitet von rechts herein (28 px, 380 ms) |
+| Tab wechselt | Neuer Screen blendet über den alten ein (200 ms), Navigation bleibt stehen |
+| Detail öffnet / schließt | Wie ein Schritt: von rechts herein (28 px, 380 ms), zurück von links |
 | Fortschrittsbalken | Segmente färben sich weich ein |
 | Button gedrückt | Gibt nach (Skalierung .92, 150 ms) |
 | Filter schließt Zutat aus | Zeile blendet auf 35 % Deckkraft, nicht wählbar |

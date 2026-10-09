@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { bezier, cardIn, chipIn, stepIn } from './motion'
+import { bezier, cardIn, chipIn, screenChange, screenIn, stepIn } from './motion'
 
 describe('bezier', () => {
   it('liest cubic-bezier-Werte aus den Tokens', () => {
@@ -37,5 +37,35 @@ describe('stepIn', () => {
     expect(stepIn(1).initial.x).toBe(28)
     expect(stepIn(-1).initial.x).toBe(-28)
     expect(stepIn().transition.duration).toBeCloseTo(0.38)
+  })
+})
+
+describe('screenChange', () => {
+  it('blendet zwischen Tabs über', () => {
+    expect(screenChange('/zutaten', '/mixen')).toBe('fade')
+  })
+
+  it('gleitet in ein Detail vorwärts und heraus zurück', () => {
+    expect(screenChange('/muesli', '/muesli/abc')).toBe('forward')
+    expect(screenChange('/zutaten', '/zutaten/neu')).toBe('forward')
+    expect(screenChange('/muesli/abc', '/mixen')).toBe('back')
+  })
+})
+
+describe('screenIn', () => {
+  it('blendet Tabs ohne Bewegung in 200 ms ein', () => {
+    const t = screenIn('fade')
+    expect(t.initial.x).toBe(0)
+    expect(t.animate.transition.duration).toBeCloseTo(0.2)
+  })
+
+  it('gleitet vorwärts von rechts, zurück von links (380 ms)', () => {
+    expect(screenIn('forward').initial.x).toBe(28)
+    expect(screenIn('back').initial.x).toBe(-28)
+    expect(screenIn('back').animate.transition.duration).toBeCloseTo(0.38)
+  })
+
+  it('lässt den alten Screen stehen, bis der neue fertig ist', () => {
+    expect(screenIn('fade').exit.transition.opacity.delay).toBeCloseTo(0.38)
   })
 })

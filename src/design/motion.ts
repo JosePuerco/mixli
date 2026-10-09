@@ -82,6 +82,53 @@ export function stepIn(direction: 1 | -1 = 1) {
   } as const
 }
 
+/** Ganzseitige Abläufe (Zutat anlegen/bearbeiten, Müsli-Detail) liegen eine Ebene unter den Tabs. */
+const FLOW_PATH = /^\/(zutaten|muesli)\/.+/
+
+export function isFlowPath(pathname: string): boolean {
+  return FLOW_PATH.test(pathname)
+}
+
+/** Art des Screen-Wechsels: zwischen Tabs überblenden, in ein Detail hinein vorwärts, heraus zurück. */
+export type ScreenChange = 'fade' | 'forward' | 'back'
+
+export function screenChange(from: string, to: string): ScreenChange {
+  const depth = (p: string) => (isFlowPath(p) ? 1 : 0)
+  const d = depth(to) - depth(from)
+  return d > 0 ? 'forward' : d < 0 ? 'back' : 'fade'
+}
+
+/**
+ * Screen-Wechsel: Der neue Screen legt sich über den alten und blendet ein (Tabs, 200 ms)
+ * bzw. gleitet wie ein Schritt herein (Detail, 28 px, 380 ms; zurück von links).
+ * Der alte Screen bleibt undurchsichtig darunter stehen, bis der neue ganz da ist –
+ * so mischen sich nie zwei halbdurchsichtige Screens.
+ */
+export function screenIn(change: ScreenChange) {
+  const fade = ms(tokens.motion.screenFade.durationMs)
+  const slide = ms(tokens.motion.stepIn.durationMs)
+  const duration = change === 'fade' ? fade : slide
+  const x = change === 'fade' ? 0 : change === 'forward' ? 28 : -28
+  return {
+    initial: { opacity: 0, x, zIndex: 1 },
+    animate: { opacity: 1, x: 0, zIndex: 1, transition: { duration, ease: ease.out, zIndex: { duration: 0 } } },
+    // Alter Screen: sofort nach unten, verschwindet erst, wenn der neue fertig ist (längster Fall).
+    exit: {
+      zIndex: 0,
+      opacity: 0,
+      transition: { zIndex: { duration: 0 }, opacity: { duration: 0, delay: Math.max(fade, slide) } },
+    },
+  }
+}
+
+/** Navigation blendet beim Öffnen/Schließen eines Details aus und ein (200 ms). */
+export const navFade = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
+  transition: { duration: ms(tokens.motion.screenFade.durationMs), ease: 'easeOut' },
+} as const
+
 /** Bestätigung (z. B. Häkchen „Foto übernommen“): ploppt mit kräftiger Feder auf (.85 → 1,04 → 1). */
 export function popIn() {
   return {
