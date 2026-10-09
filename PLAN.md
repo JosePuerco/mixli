@@ -1,6 +1,6 @@
 # Mixli – Projektplan
 
-Stand: 08.10.2026
+Stand: 09.10.2026
 
 Mixli ist eine Offline-PWA für iOS und Android, mit der ich Müslis aus selbst angelegten Rohzutaten nach Gewicht mische und sofort Nährwerte pro 100 g, Allergene und ein druckbares Etikett bekomme.
 
@@ -211,7 +211,7 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
   - [x] Platzprüfung misst sichtbare Zeilen statt nur `scrollHeight` (auf dem iPhone wurden Spuren ohne Hinweis abgeschnitten)
 - [x] Auf dem iPhone testen: Vorschau, Fettschrift (nur „Zutaten:“ und „Enthält:“), Bild teilen, Drucken über das Teilen-Menü, großes Müsli
 
-### Phase 5 – Filter
+### Phase 5 – Filter ✓ (abgenommen 09.10.2026)
 
 - [x] Allergene ausschließen, Schalter „Spuren auch ausschließen“
   - [x] Filter-Logik als reine Funktionen mit Tests (`src/domain/filter.ts`); zwei getrennte Filter (Mixen, Meine Müslis) nur im Arbeitsspeicher (`filterStore.ts`): bleiben beim Menüwechsel, leer nach Neustart, beide zurückgesetzt nach dem Speichern eines Müslis, der beim Mixen auch nach „Verwerfen“
@@ -222,7 +222,7 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
   - [x] Allergene nach dem Snapshot (wie auf dem Etikett), Tags nach der aktuellen Zutat (Tags stehen nicht im Snapshot)
   - [x] Im Mixen-Screen Hinweis an der Zutatenkarte nach dem Filter beim Mixen (Zutat bleibt im Mix)
   - [x] „Meine Müslis“ mit eigenem Filter (Chip-Zeile, Filter-Sheet): unpassende Müslis ausgeblendet, darunter Hinweis und „Filter ändern“; im Detail Hinweiskarte mit Zutaten und Gründen
-- [ ] Auf dem iPhone testen: beide Filter getrennt setzen, Ausgrauen, Ausblenden, Schalter, Tags, Hinweise; Filter bleiben beim Menüwechsel, sind nach Speichern und Neustart zurückgesetzt
+- [x] Auf dem iPhone testen: beide Filter getrennt setzen, Ausgrauen, Ausblenden, Schalter, Tags, Hinweise; Filter bleiben beim Menüwechsel, sind nach Speichern und Neustart zurückgesetzt
 
 ### Phase 6 – Feinschliff
 
