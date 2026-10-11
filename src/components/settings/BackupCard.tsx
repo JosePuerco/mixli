@@ -39,8 +39,8 @@ export function BackupCard() {
   const [backup, setBackup] = useState<BackupData | null>(null)
   const [confirmReplace, setConfirmReplace] = useState(false)
 
-  async function share(file: File) {
-    await shareOrDownload(file, 'Mixli-Backup')
+  async function share(file: File, isRetry: boolean) {
+    await shareOrDownload(file, 'Mixli-Backup', isRetry)
     setPending(null)
     await setLastBackupAt(new Date())
     setNotice(undefined)
@@ -51,7 +51,7 @@ export function BackupCard() {
     setNotice(undefined)
     setBusy(true)
     try {
-      await share(pending ?? (await createBackupFile()))
+      await share(pending ?? (await createBackupFile()), pending !== null)
     } catch (e) {
       if (isAbort(e)) return
       if (isShareBlocked(e) && !pending) {

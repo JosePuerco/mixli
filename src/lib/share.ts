@@ -23,11 +23,30 @@ export function download(file: File): void {
   setTimeout(() => URL.revokeObjectURL(url), 10_000)
 }
 
-/** Teilt die Datei, wo das Gerät Dateien teilen kann, sonst Download. Fehler (Abbruch, gesperrt) gehen an den Aufrufer. */
-export async function shareOrDownload(file: File, title: string): Promise<void> {
-  if (navigator.canShare?.({ files: [file] })) {
-    await navigator.share({ files: [file], title })
-  } else {
+/** Ob der Tipp noch frisch ist (UserActivation-API; fehlt sie, unbekannt). */
+function tapIsFresh(): boolean | undefined {
+  return (navigator as { userActivation?: { isActive: boolean } }).userActivation?.isActive
+}
+
+/**
+ * Teilt die Datei, wo das Gerät Dateien teilen kann, sonst Download. Fehler (Abbruch, gesperrt) gehen an den Aufrufer.
+ * Chrome auf Android teilt nur bestimmte Dateitypen (z. B. kein JSON), meldet aber canShare = true und lehnt
+ * erst beim Teilen mit NotAllowedError ab – wie Safari bei zu spätem Teilen. War der Tipp noch frisch, liegt es
+ * am Dateityp: dann Download. `downloadIfBlocked`: auch sonst Download statt Fehler (zweiter Tipp mit fertiger Datei).
+ */
+export async function shareOrDownload(file: File, title: string, downloadIfBlocked = false): Promise<void> {
+  if (!navigator.canShare?.({ files: [file] })) {
     download(file)
+    return
+  }
+  const fresh = tapIsFresh()
+  try {
+    await navigator.share({ files: [file], title })
+  } catch (e) {
+    if (isShareBlocked(e) && (fresh || downloadIfBlocked)) {
+      download(file)
+      return
+    }
+    throw e
   }
 }

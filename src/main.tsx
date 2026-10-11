@@ -15,6 +15,9 @@ registerSW({ immediate: true })
 // Daten dauerhaft behalten, damit der Browser sie nicht von selbst aufräumt.
 void requestPersistentStorage()
 
+// Safari (iOS) übergeht user-scalable=no und touch-action beim Zwei-Finger-Zoom; seine Gesten-Events lassen sich abfangen.
+document.addEventListener('gesturestart', (e) => e.preventDefault())
+
 // Filter gelten nur bis zum Neustart; eine frühere Version hat sie noch dauerhaft gespeichert.
 void removeOldFilters()
 

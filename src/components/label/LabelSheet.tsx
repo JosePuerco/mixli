@@ -71,9 +71,10 @@ function LabelContent({ data }: { data: LabelData }) {
     setError(undefined)
     setBusy(kind)
     let file = pending?.kind === kind ? pending.file : null
+    const isRetry = file !== null
     try {
       file ??= await createFile(kind)
-      await shareOrDownload(file, title)
+      await shareOrDownload(file, title, isRetry)
       setPending(null)
     } catch (e) {
       if (isAbort(e)) return
