@@ -13,6 +13,7 @@ import { AmountSheet } from '../components/mix/AmountSheet'
 import { MixItemCard } from '../components/mix/MixItemCard'
 import { segmentColor } from '../components/mix/MixRing'
 import { MixSummaryCard } from '../components/mix/MixSummaryCard'
+import { MixPriceCard } from '../components/mix/MixPriceCard'
 import { SaveMixSheet } from '../components/mix/SaveMixSheet'
 import { useMixDraft } from '../components/mix/useMixDraft'
 import { resetFilters } from '../components/mix/filterStore'
@@ -30,6 +31,7 @@ import { mixViolations, reasonsLine } from '../domain/filter'
 import { byName } from '../domain/ingredient'
 import { mixAllergens, nutritionPer100g, shares, totalGrams } from '../domain/mix'
 import { addItem, emptyDraft, resolveLines, setGrams, stepItem } from '../domain/mixDraft'
+import { mixPrice } from '../domain/price'
 
 export function MixenScreen() {
   const navigate = useNavigate()
@@ -55,6 +57,7 @@ export function MixenScreen() {
   const lineShares = shares(lines)
   const nutrition = nutritionPer100g(lines)
   const allergens = mixAllergens(lines)
+  const price = mixPrice(lines)
   const active = ingredients.filter((i) => !i.archived)
   const inMix = new Set(draft.items.map((i) => i.ingredientId))
   const available = active.filter((i) => !inMix.has(i.id)).sort(byName)
@@ -172,6 +175,8 @@ export function MixenScreen() {
             )}
           </div>
         )}
+
+        {price && <MixPriceCard price={price} />}
       </Screen>
 
       <AddIngredientSheet

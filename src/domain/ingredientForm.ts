@@ -10,12 +10,14 @@ import {
   type NutritionErrors,
   type NutritionInput,
 } from './nutrition'
+import { emptyPriceInput, hasPriceInput, parsePriceInput, priceToInput, type PriceErrors, type PriceInput } from './price'
 
 export interface IngredientFormValues {
   name: string
   brand: string
   categoryId?: string
   tags: string[]
+  price: PriceInput
   nutrition: NutritionInput
   allergens: AllergenStates
   note: string
@@ -23,6 +25,7 @@ export interface IngredientFormValues {
 
 export interface IngredientFormErrors {
   name?: string
+  price: PriceErrors
   nutrition: NutritionErrors
 }
 
@@ -31,7 +34,7 @@ export type FormResult = { ok: true; draft: IngredientDraft } | { ok: false; err
 export const NAME_MAX_LENGTH = 80
 
 export function emptyFormValues(): IngredientFormValues {
-  return { name: '', brand: '', tags: [], nutrition: emptyNutritionInput(), allergens: {}, note: '' }
+  return { name: '', brand: '', tags: [], price: emptyPriceInput(), nutrition: emptyNutritionInput(), allergens: {}, note: '' }
 }
 
 export function formValuesFromIngredient(i: Ingredient): IngredientFormValues {
@@ -40,6 +43,8 @@ export function formValuesFromIngredient(i: Ingredient): IngredientFormValues {
     brand: i.brand ?? '',
     categoryId: i.categoryId,
     tags: [...i.tags],
+    // Zutaten von vor den Preisen: leer, der Preis wird beim Speichern verlangt.
+    price: priceToInput(i.price),
     nutrition: nutritionToInput(i.nutrition),
     allergens: fromAllergenLists(i.allergensContains, i.allergensTraces),
     note: i.note ?? '',
@@ -56,9 +61,13 @@ export function validateName(name: string): string | undefined {
 /** Prüft alles und baut den Entwurf zum Speichern. */
 export function toDraft(v: IngredientFormValues): FormResult {
   const name = validateName(v.name)
+  const price = parsePriceInput(v.price)
   const nutrition = parseNutritionInput(v.nutrition)
-  if (name || !nutrition.ok) {
-    return { ok: false, errors: { name, nutrition: nutrition.ok ? {} : nutrition.errors } }
+  if (name || !price.ok || !nutrition.ok) {
+    return {
+      ok: false,
+      errors: { name, price: price.ok ? {} : price.errors, nutrition: nutrition.ok ? {} : nutrition.errors },
+    }
   }
   const { contains, traces } = toAllergenLists(v.allergens)
   return {
@@ -68,6 +77,7 @@ export function toDraft(v: IngredientFormValues): FormResult {
       brand: v.brand,
       categoryId: v.categoryId,
       tags: v.tags,
+      price: price.value,
       nutrition: nutrition.value,
       allergensContains: contains,
       allergensTraces: traces,
@@ -84,6 +94,7 @@ export function hasInput(v: IngredientFormValues): boolean {
     v.note.trim() !== '' ||
     v.categoryId !== undefined ||
     v.tags.length > 0 ||
+    hasPriceInput(v.price) ||
     Object.values(v.nutrition).some((s) => s.trim() !== '') ||
     Object.values(v.allergens).some((s) => s !== 'none')
   )

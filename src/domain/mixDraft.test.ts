@@ -118,6 +118,17 @@ describe('resolveLines', () => {
   it('lässt Zeilen weg, deren Zutat fehlt und die keinen Snapshot haben', () => {
     expect(resolveLines(withItems({ ingredientId: 'weg', grams: 50 }), ingredients)).toEqual([])
   })
+
+  it('ergänzt bei einem alten Snapshot ohne Preis nur den aktuellen Preis', () => {
+    const price = { kind: 'per100g', euros: 0.3 } as const
+    const priced = new Map([['a', ingredient('a', { name: 'Hafer (neu)', price })]])
+    const [line] = resolveLines(withItems({ ingredientId: 'a', grams: 50, snapshot: oldSnapshot }), priced)
+    expect(line.snapshot).toEqual({ ...oldSnapshot, price })
+
+    const own = { ...oldSnapshot, price: { kind: 'per100g', euros: 0.1 } as const }
+    const [kept] = resolveLines(withItems({ ingredientId: 'a', grams: 50, snapshot: own }), priced)
+    expect(kept.snapshot.price).toEqual(own.price)
+  })
 })
 
 describe('draftFromMix (Bearbeiten)', () => {

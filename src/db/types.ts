@@ -1,5 +1,6 @@
 // Datenmodell laut PLAN.md („Datenmodell“). Alle Nährwerte pro 100 g, intern exakt (nicht gerundet).
 import type { AllergenId } from '../domain/allergens'
+import type { Price } from '../domain/price'
 
 export interface Nutrition {
   kj: number
@@ -23,6 +24,8 @@ export interface Ingredient {
   allergensContains: AllergenId[]
   allergensTraces: AllergenId[]
   tags: string[]
+  /** Nur für den Nutzer, nie auf dem Etikett. Fehlt bei Zutaten von vor den Preisen (Version 1.1). */
+  price?: Price
   note?: string
   archived: boolean
   createdAt: Date
@@ -36,6 +39,8 @@ export interface IngredientSnapshot {
   nutrition: Nutrition
   allergensContains: AllergenId[]
   allergensTraces: AllergenId[]
+  /** Fehlt bei Müslis, die vor den Preisen gespeichert wurden. */
+  price?: Price
 }
 
 export interface MixItem {

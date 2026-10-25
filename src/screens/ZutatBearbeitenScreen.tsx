@@ -26,6 +26,7 @@ import {
 } from '../db/repo'
 import type { Ingredient } from '../db/types'
 import { parseNutritionInput, type NutritionErrors } from '../domain/nutrition'
+import { parsePriceInput, type PriceErrors } from '../domain/price'
 import {
   formValuesFromIngredient,
   toDraft,
@@ -122,6 +123,8 @@ function EditForm({ ingredient, initialPhoto }: EditFormProps) {
 
   const dirty = photoChanged || JSON.stringify(values) !== JSON.stringify(initial)
   const nameError = showErrors ? validateName(values.name) : undefined
+  const priceResult = parsePriceInput(values.price)
+  const priceErrors: PriceErrors = showErrors && !priceResult.ok ? priceResult.errors : {}
   const nutritionResult = parseNutritionInput(values.nutrition)
   const nutritionErrors: NutritionErrors = showErrors && !nutritionResult.ok ? nutritionResult.errors : {}
 
@@ -221,7 +224,13 @@ function EditForm({ ingredient, initialPhoto }: EditFormProps) {
           </Section>
 
           <Section title="Basisdaten">
-            <BasicsFields values={values} onChange={patch} nameError={nameError} nameRef={nameRef} />
+            <BasicsFields
+              values={values}
+              onChange={patch}
+              nameError={nameError}
+              priceErrors={priceErrors}
+              nameRef={nameRef}
+            />
           </Section>
 
           <Section title="Nährwerte" aside="pro 100 g">

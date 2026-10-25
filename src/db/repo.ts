@@ -3,7 +3,7 @@
 import { db } from './db'
 import type { Category, Ingredient, Mix, MixItem } from './types'
 import { mergeTags, normalizeDraft, sameName, type IngredientDraft } from '../domain/ingredient'
-import { snapshotOf } from '../domain/mix'
+import { snapshotOf, withCurrentPrice } from '../domain/mix'
 import { draftFromMix, emptyDraft, normalizeDraftText, parseDraft, templateFromMix, type MixDraft } from '../domain/mixDraft'
 import { MIX_DRAFT_KEY, OLD_FILTER_KEYS } from '../backup/format'
 import { newId } from '../lib/id'
@@ -186,7 +186,8 @@ export async function removeOldFilters(): Promise<void> {
 /**
  * Speichert den Entwurf als Müsli und leert danach den Entwurf. Gibt die id zurück.
  * Mit mixId wird dieses Müsli überschrieben (Datum bleibt), sonst ein neues angelegt.
- * Zeilen ohne eigenen Snapshot bekommen hier die aktuellen Werte ihrer Zutat.
+ * Zeilen ohne eigenen Snapshot bekommen hier die aktuellen Werte ihrer Zutat, alte Snapshots ohne Preis
+ * den aktuellen Preis.
  */
 export async function saveMix(draft: MixDraft): Promise<string> {
   const data = normalizeDraftText(draft)
@@ -201,7 +202,7 @@ export async function saveMix(draft: MixDraft): Promise<string> {
     data.items.forEach((item, idx) => {
       if (item.grams <= 0) return
       const current = ingredients[idx]
-      const snapshot = item.snapshot ?? (current && snapshotOf(current))
+      const snapshot = item.snapshot ? withCurrentPrice(item.snapshot, current) : current && snapshotOf(current)
       if (!snapshot) throw new Error('Zutat nicht gefunden')
       items.push({ ingredientId: item.ingredientId, grams: item.grams, snapshot })
     })

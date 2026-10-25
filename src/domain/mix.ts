@@ -23,7 +23,16 @@ export function snapshotOf(i: Ingredient): IngredientSnapshot {
     nutrition: { ...i.nutrition },
     allergensContains: [...i.allergensContains],
     allergensTraces: [...i.allergensTraces],
+    ...(i.price && { price: { ...i.price } }),
   }
+}
+
+/**
+ * Snapshot ohne Preis (Müsli von vor den Preisen): Beim erneuten Speichern bekommt er den aktuellen Preis
+ * der Zutat. Alles andere bleibt, wie es damals war.
+ */
+export function withCurrentPrice(snapshot: IngredientSnapshot, current: Ingredient | undefined): IngredientSnapshot {
+  return snapshot.price || !current?.price ? snapshot : { ...snapshot, price: { ...current.price } }
 }
 
 /** Menge auf 0,1 g, nicht unter 0 und nicht über MAX_GRAMS. */

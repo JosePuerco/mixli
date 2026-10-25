@@ -12,7 +12,10 @@ type RawBackup = Record<string, unknown> & { formatVersion: number }
 type Migration = (file: RawBackup) => RawBackup
 
 /** migrations[n] macht aus Version n die Version n + 1. */
-export const migrations: Record<number, Migration> = {}
+export const migrations: Record<number, Migration> = {
+  // 1 → 2: Preise kamen dazu. Sie sind optional, alte Dateien bleiben inhaltlich gleich.
+  1: (file) => ({ ...file, formatVersion: 2 }),
+}
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)

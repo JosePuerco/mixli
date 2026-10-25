@@ -118,6 +118,7 @@ Ein gespeichertes Müsli speichert eine **Kopie (Snapshot)** der Nährwerte und 
 | allergensContains | Liste | aus den 14 EU-Allergenen |
 | allergensTraces | Liste | aus den 14 EU-Allergenen |
 | tags | Liste | vegan, ohne Zuckerzusatz, Bio, eigene |
+| price | Objekt, optional | `{ kind: "package", euros, grams }` oder `{ kind: "per100g", euros }`; Pflicht im Formular, fehlt nur bei alten Zutaten |
 | note | Text, optional | |
 | archived | Boolean | ausgeblendet, bleibt für Müslis erhalten |
 | createdAt, updatedAt | Datum | |
@@ -129,7 +130,7 @@ Ein gespeichertes Müsli speichert eine **Kopie (Snapshot)** der Nährwerte und 
 | id | UUID | |
 | name | Text | |
 | forWhom | Text, optional | |
-| items | Liste | je: ingredientId, grams, Snapshot (Name, Nährwerte, Allergene, Spuren) |
+| items | Liste | je: ingredientId, grams, Snapshot (Name, Nährwerte, Allergene, Spuren, Preis) |
 | note | Text, optional | |
 | createdAt, updatedAt | Datum | |
 
@@ -250,6 +251,11 @@ Wünsche vom 25.10.2026, nacheinander umgesetzt.
   - [x] Nur ohne Abhängigkeit: Enthält ein gespeichertes Müsli oder der Mix in Arbeit die Zutat, kommt statt der Rückfrage ein Hinweis mit diesen Müslis (A–Z, antippen öffnet sie); erst dort entfernen, dann löschen. Prüfen und Löschen in einer Transaktion, Foto wird mitgelöscht (`deleteIngredient`, `ingredientUsage` in `src/db/repo.ts`, mit Tests)
   - Backup „Zusammenführen“ kennt kein Löschen: Eine gelöschte Zutat aus einem älteren Backup kommt dabei zurück
   - [ ] Auf dem iPhone testen: Hinweis mit Müslis und Mix in Arbeit, Löschen mit und ohne Foto
-- [ ] Preis an Zutaten (Pflichtfeld bei neuen Zutaten; wahlweise Packungspreis + Packungsgröße oder Preis pro 100 g); im Müsli Gesamtpreis und Preis pro kg aus dem Snapshot (Preis von damals), nicht auf dem Etikett
+- [x] Preis an Zutaten, nur für den Nutzer, nie auf dem Etikett
+  - [x] Pflichtfeld in „Basisdaten“ (Anlegen) und „Zutat bearbeiten“: Umschalter „Packung | pro 100 g“, gespeichert wie eingegeben (`price` an Zutat und Snapshot); alte Zutaten ohne Preis müssen ihn beim nächsten Speichern bekommen
+  - [x] Rechnung und Anzeige als reine Funktionen mit Tests (`src/domain/price.ts`): exakt in €/g, Anzeige auf Cent („0,89 €“, „2,98 €/kg“)
+  - [x] Karte „Preis“ im Mixen-Screen und im Müsli-Detail: Gesamtpreis und Preis pro kg aus dem Snapshot (Preis von damals). Fehlt einer Zeile der Preis (Müsli von vor den Preisen): „Preis unvollständig“ mit den Zutaten; beim Bearbeiten und erneuten Speichern bekommen solche Zeilen den aktuellen Preis, die Nährwerte bleiben
+  - [x] Backup `formatVersion` 2 mit Migration von 1 (Preise optional)
+  - [ ] Auf dem iPhone testen: Preis eingeben (beide Arten, Komma), Pflicht bei alter Zutat, Preis im Mixen und Detail, altes Müsli neu speichern, Backup
 - [ ] Produktkatalog als PDF: Foto pro Müsli; Müslis für den Export auswählen; ein Müsli pro A4-Seite mit Foto, Name, Zutaten mit Anteilen, Allergenen/Spuren und Nährwerten pro 100 g, ohne Preis
-- Preis und Müsli-Foto ändern das Datenmodell: zusammen ein Sprung auf `formatVersion` 2 mit Migration
+- Datenmodell: Preise mit `formatVersion` 2, das Müsli-Foto bekommt `formatVersion` 3 (je mit Migration), damit beides einzeln veröffentlicht werden kann

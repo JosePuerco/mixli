@@ -39,6 +39,7 @@ function mixOf(ingredient: Ingredient, overrides: Partial<Mix> = {}): Mix {
           nutrition: ingredient.nutrition,
           allergensContains: ingredient.allergensContains,
           allergensTraces: ingredient.allergensTraces,
+          ...(ingredient.price && { price: ingredient.price }),
         },
       },
     ],
@@ -77,7 +78,7 @@ describe('backupFileName', () => {
 describe('Export und Import (ersetzen)', () => {
   it('bringt alle Daten inkl. Fotos unverändert zurück', async () => {
     await db.categories.add({ id: 'cat-1', name: 'Flocken', order: 0 })
-    const id = await saveIngredient(draft({ categoryId: 'cat-1', brand: 'Kölln' }), { kind: 'set', blob: photoBlob('foto-1') })
+    const id = await saveIngredient(draft({ categoryId: 'cat-1', brand: 'Kölln', price: { kind: 'package', euros: 1.49, grams: 500 } }), { kind: 'set', blob: photoBlob('foto-1') })
     const ingredient = (await db.ingredients.get(id))!
     await db.mixes.put(mixOf(ingredient))
     await db.settings.put({ key: 'beispiel', value: { a: 1 } })
@@ -317,5 +318,19 @@ describe('migrateBackup', () => {
   it('meldet fehlende Migrationen und ungültige Versionen', () => {
     expect(() => migrateBackup({ app: 'mixli', formatVersion: 1 }, {}, 2)).toThrow(/nicht mehr unterstützt/)
     expect(() => migrateBackup({ app: 'mixli', formatVersion: '1' })).toThrow(/Formatversion/)
+  })
+})
+
+describe('Formatversion 1 (vor den Preisen)', () => {
+  it('wird hochgestuft und ohne Preise importiert', async () => {
+    const id = await saveIngredient(draft(), { kind: 'keep' })
+    await db.mixes.put(mixOf((await db.ingredients.get(id))!))
+    const file = JSON.parse(await exportText()) as BackupFile & { formatVersion: number }
+    await resetDb()
+
+    const result = await importBackup(JSON.stringify({ ...file, formatVersion: 1 }), 'replace')
+    expect(result).toMatchObject({ ingredients: 1, mixes: 1 })
+    expect((await db.ingredients.get(id))?.price).toBeUndefined()
+    expect((await db.mixes.get('mix-1'))?.items[0].snapshot.price).toBeUndefined()
   })
 })

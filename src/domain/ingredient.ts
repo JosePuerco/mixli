@@ -8,7 +8,7 @@ export const DEFAULT_TAGS = ['vegan', 'ohne Zuckerzusatz', 'Bio'] as const
 /** Alles, was im Formular bearbeitet wird. Foto, Archiv-Status und Zeitstempel verwaltet repo.ts. */
 export type IngredientDraft = Pick<
   Ingredient,
-  'name' | 'brand' | 'categoryId' | 'nutrition' | 'allergensContains' | 'allergensTraces' | 'tags' | 'note'
+  'name' | 'brand' | 'categoryId' | 'nutrition' | 'allergensContains' | 'allergensTraces' | 'tags' | 'price' | 'note'
 >
 
 /** Leerzeichen und Groß-/Kleinschreibung zählen beim Vergleich von Namen nicht. */

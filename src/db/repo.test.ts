@@ -344,3 +344,26 @@ describe('Zutat löschen', () => {
     expect((await deleteIngredient(oats)).deleted).toBe(true)
   })
 })
+
+describe('Preise im Müsli', () => {
+  const price = { kind: 'per100g', euros: 0.3 } as const
+
+  it('nimmt den Preis in den Snapshot und behält ihn, wenn er sich später ändert', async () => {
+    const oats = await saveIngredient(draft({ price }), { kind: 'keep' })
+    const mixId = await saveMix({ ...addItem(emptyDraft(), oats), name: 'Frühstück' })
+    await saveIngredient(draft({ price: { kind: 'per100g', euros: 0.9 } }), { kind: 'keep' }, oats)
+    expect((await db.mixes.get(mixId))?.items[0].snapshot.price).toEqual(price)
+  })
+
+  it('übernimmt beim erneuten Speichern eines alten Müslis den aktuellen Preis, Nährwerte bleiben', async () => {
+    const oats = await saveIngredient(draft(), { kind: 'keep' })
+    const mixId = await saveMix({ ...addItem(emptyDraft(), oats), name: 'Alt' })
+    expect((await db.mixes.get(mixId))?.items[0].snapshot.price).toBeUndefined()
+
+    await saveIngredient(draft({ price, nutrition: { ...draft().nutrition, protein: 99 } }), { kind: 'keep' }, oats)
+    await saveMix(await editMix(mixId))
+    const snapshot = (await db.mixes.get(mixId))?.items[0].snapshot
+    expect(snapshot?.price).toEqual(price)
+    expect(snapshot?.nutrition.protein).toBe(13.5)
+  })
+})

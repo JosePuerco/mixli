@@ -10,6 +10,7 @@ import { MixBar } from '../components/mix/MixBar'
 import { segmentColor } from '../components/mix/MixRing'
 import { FilterWarningCard } from '../components/mix/FilterWarning'
 import { NutritionTable } from '../components/mix/NutritionTable'
+import { MixPriceCard } from '../components/mix/MixPriceCard'
 import { useMuesliCheck } from '../components/mix/useMixFilter'
 import { useOpenInMixer } from '../components/mix/useOpenInMixer'
 import { Button } from '../components/ui/Button'
@@ -24,6 +25,7 @@ import type { Mix } from '../db/types'
 import { allergenLabel } from '../domain/allergens'
 import { mixAllergens, nutritionPer100g, shares, totalGrams } from '../domain/mix'
 import { mixMeta } from '../domain/mixList'
+import { mixPrice } from '../domain/price'
 import { formatGrams, formatShare } from '../domain/rounding'
 
 export function MuesliDetailScreen() {
@@ -78,6 +80,8 @@ function Detail({ mix }: { mix: Mix }) {
   const itemShares = shares(mix.items)
   const nutrition = nutritionPer100g(mix.items)
   const allergens = mixAllergens(mix.items)
+  // Streng nach Snapshot: Müslis von vor den Preisen zeigen „Preis unvollständig“.
+  const price = mixPrice(mix.items)
 
   async function remove() {
     setConfirmDelete(false)
@@ -157,6 +161,8 @@ function Detail({ mix }: { mix: Mix }) {
               <span className="text-caption text-text-muted">Keine Allergene</span>
             )}
           </div>
+
+          {price && <MixPriceCard price={price} />}
 
           {mix.note && (
             <Card className="flex flex-col gap-1">

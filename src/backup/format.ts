@@ -3,10 +3,12 @@
 // migrate.ts hochgestuft. Wer hier etwas ändert: FORMAT_VERSION erhöhen und eine Migration anlegen.
 import { z } from 'zod'
 import { ALLERGENS, type AllergenId } from '../domain/allergens'
+import { priceSchema } from '../domain/price'
 import { base64ToBytes } from './base64'
 
 export const BACKUP_APP = 'mixli'
-export const FORMAT_VERSION = 1
+/** 2: Preise an Zutaten und in den Snapshots (optional, fehlen bei älteren Daten). */
+export const FORMAT_VERSION = 2
 
 /** Einstellungen, die nur zu diesem Gerät gehören und weder exportiert noch importiert werden. */
 export const LAST_BACKUP_KEY = 'lastBackupAt'
@@ -53,6 +55,7 @@ const ingredient = z.object({
   allergensContains: allergenList,
   allergensTraces: allergenList,
   tags: z.array(text),
+  price: priceSchema.optional(),
   note: text.optional(),
   archived: z.boolean(),
   createdAt: date,
@@ -73,6 +76,7 @@ const mix = z.object({
         nutrition,
         allergensContains: allergenList,
         allergensTraces: allergenList,
+        price: priceSchema.optional(),
       }),
     }),
   ),

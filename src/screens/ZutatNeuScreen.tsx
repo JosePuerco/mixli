@@ -14,6 +14,7 @@ import { AllergenGrid } from '../components/ingredient/AllergenGrid'
 import { stepIn } from '../design/motion'
 import { saveIngredient } from '../db/repo'
 import { parseNutritionInput, type NutritionErrors } from '../domain/nutrition'
+import { parsePriceInput, type PriceErrors } from '../domain/price'
 import {
   emptyFormValues,
   hasInput,
@@ -55,6 +56,8 @@ export function ZutatNeuScreen() {
   }, [step])
 
   const nameError = showErrors ? validateName(values.name) : undefined
+  const priceResult = parsePriceInput(values.price)
+  const priceErrors: PriceErrors = showErrors && !priceResult.ok ? priceResult.errors : {}
   const nutritionResult = parseNutritionInput(values.nutrition)
   const nutritionErrors: NutritionErrors = showErrors && !nutritionResult.ok ? nutritionResult.errors : {}
 
@@ -78,12 +81,7 @@ export function ZutatNeuScreen() {
   }
 
   async function next() {
-    if (step === 1 && validateName(values.name)) {
-      setShowErrors(true)
-      nameRef.current?.focus()
-      return
-    }
-    if (step === 2 && !nutritionResult.ok) {
+    if ((step === 1 && (validateName(values.name) || !priceResult.ok)) || (step === 2 && !nutritionResult.ok)) {
       setShowErrors(true)
       // Zum ersten fehlerhaften Feld springen – erst im nächsten Frame, wenn die Fehler gezeichnet sind.
       requestAnimationFrame(() =>
@@ -99,7 +97,7 @@ export function ZutatNeuScreen() {
     const result = toDraft(values)
     if (!result.ok) {
       // Sollte nicht vorkommen (Schritte sind geprüft) – zur Sicherheit zum betroffenen Schritt.
-      goTo(result.errors.name ? 1 : 2)
+      goTo(result.errors.name || Object.keys(result.errors.price).length > 0 ? 1 : 2)
       setShowErrors(true)
       return
     }
@@ -142,7 +140,13 @@ export function ZutatNeuScreen() {
           {step === 1 && (
             <>
               <FlowTitle titleRef={titleRef} title="Basisdaten" text="Name und Marke, so wie auf der Packung." />
-              <BasicsFields values={values} onChange={patch} nameError={nameError} nameRef={nameRef} />
+              <BasicsFields
+                values={values}
+                onChange={patch}
+                nameError={nameError}
+                priceErrors={priceErrors}
+                nameRef={nameRef}
+              />
             </>
           )}
           {step === 2 && (

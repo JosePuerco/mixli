@@ -3,7 +3,8 @@
 import { z } from 'zod'
 import type { Ingredient, IngredientSnapshot, Mix } from '../db/types'
 import { ALLERGENS } from './allergens'
-import { DEFAULT_GRAMS, normalizeGrams, snapshotOf, stepGrams, type MixLine } from './mix'
+import { priceSchema } from './price'
+import { DEFAULT_GRAMS, normalizeGrams, snapshotOf, stepGrams, withCurrentPrice, type MixLine } from './mix'
 
 export interface DraftItem {
   ingredientId: string
@@ -62,7 +63,8 @@ export function resolveLines(draft: MixDraft, ingredients: ReadonlyMap<string, I
   for (const item of draft.items) {
     if (item.grams <= 0) continue
     const current = ingredients.get(item.ingredientId)
-    const snapshot = item.snapshot ?? (current && snapshotOf(current))
+    // Wie beim Speichern (repo.ts saveMix): Ein alter Snapshot ohne Preis bekommt den aktuellen.
+    const snapshot = item.snapshot ? withCurrentPrice(item.snapshot, current) : current && snapshotOf(current)
     if (snapshot) lines.push({ ingredientId: item.ingredientId, grams: item.grams, snapshot })
   }
   return lines
@@ -128,6 +130,7 @@ const draftSchema = z.object({
           }),
           allergensContains: z.array(allergenId),
           allergensTraces: z.array(allergenId),
+          price: priceSchema.optional(),
         })
         .optional(),
     }),

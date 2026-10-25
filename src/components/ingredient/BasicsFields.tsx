@@ -1,4 +1,4 @@
-// Schritt „Basisdaten“: Karte mit Name und Marke, darunter Kategorie-Chips und Tag-Chips.
+// Schritt „Basisdaten“: Karte mit Name und Marke, darunter Preis, Kategorie-Chips und Tag-Chips.
 // Neue Kategorien werden sofort gespeichert (sie sollen auch in „Mehr“ auftauchen),
 // neue Tags hängen nur an dieser Zutat und erscheinen ab dem Speichern überall.
 import { useId, useState, type Ref } from 'react'
@@ -6,23 +6,26 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { AddChip, ChoiceChip } from '../ui/Chip'
 import { FieldError } from '../ui/FieldError'
 import { TextInputSheet } from '../ui/TextInputSheet'
+import { PriceFields } from './PriceFields'
 import { addCategory, listCategories, listTags } from '../../db/repo'
 import { DEFAULT_TAGS, mergeTags, normalizeTags, sameName } from '../../domain/ingredient'
 import { NAME_MAX_LENGTH, type IngredientFormValues } from '../../domain/ingredientForm'
+import type { PriceErrors } from '../../domain/price'
 
-type BasicsValues = Pick<IngredientFormValues, 'name' | 'brand' | 'categoryId' | 'tags'>
+type BasicsValues = Pick<IngredientFormValues, 'name' | 'brand' | 'categoryId' | 'tags' | 'price'>
 
 interface BasicsFieldsProps {
   values: BasicsValues
   onChange: (patch: Partial<BasicsValues>) => void
   nameError?: string
+  priceErrors?: PriceErrors
   nameRef?: Ref<HTMLInputElement>
 }
 
 const inputClasses =
   'w-full bg-transparent py-1 text-body-large font-semibold text-text outline-none placeholder:text-text-placeholder'
 
-export function BasicsFields({ values, onChange, nameError, nameRef }: BasicsFieldsProps) {
+export function BasicsFields({ values, onChange, nameError, priceErrors, nameRef }: BasicsFieldsProps) {
   const categories = useLiveQuery(listCategories, [], [])
   const storedTags = useLiveQuery(listTags, [], [...DEFAULT_TAGS])
   // Gespeicherte Tags plus die gerade neu angelegten dieser Zutat.
@@ -75,6 +78,8 @@ export function BasicsFields({ values, onChange, nameError, nameRef }: BasicsFie
           />
         </label>
       </div>
+
+      <PriceFields value={values.price} onChange={(price) => onChange({ price })} errors={priceErrors} />
 
       <section className="flex flex-col gap-2.5" aria-labelledby={categoryHeadingId}>
         <h2 id={categoryHeadingId} className="px-1 text-label">
