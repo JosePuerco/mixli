@@ -11,6 +11,7 @@ import { segmentColor } from '../components/mix/MixRing'
 import { FilterWarningCard } from '../components/mix/FilterWarning'
 import { NutritionTable } from '../components/mix/NutritionTable'
 import { MixPriceCard } from '../components/mix/MixPriceCard'
+import { MixPhotoSection } from '../components/mix/MixPhotoSection'
 import { useMuesliCheck } from '../components/mix/useMixFilter'
 import { useOpenInMixer } from '../components/mix/useOpenInMixer'
 import { Button } from '../components/ui/Button'
@@ -171,6 +172,8 @@ function Detail({ mix }: { mix: Mix }) {
             </Card>
           )}
 
+          <MixPhotoSection mix={mix} />
+
           <Button variant="surface" size="md" fullWidth onClick={() => setConfirmDelete(true)}>
             Müsli löschen
           </Button>
@@ -183,7 +186,7 @@ function Detail({ mix }: { mix: Mix }) {
         open={confirmDelete}
         onClose={() => setConfirmDelete(false)}
         title="Müsli löschen?"
-        text={`„${mix.name}“ wird gelöscht. Die Zutaten bleiben erhalten.`}
+        text={`„${mix.name}“ wird${mix.photoId ? ' mit Foto' : ''} gelöscht. Die Zutaten bleiben erhalten.`}
         confirmLabel="Löschen"
         onConfirm={remove}
       />

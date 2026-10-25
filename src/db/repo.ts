@@ -213,6 +213,8 @@ export async function saveMix(draft: MixDraft): Promise<string> {
       id: existing?.id ?? newId(),
       name: data.name,
       ...(data.forWhom && { forWhom: data.forWhom }),
+      // Das Foto hängt am Müsli, nicht am Entwurf: Bearbeiten behält es.
+      ...(existing?.photoId && { photoId: existing.photoId }),
       items,
       ...(data.note && { note: data.note }),
       createdAt: existing?.createdAt ?? now,
@@ -224,8 +226,32 @@ export async function saveMix(draft: MixDraft): Promise<string> {
   })
 }
 
+/** Löscht ein Müsli samt Foto. Die Zutaten bleiben. */
 export async function deleteMix(id: string): Promise<void> {
-  await db.mixes.delete(id)
+  await db.transaction('rw', db.mixes, db.photos, async () => {
+    const mix = await db.mixes.get(id)
+    if (mix?.photoId) await db.photos.delete(mix.photoId)
+    await db.mixes.delete(id)
+  })
+}
+
+/** Setzt oder entfernt das Foto eines Müslis. Ein ersetztes Foto wird mitgelöscht. */
+export async function setMixPhoto(id: string, photo: Exclude<PhotoChange, { kind: 'keep' }>): Promise<void> {
+  // Vor der Transaktion umwandeln (siehe saveIngredient).
+  const photoData = photo.kind === 'set' ? await blobToPhotoData(photo.blob) : undefined
+  await db.transaction('rw', db.mixes, db.photos, async () => {
+    const mix = await db.mixes.get(id)
+    if (!mix) throw new Error('Müsli nicht gefunden')
+    if (mix.photoId) await db.photos.delete(mix.photoId)
+    const now = new Date()
+    let photoId: string | undefined
+    if (photoData) {
+      photoId = newId()
+      await db.photos.add({ id: photoId, ...photoData, createdAt: now })
+    }
+    const { photoId: _, ...rest } = mix
+    await db.mixes.put({ ...rest, ...(photoId && { photoId }), updatedAt: now })
+  })
 }
 
 /** „Bearbeiten“: legt das Müsli mit seinen Snapshots als Entwurf in den Mixen-Screen. */

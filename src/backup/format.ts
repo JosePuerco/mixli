@@ -8,7 +8,8 @@ import { base64ToBytes } from './base64'
 
 export const BACKUP_APP = 'mixli'
 /** 2: Preise an Zutaten und in den Snapshots (optional, fehlen bei älteren Daten). */
-export const FORMAT_VERSION = 2
+/** 3: Foto am Müsli (photoId, optional). */
+export const FORMAT_VERSION = 3
 
 /** Einstellungen, die nur zu diesem Gerät gehören und weder exportiert noch importiert werden. */
 export const LAST_BACKUP_KEY = 'lastBackupAt'
@@ -66,6 +67,7 @@ const mix = z.object({
   id,
   name: text.min(1),
   forWhom: text.optional(),
+  photoId: id.optional(),
   items: z.array(
     z.object({
       ingredientId: id,

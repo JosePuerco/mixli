@@ -15,12 +15,14 @@ interface PhotoPickerProps {
   onChange: (photo: Blob | null) => void
   /** Meldet, solange ein Foto verkleinert wird (dann z. B. „Weiter“ sperren). */
   onBusyChange?: (busy: boolean) => void
+  /** Beschreibung des Fotos für Screenreader. */
+  alt?: string
 }
 
 /** So lange bleibt die Bestätigung „Foto übernommen“ stehen. */
 const CONFIRM_MS = 1400
 
-export function PhotoPicker({ photo, onChange, onBusyChange }: PhotoPickerProps) {
+export function PhotoPicker({ photo, onChange, onBusyChange, alt = 'Foto der Zutat' }: PhotoPickerProps) {
   const cameraRef = useRef<HTMLInputElement>(null)
   const galleryRef = useRef<HTMLInputElement>(null)
   const [busy, setBusy] = useState(false)
@@ -57,7 +59,7 @@ export function PhotoPicker({ photo, onChange, onBusyChange }: PhotoPickerProps)
     <div className="flex flex-col gap-gap-lg">
       <div className="relative flex h-80 flex-col items-center justify-center gap-2.5 overflow-hidden rounded-sheet bg-photo-1 text-sm font-semibold text-text-muted">
         {photo ? (
-          <PhotoView blob={photo} alt="Foto der Zutat" className="absolute inset-0" />
+          <PhotoView blob={photo} alt={alt} className="absolute inset-0" />
         ) : (
           <>
             <IconCamera size={40} />

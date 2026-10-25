@@ -52,20 +52,46 @@ export function backupCounts(data: BackupData) {
   }
 }
 
+/** Zutaten und Müslis können ein Foto haben. */
+type WithPhoto = { id: string; photoId?: string }
+
+/** Alle Foto-ids dieser Zeilen, ohne Doppelte. */
+function photoIdsOf(rows: readonly WithPhoto[]): string[] {
+  return [...new Set(rows.flatMap((r) => (r.photoId ? [r.photoId] : [])))]
+}
+
 /** Leert Verweise auf Kategorien oder Fotos, die es nicht gibt. Gibt die Anzahl zurück. */
-function fixRefs(ingredients: Ingredient[], categoryIds: Set<string>, photoIds: Set<string>): number {
+function fixRefs(ingredients: Ingredient[], mixes: Mix[], categoryIds: Set<string>, photoIds: Set<string>): number {
   let broken = 0
   for (const i of ingredients) {
     if (i.categoryId !== undefined && !categoryIds.has(i.categoryId)) {
       delete i.categoryId
       broken++
     }
-    if (i.photoId !== undefined && !photoIds.has(i.photoId)) {
-      delete i.photoId
+  }
+  for (const row of [...ingredients, ...mixes]) {
+    if (row.photoId !== undefined && !photoIds.has(row.photoId)) {
+      delete row.photoId
       broken++
     }
   }
   return broken
+}
+
+/**
+ * Fotos, die nach dem Überschreiben niemand mehr braucht: Die Zeile auf dem Gerät hatte ein Foto,
+ * die übernommene Version aus der Datei ein anderes (oder keins).
+ */
+function unusedAfterWrite<T extends WithPhoto>(onDevice: T[], written: T[], stillUsed: Set<string>): string[] {
+  const writtenIds = new Set(written.map((r) => r.id))
+  return onDevice.filter((r) => writtenIds.has(r.id) && r.photoId && !stillUsed.has(r.photoId)).map((r) => r.photoId!)
+}
+
+/** Zeilen nach dem Schreiben: überschriebene durch die neue Version ersetzt, neue dazu. */
+function afterWrite<T extends WithPhoto>(onDevice: T[], written: T[]): T[] {
+  const byId = new Map(onDevice.map((r) => [r.id, r]))
+  for (const r of written) byId.set(r.id, r)
+  return [...byId.values()]
 }
 
 /** Nimmt die Zeile aus der Datei, wenn es sie auf dem Gerät nicht gibt oder die Datei-Version neuer ist. */
@@ -85,7 +111,7 @@ export async function applyBackup(backup: BackupData, mode: ImportMode): Promise
   const file = backup.data
   // Kopien, damit fixRefs die geprüften Daten des Aufrufers nicht verändert.
   const fileIngredients: Ingredient[] = file.ingredients.map((i) => ({ ...i }))
-  const fileMixes: Mix[] = file.mixes
+  const fileMixes: Mix[] = file.mixes.map((m) => ({ ...m }))
   const fileCategories: Category[] = file.categories
   const filePhotos = new Map<string, Photo>(file.photos.map((p) => [p.id, p]))
   const fileSettings = file.settings.filter((s) => !DEVICE_SETTING_KEYS.includes(s.key))
@@ -97,11 +123,14 @@ export async function applyBackup(backup: BackupData, mode: ImportMode): Promise
       const settings = await db.settings.toArray()
       await db.settings.bulkDelete(settings.filter((s) => !DEVICE_SETTING_KEYS.includes(s.key)).map((s) => s.key))
 
-      const brokenRefs = fixRefs(fileIngredients, new Set(fileCategories.map((c) => c.id)), new Set(filePhotos.keys()))
-      // Nur Fotos, die eine Zutat auch benutzt.
-      const photos = [...new Set(fileIngredients.flatMap((i) => (i.photoId ? [i.photoId] : [])))].map(
-        (id) => filePhotos.get(id)!,
+      const brokenRefs = fixRefs(
+        fileIngredients,
+        fileMixes,
+        new Set(fileCategories.map((c) => c.id)),
+        new Set(filePhotos.keys()),
       )
+      // Nur Fotos, die eine Zutat oder ein Müsli auch benutzt.
+      const photos = photoIdsOf([...fileIngredients, ...fileMixes]).map((id) => filePhotos.get(id)!)
 
       await db.categories.bulkPut(fileCategories)
       await db.photos.bulkPut(photos)
@@ -134,26 +163,24 @@ export async function applyBackup(backup: BackupData, mode: ImportMode): Promise
     const devicePhotoIds = new Set(devicePhotos.map((p) => p.id))
     const brokenRefs = fixRefs(
       ingredients.write,
+      mixes.write,
       new Set([...knownCategoryIds, ...newCategories.map((c) => c.id)]),
       new Set([...devicePhotoIds, ...filePhotos.keys()]),
     )
 
-    // Fotos der übernommenen Zutaten, die auf dem Gerät noch fehlen.
-    const newPhotos = [...new Set(ingredients.write.flatMap((i) => (i.photoId ? [i.photoId] : [])))]
+    // Fotos der übernommenen Zutaten und Müslis, die auf dem Gerät noch fehlen.
+    const newPhotos = photoIdsOf([...ingredients.write, ...mixes.write])
       .filter((id) => !devicePhotoIds.has(id))
       .map((id) => filePhotos.get(id)!)
 
-    // Überschriebene Zutaten können ein anderes Foto gehabt haben; das wird dann nicht mehr gebraucht.
-    const written = new Map(ingredients.write.map((i) => [i.id, i]))
+    // Überschriebene Zeilen können ein anderes Foto gehabt haben; das wird dann nicht mehr gebraucht.
     const stillUsed = new Set(
-      deviceIngredients
-        .map((i) => written.get(i.id) ?? i)
-        .concat(ingredients.write)
-        .flatMap((i) => (i.photoId ? [i.photoId] : [])),
+      photoIdsOf([...afterWrite(deviceIngredients, ingredients.write), ...afterWrite(deviceMixes, mixes.write)]),
     )
-    const unusedPhotos = deviceIngredients
-      .filter((i) => written.has(i.id) && i.photoId && !stillUsed.has(i.photoId))
-      .map((i) => i.photoId!)
+    const unusedPhotos = [
+      ...unusedAfterWrite(deviceIngredients, ingredients.write, stillUsed),
+      ...unusedAfterWrite(deviceMixes, mixes.write, stillUsed),
+    ]
 
     const knownSettings = new Set(deviceSettings.map((s) => s.key))
     const newSettings = fileSettings.filter((s) => !knownSettings.has(s.key))

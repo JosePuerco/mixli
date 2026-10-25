@@ -22,6 +22,7 @@ import {
   saveIngredient,
   saveMix,
   setArchived,
+  setMixPhoto,
 } from './repo'
 import type { IngredientDraft } from '../domain/ingredient'
 import { addItem, emptyDraft, type MixDraft } from '../domain/mixDraft'
@@ -365,5 +366,43 @@ describe('Preise im Müsli', () => {
     const snapshot = (await db.mixes.get(mixId))?.items[0].snapshot
     expect(snapshot?.price).toEqual(price)
     expect(snapshot?.nutrition.protein).toBe(13.5)
+  })
+})
+
+describe('Foto am Müsli', () => {
+  async function mix() {
+    const oats = await saveIngredient(draft(), { kind: 'keep' })
+    return saveMix({ ...addItem(emptyDraft(), oats), name: 'Frühstück' })
+  }
+
+  it('setzt, ersetzt und entfernt das Foto und räumt alte Fotos weg', async () => {
+    const id = await mix()
+    await setMixPhoto(id, { kind: 'set', blob: blob('a') })
+    const first = (await db.mixes.get(id))!.photoId
+    expect(first).toBeDefined()
+
+    await setMixPhoto(id, { kind: 'set', blob: blob('b') })
+    const second = (await db.mixes.get(id))!.photoId
+    expect(second).not.toBe(first)
+    expect(await db.photos.count()).toBe(1)
+
+    await setMixPhoto(id, { kind: 'remove' })
+    expect((await db.mixes.get(id))!).not.toHaveProperty('photoId')
+    expect(await db.photos.count()).toBe(0)
+  })
+
+  it('bleibt beim Bearbeiten, fehlt beim Duplizieren und wird mit dem Müsli gelöscht', async () => {
+    const id = await mix()
+    await setMixPhoto(id, { kind: 'set', blob: blob('a') })
+    const photoId = (await db.mixes.get(id))!.photoId
+
+    await saveMix({ ...(await editMix(id)), name: 'Frühstück 2' })
+    expect((await db.mixes.get(id))?.photoId).toBe(photoId)
+
+    const copy = await saveMix({ ...(await duplicateMix(id)), name: 'Kopie' })
+    expect((await db.mixes.get(copy))?.photoId).toBeUndefined()
+
+    await deleteMix(id)
+    expect(await db.photos.count()).toBe(0)
   })
 })

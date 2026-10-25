@@ -130,6 +130,7 @@ Ein gespeichertes Müsli speichert eine **Kopie (Snapshot)** der Nährwerte und 
 | id | UUID | |
 | name | Text | |
 | forWhom | Text, optional | |
+| photoId | Verweis, optional | auf `photos`, Foto für den Katalog |
 | items | Liste | je: ingredientId, grams, Snapshot (Name, Nährwerte, Allergene, Spuren, Preis) |
 | note | Text, optional | |
 | createdAt, updatedAt | Datum | |
@@ -257,5 +258,12 @@ Wünsche vom 25.10.2026, nacheinander umgesetzt.
   - [x] Karte „Preis“ im Mixen-Screen und im Müsli-Detail: Gesamtpreis und Preis pro kg aus dem Snapshot (Preis von damals). Fehlt einer Zeile der Preis (Müsli von vor den Preisen): „Preis unvollständig“ mit den Zutaten; beim Bearbeiten und erneuten Speichern bekommen solche Zeilen den aktuellen Preis, die Nährwerte bleiben
   - [x] Backup `formatVersion` 2 mit Migration von 1 (Preise optional)
   - [ ] Auf dem iPhone testen: Preis eingeben (beide Arten, Komma), Pflicht bei alter Zutat, Preis im Mixen und Detail, altes Müsli neu speichern, Backup
-- [ ] Produktkatalog als PDF: Foto pro Müsli; Müslis für den Export auswählen; ein Müsli pro A4-Seite mit Foto, Name, Zutaten mit Anteilen, Allergenen/Spuren und Nährwerten pro 100 g, ohne Preis
+- [x] Foto am Müsli
+  - [x] Im Müsli-Detail „Foto – für den Katalog“ (Kamera/Galerie, sofort gespeichert), Vorschaubild in „Meine Müslis“; Bearbeiten behält das Foto, Duplizieren übernimmt keins, Löschen löscht es mit (`setMixPhoto`, `deleteMix` in `src/db/repo.ts`, mit Tests)
+  - [x] Backup `formatVersion` 3 mit Migration von 2; der Import übernimmt und räumt jetzt auch Fotos der Müslis auf (vorher nur die der Zutaten)
+  - [ ] Auf dem iPhone testen: Foto aufnehmen, ändern, entfernen, Backup mit Müsli-Foto
+- [ ] Produktkatalog als PDF
+  - Unter „Meine Müslis“ Button „Katalog“: Müslis auswählen (Häkchen, Alle/Keine), Titel eingeben, PDF teilen bzw. herunterladen
+  - Titelseite mit Titel, Datum und Übersicht der Müslis; danach ein Müsli pro A4-Seite mit Foto, Name, Zutaten mit Anteilen, Allergenen/Spuren und Nährwerten pro 100 g; ohne Preis, „für wen“ und Notiz
+  - Seiten werden wie das Etikett als HTML gezeichnet und als Bild ins PDF gelegt (Inhalt als reine Funktion mit Tests)
 - Datenmodell: Preise mit `formatVersion` 2, das Müsli-Foto bekommt `formatVersion` 3 (je mit Migration), damit beides einzeln veröffentlicht werden kann

@@ -53,6 +53,8 @@ export interface Mix {
   id: string
   name: string
   forWhom?: string
+  /** Foto des fertigen Müslis (für den Katalog), verweist auf `photos`. */
+  photoId?: string
   items: MixItem[]
   note?: string
   createdAt: Date

@@ -2,7 +2,7 @@
 import 'fake-indexeddb/auto'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { db } from '../db/db'
-import { loadDraft, saveDraft, saveIngredient } from '../db/repo'
+import { loadDraft, saveDraft, saveIngredient, setMixPhoto } from '../db/repo'
 import type { Ingredient, Mix } from '../db/types'
 import type { IngredientDraft } from '../domain/ingredient'
 import { base64ToBytes, bytesToBase64 } from './base64'
@@ -332,5 +332,60 @@ describe('Formatversion 1 (vor den Preisen)', () => {
     expect(result).toMatchObject({ ingredients: 1, mixes: 1 })
     expect((await db.ingredients.get(id))?.price).toBeUndefined()
     expect((await db.mixes.get('mix-1'))?.items[0].snapshot.price).toBeUndefined()
+  })
+})
+
+describe('Fotos an Müslis', () => {
+  async function mixWithPhoto(text: string) {
+    const id = await saveIngredient(draft(), { kind: 'keep' })
+    await db.mixes.put(mixOf((await db.ingredients.get(id))!))
+    await setMixPhoto('mix-1', { kind: 'set', blob: photoBlob(text) })
+    return (await db.mixes.get('mix-1'))!
+  }
+
+  it('kommen beim Ersetzen mit zurück', async () => {
+    const mix = await mixWithPhoto('schale')
+    const text = await exportText()
+    await resetDb()
+
+    const result = await importBackup(text, 'replace')
+    expect(result.photos).toBe(1)
+    expect((await db.mixes.get('mix-1'))?.photoId).toBe(mix.photoId)
+    expect(bytesText((await db.photos.get(mix.photoId!))!.data)).toBe('schale')
+  })
+
+  it('werden beim Zusammenführen übernommen, ein überschriebenes altes Foto wird weggeräumt', async () => {
+    const old = await mixWithPhoto('alt')
+    const oldPhoto = (await db.photos.get(old.photoId!))!
+    await setMixPhoto('mix-1', { kind: 'set', blob: photoBlob('neu') })
+    const newer = (await db.mixes.get('mix-1'))!
+    const text = await exportText()
+
+    await resetDb()
+    await db.photos.add(oldPhoto)
+    await db.mixes.put(old)
+    const result = await importBackup(text, 'merge')
+    expect(result.mixes).toBe(1)
+    expect((await db.mixes.get('mix-1'))?.photoId).toBe(newer.photoId)
+    expect(bytesText((await db.photos.get(newer.photoId!))!.data)).toBe('neu')
+    expect(await db.photos.get(old.photoId!)).toBeUndefined()
+  })
+
+  it('leeren einen Verweis auf ein fehlendes Foto', async () => {
+    await mixWithPhoto('x')
+    const file = JSON.parse(await exportText()) as BackupFile
+    await resetDb()
+    const result = await importBackup(JSON.stringify({ ...file, data: { ...file.data, photos: [] } }), 'replace')
+    expect(result.brokenRefs).toBe(1)
+    expect((await db.mixes.get('mix-1'))?.photoId).toBeUndefined()
+  })
+
+  it('Formatversion 2 wird hochgestuft', async () => {
+    await mixWithPhoto('x')
+    const file = JSON.parse(await exportText()) as BackupFile & { formatVersion: number }
+    expect(file.formatVersion).toBe(3)
+    await resetDb()
+    const result = await importBackup(JSON.stringify({ ...file, formatVersion: 2 }), 'replace')
+    expect(result.mixes).toBe(1)
   })
 })

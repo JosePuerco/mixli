@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { motion } from 'motion/react'
 import { IconCopy } from '../components/icons/Icons'
+import { IngredientPhoto } from '../components/ingredient/IngredientCard'
 import { MixBar } from '../components/mix/MixBar'
 import { FilterChipRow, FilterPanel } from '../components/mix/FilterPanel'
 import { useMuesliCheck } from '../components/mix/useMixFilter'
@@ -118,7 +119,8 @@ function MuesliCard({ mix, onOpen, onDuplicate }: MuesliCardProps) {
     <Card className="flex flex-col gap-gap-md">
       <motion.button type="button" whileTap={{ scale: 0.98 }} onClick={onOpen} className="flex flex-col gap-gap-md text-left">
         <span className="flex items-start justify-between gap-gap-md">
-          <span className="flex min-w-0 flex-col gap-0.5">
+          {mix.photoId && <IngredientPhoto id={mix.id} photoId={mix.photoId} className="size-14 shrink-0 rounded-photo" />}
+          <span className="flex min-w-0 flex-1 flex-col gap-0.5">
             <span className="text-lg font-bold">{mix.name}</span>
             <span className="text-label font-normal text-text-muted">{mixMeta(mix)}</span>
           </span>

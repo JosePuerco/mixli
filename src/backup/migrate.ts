@@ -15,6 +15,8 @@ type Migration = (file: RawBackup) => RawBackup
 export const migrations: Record<number, Migration> = {
   // 1 → 2: Preise kamen dazu. Sie sind optional, alte Dateien bleiben inhaltlich gleich.
   1: (file) => ({ ...file, formatVersion: 2 }),
+  // 2 → 3: Müslis können ein Foto haben (optional).
+  2: (file) => ({ ...file, formatVersion: 3 }),
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {
