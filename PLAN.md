@@ -235,3 +235,9 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
   - [x] iOS-Startbilder für alle iPhones (Hochformat und Querformat): Hintergrundfarbe, Motiv klein in der Mitte; Links in `index.html` (Generator gibt falsche Dateinamen mit „-light“ aus, daher von Hand korrigiert), nicht im Offline-Cache. Android baut den Startbildschirm selbst aus Icon und `background_color`
 - [x] Auf dem iPhone testen: Icon, Startbild, Zahlen, Übergänge, Karte bei 0 g, „Bewegung reduzieren“
 - [ ] Später optional: Barcode-Scan mit Open Food Facts
+
+### Nach 1.0 – Pflege (Versionen siehe `CHANGELOG.md`)
+
+- [x] 1.0.1: Backup-Export auf Android – Chrome teilt kein JSON, daher Download (auf dem Xiaomi 15 getestet)
+- [x] 1.0.1: Zwei-Finger-Zoom und Zoom per Doppeltippen gesperrt
+- [x] Versionsnummerierung nach SemVer: `CHANGELOG.md`, Tag `vX.Y.Z` pro Push mit `npm version`, Deployment prüft den Tag

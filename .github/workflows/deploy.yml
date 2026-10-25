@@ -27,6 +27,16 @@ jobs:
           node-version: 24
           cache: npm
 
+      # Jede veröffentlichte Version muss ihren Tag haben (Ablauf siehe CLAUDE.md, „Versionen“).
+      - name: Versions-Tag prüfen
+        run: |
+          TAG="v$(node -p "require('./package.json').version")"
+          git fetch --depth=1 origin "refs/tags/$TAG:refs/tags/$TAG" || { echo "::error::Tag $TAG fehlt – vor dem Push 'npm version …' ausführen."; exit 1; }
+          if [ "$(git rev-list -n 1 "$TAG")" != "$GITHUB_SHA" ]; then
+            echo "::error::Tag $TAG zeigt nicht auf diesen Commit – neue Version mit 'npm version …' anlegen."
+            exit 1
+          fi
+
       - run: npm ci
       - run: npm test
       - run: npm run build

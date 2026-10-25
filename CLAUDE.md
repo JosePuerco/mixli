@@ -22,6 +22,16 @@ Mixli ist eine Offline-PWA (React + TypeScript + Vite) zum Mischen von Müslis a
 - **Deployment:** GitHub Pages unter `/mixli/` – `base` in Vite und `scope`/`start_url` im Manifest müssen passen.
 - **Backup-Format** hat eine `formatVersion`. Bei Änderungen am Datenmodell eine Migration für alte Backups mitliefern.
 
+## Versionen
+
+- Schema `MAJOR.MINOR.PATCH` nach Semantic Versioning, Bedeutung siehe Kopf von `CHANGELOG.md`. Einzige Quelle ist `version` in `package.json`; die App zeigt sie unter „Mehr“ und schreibt sie ins Backup.
+- **Jeder Push nach GitHub ist eine Version.** Vor dem Push:
+  1. Alle Änderungen committen, dazu einen Eintrag in `CHANGELOG.md` mit neuer Nummer und Datum (inkl. Vergleichslink unten).
+  2. `npm version patch|minor|major -m "Version %s"` – erhöht `package.json` und `package-lock.json`, committet und setzt den Tag `vX.Y.Z`.
+  3. `git push --follow-tags` – Commits und Tag gemeinsam.
+- Das Deployment bricht ab, wenn der veröffentlichte Commit keinen passenden Tag `v<version>` hat.
+- Welche Stufe (patch/minor/major) passt, schlage ich vor dem Push kurz vor.
+
 ## Arbeitsweise
 
 - Ich lerne Claude Code mit diesem Projekt. Erkläre kurz, was du tust und warum.
