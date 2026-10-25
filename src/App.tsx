@@ -9,6 +9,7 @@ import { ZutatBearbeitenScreen } from './screens/ZutatBearbeitenScreen'
 import { MixenScreen } from './screens/MixenScreen'
 import { MueslisScreen } from './screens/MueslisScreen'
 import { MuesliDetailScreen } from './screens/MuesliDetailScreen'
+import { KatalogScreen } from './screens/KatalogScreen'
 import { MehrScreen } from './screens/MehrScreen'
 import { KomponentenScreen } from './screens/KomponentenScreen'
 
@@ -32,6 +33,7 @@ export function App() {
       <Route path="/zutaten/:id" element={<ZutatBearbeitenScreen />} />
       <Route path="/mixen" element={<MixenScreen />} />
       <Route path="/muesli" element={<MueslisScreen />} />
+      <Route path="/muesli/katalog" element={<KatalogScreen />} />
       <Route path="/muesli/:id" element={<MuesliDetailScreen />} />
       <Route path="/mehr" element={<MehrScreen />} />
       {/* Übersicht der UI-Bausteine zum Prüfen auf dem Handy, nicht in der Navigation verlinkt. */}

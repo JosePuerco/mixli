@@ -3,7 +3,7 @@
 // Allergene stehen bewusst nicht hinter jeder Zutat, sondern einmal gesammelt (sonst doppelt, z. B.
 // „Zutat 1 (Krebstiere), Zutat 2 (Eier, Krebstiere)“) – für selbst gemischtes Müsli übersichtlicher. Gerechnet wird mit den Snapshots,
 // gerundet nur hier für die Anzeige (rounding.ts). Die Darstellung übernimmt components/label/Label.tsx.
-import type { Mix } from '../db/types'
+import type { Mix, Nutrition } from '../db/types'
 import { formatDate } from '../lib/format'
 import { allergenDative, allergenLabel } from './allergens'
 import { mixAllergens, nutritionPer100g, totalGrams } from './mix'
@@ -72,22 +72,36 @@ export function buildLabel(mix: Pick<Mix, 'name' | 'items' | 'createdAt'>): Labe
     contains: contains.map(allergenLabel),
     traces: traces.length > 0 ? `Kann Spuren von ${joinGerman(traces.map(allergenDative))} enthalten.` : null,
     madeOn: `Hergestellt am ${formatDate(mix.createdAt)}.`,
-    nutrition: [
-      { label: 'Energie', value: `${formatNutrient('kj', nutrition.kj)} / ${formatNutrient('kcal', nutrition.kcal)}`, sub: false },
-      ...NUTRIENT_FIELDS.filter((f) => f.unit === 'g').map((f) => ({
-        label: SHORT_LABELS[f.key] ?? f.label,
-        value: formatNutrient(f.key, nutrition[f.key]),
-        sub: f.sub ?? false,
-      })),
-    ],
+    nutrition: nutritionRows(nutrition, SHORT_LABELS),
   }
+}
+
+/** Nährwerttabelle pro 100 g, gerundet: Energie (kJ / kcal) und die 7 weiteren Pflichtwerte. Auch für den Katalog. */
+export function nutritionRows(
+  nutrition: Nutrition,
+  labels: Partial<Record<NutrientKey, string>> = {},
+): LabelNutrientRow[] {
+  return [
+    { label: 'Energie', value: `${formatNutrient('kj', nutrition.kj)} / ${formatNutrient('kcal', nutrition.kcal)}`, sub: false },
+    ...NUTRIENT_FIELDS.filter((f) => f.unit === 'g').map((f) => ({
+      label: labels[f.key] ?? f.label,
+      value: formatNutrient(f.key, nutrition[f.key]),
+      sub: f.sub ?? false,
+    })),
+  ]
 }
 
 const UMLAUTS: Record<string, string> = { ä: 'ae', ö: 'oe', ü: 'ue', ß: 'ss' }
 
 /** Dateiname für PDF und Bild: „mixli-etikett-fruehstueck-basic.pdf“. */
 export function labelFileName(name: string, extension: 'pdf' | 'png'): string {
-  const slug = name
+  const slug = fileSlug(name)
+  return `mixli-etikett${slug ? `-${slug}` : ''}.${extension}`
+}
+
+/** Teil eines Dateinamens: „Frühstück Basic“ → „fruehstueck-basic“ (höchstens 60 Zeichen, kann leer sein). */
+export function fileSlug(name: string): string {
+  return name
     .toLowerCase()
     .replace(/[äöüß]/g, (c) => UMLAUTS[c])
     .normalize('NFKD')
@@ -97,5 +111,4 @@ export function labelFileName(name: string, extension: 'pdf' | 'png'): string {
     .replace(/^-+|-+$/g, '')
     .slice(0, 60)
     .replace(/-+$/, '')
-  return `mixli-etikett${slug ? `-${slug}` : ''}.${extension}`
 }

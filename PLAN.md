@@ -262,8 +262,9 @@ Wünsche vom 25.10.2026, nacheinander umgesetzt.
   - [x] Im Müsli-Detail „Foto – für den Katalog“ (Kamera/Galerie, sofort gespeichert), Vorschaubild in „Meine Müslis“; Bearbeiten behält das Foto, Duplizieren übernimmt keins, Löschen löscht es mit (`setMixPhoto`, `deleteMix` in `src/db/repo.ts`, mit Tests)
   - [x] Backup `formatVersion` 3 mit Migration von 2; der Import übernimmt und räumt jetzt auch Fotos der Müslis auf (vorher nur die der Zutaten)
   - [ ] Auf dem iPhone testen: Foto aufnehmen, ändern, entfernen, Backup mit Müsli-Foto
-- [ ] Produktkatalog als PDF
-  - Unter „Meine Müslis“ Button „Katalog“: Müslis auswählen (Häkchen, Alle/Keine), Titel eingeben, PDF teilen bzw. herunterladen
-  - Titelseite mit Titel, Datum und Übersicht der Müslis; danach ein Müsli pro A4-Seite mit Foto, Name, Zutaten mit Anteilen, Allergenen/Spuren und Nährwerten pro 100 g; ohne Preis, „für wen“ und Notiz
-  - Seiten werden wie das Etikett als HTML gezeichnet und als Bild ins PDF gelegt (Inhalt als reine Funktion mit Tests)
+- [x] Produktkatalog als PDF
+  - [x] Unter „Meine Müslis“ Button „Katalog als PDF“ → Screen „Katalog erstellen“ (`/muesli/katalog`): Titel (Vorgabe „Müsli-Katalog“), Müslis A–Z mit Häkchen (anfangs alle, „Alle“/„Keine“), „PDF erstellen (n Müslis)“ → Teilen-Menü bzw. Download; auf dem iPhone ggf. zweiter Tipp „PDF teilen“ wie beim Etikett
+  - [x] Titelseite mit Titel, Datum und Übersicht mit Seitenzahlen; danach ein Müsli pro A4-Seite: Foto (füllt den freien Platz, ohne Foto rückt der Text hoch), Name, Zutaten mit Anteilen, „Enthält:“, Spuren, volle Nährwerttabelle pro 100 g; ohne Preis, „für wen“ und Notiz. Inhalt als reine Funktion mit Tests (`src/domain/catalog.ts`, nutzt `buildLabel`)
+  - [x] Seiten als HTML in A4 gezeichnet (`CatalogPages.tsx`), je Seite JPEG in ca. 190 dpi ins PDF (`catalogExport.ts`, ca. 0,1–0,3 MB pro Seite); Seiten mit Foto werden zweimal gezeichnet, weil Safari Bilder beim ersten Durchlauf auslässt
+  - [ ] Auf dem iPhone testen: Auswahl, Titel, PDF teilen und drucken, Fotos und Fettschrift („Zutaten:“, „Enthält:“) im PDF, abgerundete Ecken von Foto und Nährwert-Kasten (Playwright-WebKit zeichnet beides nicht zuverlässig)
 - Datenmodell: Preise mit `formatVersion` 2, das Müsli-Foto bekommt `formatVersion` 3 (je mit Migration), damit beides einzeln veröffentlicht werden kann

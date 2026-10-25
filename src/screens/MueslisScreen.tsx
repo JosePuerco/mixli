@@ -88,6 +88,9 @@ export function MueslisScreen() {
                 </Button>
               </div>
             )}
+            <Button variant="surface" size="md" fullWidth onClick={() => navigate('/muesli/katalog')}>
+              Katalog als PDF
+            </Button>
           </>
         )}
       </Screen>
