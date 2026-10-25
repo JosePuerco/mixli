@@ -1,5 +1,5 @@
 // „Zutat bearbeiten“: dieselben Inhalte wie beim Anlegen, auf einer scrollbaren Seite.
-// Dazu Archivieren (statt Löschen) bzw. Wiederherstellen, wenn die Zutat archiviert ist.
+// Dazu Archivieren bzw. Wiederherstellen und Löschen (nur, wenn kein Müsli und nicht der Mix in Arbeit sie enthält).
 import { useId, useRef, useState, type ReactNode } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
@@ -12,9 +12,18 @@ import { PhotoPicker } from '../components/ingredient/PhotoPicker'
 import { BasicsFields } from '../components/ingredient/BasicsFields'
 import { NutritionFields } from '../components/ingredient/NutritionFields'
 import { AllergenGrid } from '../components/ingredient/AllergenGrid'
+import { IngredientInUseSheet } from '../components/ingredient/IngredientInUseSheet'
 import { db } from '../db/db'
 import { photoToBlob } from '../db/photo'
-import { saveIngredient, setArchived, type PhotoChange } from '../db/repo'
+import {
+  deleteIngredient,
+  ingredientUsage,
+  isUnused,
+  saveIngredient,
+  setArchived,
+  type IngredientUsage,
+  type PhotoChange,
+} from '../db/repo'
 import type { Ingredient } from '../db/types'
 import { parseNutritionInput, type NutritionErrors } from '../domain/nutrition'
 import {
@@ -105,7 +114,8 @@ function EditForm({ ingredient, initialPhoto }: EditFormProps) {
   const [showErrors, setShowErrors] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string>()
-  const [sheet, setSheet] = useState<'discard' | 'archive' | null>(null)
+  const [sheet, setSheet] = useState<'discard' | 'archive' | 'delete' | 'inUse' | null>(null)
+  const [usage, setUsage] = useState<IngredientUsage>({ mixes: [], inDraft: false })
   const bodyRef = useRef<HTMLElement>(null)
   const nameRef = useRef<HTMLInputElement>(null)
   const noteId = useId()
@@ -151,6 +161,24 @@ function EditForm({ ingredient, initialPhoto }: EditFormProps) {
   async function archive() {
     await setArchived(ingredient.id, true)
     goBack()
+  }
+
+  /** Erst prüfen, ob die Zutat noch verwendet wird: dann Hinweis statt Rückfrage. */
+  async function askDelete() {
+    const found = await ingredientUsage(ingredient.id)
+    setUsage(found)
+    setSheet(isUnused(found) ? 'delete' : 'inUse')
+  }
+
+  async function remove() {
+    // Zwischen Rückfrage und Bestätigen kann die Zutat in den Mix gekommen sein (anderer Tab).
+    const result = await deleteIngredient(ingredient.id)
+    if (result.deleted) {
+      goBack()
+    } else {
+      setUsage(result.usage)
+      setSheet('inUse')
+    }
   }
 
   return (
@@ -226,11 +254,16 @@ function EditForm({ ingredient, initialPhoto }: EditFormProps) {
             />
           </Section>
 
-          {!ingredient.archived && (
-            <Button variant="surface" size="md" fullWidth onClick={() => setSheet('archive')}>
-              Zutat archivieren
+          <div className="flex flex-col gap-gap-sm">
+            {!ingredient.archived && (
+              <Button variant="surface" size="md" fullWidth onClick={() => setSheet('archive')}>
+                Zutat archivieren
+              </Button>
+            )}
+            <Button variant="surface" size="md" fullWidth onClick={askDelete}>
+              Zutat löschen
             </Button>
-          )}
+          </div>
         </div>
       </FlowLayout>
 
@@ -255,6 +288,19 @@ function EditForm({ ingredient, initialPhoto }: EditFormProps) {
         confirmLabel="Archivieren"
         onConfirm={archive}
       />
+      <ConfirmSheet
+        open={sheet === 'delete'}
+        onClose={() => setSheet(null)}
+        title="Zutat löschen?"
+        text={
+          `„${ingredient.name}“ wird${ingredient.photoId ? ' mit Foto' : ''} endgültig gelöscht. ` +
+          'Das lässt sich nicht rückgängig machen.' +
+          (dirty ? ' Nicht gespeicherte Änderungen gehen verloren.' : '')
+        }
+        confirmLabel="Löschen"
+        onConfirm={remove}
+      />
+      <IngredientInUseSheet open={sheet === 'inUse'} onClose={() => setSheet(null)} usage={usage} />
     </>
   )
 }

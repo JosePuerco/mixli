@@ -6,9 +6,12 @@ import {
   addCategory,
   clearDraft,
   deleteCategory,
+  deleteIngredient,
   deleteMix,
   duplicateMix,
   editMix,
+  ingredientUsage,
+  isUnused,
   listCategories,
   listTags,
   loadDraft,
@@ -286,5 +289,58 @@ describe('Müslis', () => {
     await deleteMix(id)
     expect(await db.mixes.count()).toBe(0)
     expect(await db.ingredients.count()).toBe(2)
+  })
+})
+
+describe('Zutat löschen', () => {
+  async function mixWith(name: string, ingredientIds: string[]) {
+    const d = { ...ingredientIds.reduce(addItem, emptyDraft()), name }
+    return saveMix(d)
+  }
+
+  it('löscht eine unbenutzte Zutat samt Foto', async () => {
+    const id = await saveIngredient(draft(), { kind: 'set', blob: blob('abc') })
+    const other = await saveIngredient(draft({ name: 'Mandeln' }), { kind: 'set', blob: blob('def') })
+    expect(await deleteIngredient(id)).toEqual({ deleted: true })
+    expect(await db.ingredients.get(id)).toBeUndefined()
+    expect(await db.ingredients.get(other)).toBeDefined()
+    expect(await db.photos.count()).toBe(1)
+  })
+
+  it('löscht nicht, solange gespeicherte Müslis die Zutat enthalten, und nennt sie A–Z', async () => {
+    const oats = await saveIngredient(draft(), { kind: 'keep' })
+    const almonds = await saveIngredient(draft({ name: 'Mandeln' }), { kind: 'keep' })
+    const zMix = await mixWith('Zimt-Mix', [oats, almonds])
+    const aMix = await mixWith('Apfel-Mix', [oats])
+    await mixWith('Nur Mandeln', [almonds])
+
+    const result = await deleteIngredient(oats)
+    expect(result).toEqual({
+      deleted: false,
+      usage: { mixes: [{ id: aMix, name: 'Apfel-Mix' }, { id: zMix, name: 'Zimt-Mix' }], inDraft: false },
+    })
+    expect(await db.ingredients.get(oats)).toBeDefined()
+  })
+
+  it('zählt den Mix in Arbeit als Verwendung', async () => {
+    const oats = await saveIngredient(draft(), { kind: 'keep' })
+    await saveDraft(addItem(emptyDraft(), oats))
+    expect(await ingredientUsage(oats)).toEqual({ mixes: [], inDraft: true })
+    expect((await deleteIngredient(oats)).deleted).toBe(false)
+
+    await clearDraft()
+    expect((await deleteIngredient(oats)).deleted).toBe(true)
+  })
+
+  it('lässt sich löschen, nachdem sie aus dem Müsli entfernt wurde', async () => {
+    const oats = await saveIngredient(draft(), { kind: 'keep' })
+    const almonds = await saveIngredient(draft({ name: 'Mandeln' }), { kind: 'keep' })
+    const mixId = await mixWith('Frühstück', [oats, almonds])
+    expect((await deleteIngredient(oats)).deleted).toBe(false)
+
+    const edit = await editMix(mixId)
+    await saveMix({ ...edit, items: edit.items.filter((i) => i.ingredientId !== oats) })
+    expect(isUnused(await ingredientUsage(oats))).toBe(true)
+    expect((await deleteIngredient(oats)).deleted).toBe(true)
   })
 })

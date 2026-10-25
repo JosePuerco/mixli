@@ -51,13 +51,54 @@ export async function saveIngredient(draft: IngredientDraft, photo: PhotoChange,
   })
 }
 
-/** Archivieren statt Löschen: gespeicherte Müslis behalten so ihre Zutat. */
+/** Archivieren: Zutat verschwindet aus Liste und Mixen, gespeicherte Müslis behalten sie. */
 export async function setArchived(id: string, archived: boolean): Promise<void> {
   await db.ingredients.update(id, { archived, updatedAt: new Date() })
 }
 
+/** Wo eine Zutat verwendet wird: gespeicherte Müslis (A–Z) und der Mix in Arbeit. */
+export interface IngredientUsage {
+  mixes: { id: string; name: string }[]
+  inDraft: boolean
+}
+
+export function isUnused(usage: IngredientUsage): boolean {
+  return usage.mixes.length === 0 && !usage.inDraft
+}
+
+// Über toArray() statt where(...): Mehrfach-Abfragen öffnen Cursor, die in Safari 18 scheitern (siehe listTags).
+async function readUsage(id: string): Promise<IngredientUsage> {
+  const [mixes, draft] = await Promise.all([db.mixes.toArray(), db.settings.get(MIX_DRAFT_KEY)])
+  return {
+    mixes: mixes
+      .filter((m) => m.items.some((i) => i.ingredientId === id))
+      .map((m) => ({ id: m.id, name: m.name }))
+      .sort((a, b) => a.name.localeCompare(b.name, 'de')),
+    inDraft: !!draft && parseDraft(draft.value).items.some((i) => i.ingredientId === id),
+  }
+}
+
+export async function ingredientUsage(id: string): Promise<IngredientUsage> {
+  return db.transaction('r', db.mixes, db.settings, () => readUsage(id))
+}
+
 /**
- * Alle wählbaren Tags: Standard-Tags und alle eigenen Tags aus gespeicherten Zutaten.
+ * Löscht eine Zutat samt Foto, aber nur, wenn kein gespeichertes Müsli und nicht der Mix in Arbeit
+ * sie enthält. Sonst bleibt alles, wie es ist, und die Verwendung kommt zurück.
+ */
+export async function deleteIngredient(id: string): Promise<{ deleted: true } | { deleted: false; usage: IngredientUsage }> {
+  return db.transaction('rw', db.ingredients, db.photos, db.mixes, db.settings, async () => {
+    const usage = await readUsage(id)
+    if (!isUnused(usage)) return { deleted: false, usage }
+    const ingredient = await db.ingredients.get(id)
+    if (ingredient?.photoId) await db.photos.delete(ingredient.photoId)
+    await db.ingredients.delete(id)
+    return { deleted: true }
+  })
+}
+
+/**
+ * Alle wählbaren Tags:Standard-Tags und alle eigenen Tags aus gespeicherten Zutaten.
  * Bewusst über toArray() statt orderBy('tags').uniqueKeys(): uniqueKeys öffnet immer einen Cursor
  * (openKeyCursor, „nextunique“), und genau das scheitert in Safari 18 (iOS 18.7) mit
  * „UnknownError: Unable to open cursor“. toArray() nutzt getAll und läuft dort zuverlässig.

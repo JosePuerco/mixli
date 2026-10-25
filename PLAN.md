@@ -27,7 +27,7 @@ Mixli ist eine Offline-PWA für iOS und Android, mit der ich Müslis aus selbst 
 
 ### Zutaten (Rohzutaten)
 
-- Anlegen, bearbeiten, archivieren (statt löschen, damit gespeicherte Müslis intakt bleiben)
+- Anlegen, bearbeiten, archivieren; löschen nur, wenn kein gespeichertes Müsli und nicht der Mix in Arbeit sie enthält (sonst Hinweis mit diesen Müslis, erst dort entfernen)
 - **Foto** mit der Handykamera oder aus der Galerie; wird überall angezeigt (Liste, Mixen, Detail)
 - Name, Marke/Produkt, Kategorie (optional, frei anlegbar)
 - Nährwerte pro 100 g wie auf dem Etikett: Energie (kJ und kcal), Fett, davon gesättigte Fettsäuren, Kohlenhydrate, davon Zucker, Ballaststoffe, Eiweiß, Salz. kJ wird aus kcal vorgeschlagen (kcal × 4,184), ist aber überschreibbar.
@@ -119,7 +119,7 @@ Ein gespeichertes Müsli speichert eine **Kopie (Snapshot)** der Nährwerte und 
 | allergensTraces | Liste | aus den 14 EU-Allergenen |
 | tags | Liste | vegan, ohne Zuckerzusatz, Bio, eigene |
 | note | Text, optional | |
-| archived | Boolean | statt Löschen |
+| archived | Boolean | ausgeblendet, bleibt für Müslis erhalten |
 | createdAt, updatedAt | Datum | |
 
 ### `mixes`
@@ -241,3 +241,15 @@ Nach Phase 3 ist die App im Alltag nutzbar. Das Backup kommt bewusst früh, weil
 - [x] 1.0.1: Backup-Export auf Android – Chrome teilt kein JSON, daher Download (auf dem Xiaomi 15 getestet)
 - [x] 1.0.1: Zwei-Finger-Zoom und Zoom per Doppeltippen gesperrt
 - [x] Versionsnummerierung nach SemVer: `CHANGELOG.md`, Tag `vX.Y.Z` pro Push mit `npm version`, Deployment prüft den Tag
+
+### Erweiterung – Löschen, Preise, Katalog
+
+Wünsche vom 25.10.2026, nacheinander umgesetzt.
+
+- [x] Zutat löschen (in „Zutat bearbeiten“, auch archivierte)
+  - [x] Nur ohne Abhängigkeit: Enthält ein gespeichertes Müsli oder der Mix in Arbeit die Zutat, kommt statt der Rückfrage ein Hinweis mit diesen Müslis (A–Z, antippen öffnet sie); erst dort entfernen, dann löschen. Prüfen und Löschen in einer Transaktion, Foto wird mitgelöscht (`deleteIngredient`, `ingredientUsage` in `src/db/repo.ts`, mit Tests)
+  - Backup „Zusammenführen“ kennt kein Löschen: Eine gelöschte Zutat aus einem älteren Backup kommt dabei zurück
+  - [ ] Auf dem iPhone testen: Hinweis mit Müslis und Mix in Arbeit, Löschen mit und ohne Foto
+- [ ] Preis an Zutaten (Pflichtfeld bei neuen Zutaten; wahlweise Packungspreis + Packungsgröße oder Preis pro 100 g); im Müsli Gesamtpreis und Preis pro kg aus dem Snapshot (Preis von damals), nicht auf dem Etikett
+- [ ] Produktkatalog als PDF: Foto pro Müsli; Müslis für den Export auswählen; ein Müsli pro A4-Seite mit Foto, Name, Zutaten mit Anteilen, Allergenen/Spuren und Nährwerten pro 100 g, ohne Preis
+- Preis und Müsli-Foto ändern das Datenmodell: zusammen ein Sprung auf `formatVersion` 2 mit Migration
